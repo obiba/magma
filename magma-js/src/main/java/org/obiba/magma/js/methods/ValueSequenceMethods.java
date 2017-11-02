@@ -13,10 +13,7 @@ package org.obiba.magma.js.methods;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.mozilla.javascript.Callable;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.*;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -26,16 +23,19 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.*;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * JavaScript methods that operate on {@link ValueSequence} objects wrapped in {@link ScriptableValue} objects.
  */
-@SuppressWarnings({ "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass" })
+@SuppressWarnings({"UnusedDeclaration", "StaticMethodOnlyUsedInOneClass"})
 public class ValueSequenceMethods {
 
   private ValueSequenceMethods() {
@@ -49,7 +49,7 @@ public class ValueSequenceMethods {
    * </pre>
    */
   public static ScriptableValue isSequence(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-                                      @Nullable Function funObj) {
+                                           @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getValue().isSequence()));
   }
@@ -65,12 +65,12 @@ public class ValueSequenceMethods {
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue first(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
+                                      @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return valueSequence.getSize() > 0 //
           ? new ScriptableValue(thisObj, valueSequence.get(0)) //
@@ -95,12 +95,12 @@ public class ValueSequenceMethods {
    * @return
    */
   public static ScriptableValue firstNotNull(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-                                      @Nullable Function funObj) {
+                                             @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return valueSequence.getSize() > 0 //
           ? new ScriptableValue(thisObj, valueSequence.getValues().stream().filter(value -> !value.isNull())
@@ -122,12 +122,12 @@ public class ValueSequenceMethods {
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue last(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+                                     @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return valueSequence.getSize() > 0 //
           ? new ScriptableValue(thisObj, valueSequence.get(valueSequence.getSize() - 1)) //
@@ -145,12 +145,12 @@ public class ValueSequenceMethods {
    * </pre>
    */
   public static ScriptableValue size(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
+                                     @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, IntegerType.get().nullValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, IntegerType.get().valueOf(valueSequence.getSize()));
     } else {
@@ -171,14 +171,14 @@ public class ValueSequenceMethods {
   public static ScriptableValue valueAt(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
     Integer index = null;
-    if(args != null && args.length > 0) {
+    if (args != null && args.length > 0) {
       try {
         index = ((Number) IntegerType.get().valueOf(getRawValue(args[0])).getValue()).intValue();
-      } catch(MagmaRuntimeException e) {
+      } catch (MagmaRuntimeException e) {
         // ignore, will be handled after
       }
     }
@@ -186,7 +186,7 @@ public class ValueSequenceMethods {
     if (index == null) {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return valueSequence.getSize() > index && index >= 0 //
           ? new ScriptableValue(thisObj, valueSequence.get(index)) //
@@ -224,10 +224,10 @@ public class ValueSequenceMethods {
   private static Object getRawValue(Object object) {
     Object raw = object;
     if (raw instanceof ScriptableValue) {
-      raw = ((ScriptableValue)raw).getValue();
+      raw = ((ScriptableValue) raw).getValue();
     }
     if (raw instanceof Value) {
-      Value value = (Value)raw;
+      Value value = (Value) raw;
       raw = value.isNull() ? null : value.getValue();
     }
     return raw;
@@ -274,24 +274,24 @@ public class ValueSequenceMethods {
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue sort(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+                                     @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
 
     final ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
 
       ValueSequence sortedValueSequence = null;
-      if(args != null && args.length > 0 && args[0] instanceof Function) {
+      if (args != null && args.length > 0 && args[0] instanceof Function) {
         // Sort using a custom Comparator (javascript function)
         final Callable func = (Callable) args[0];
         sortedValueSequence = valueSequence.sort(new Comparator<Value>() {
           @Override
           public int compare(Value o1, Value o2) {
             return ((Number) func.call(ctx, sv.getParentScope(), sv,
-                new ScriptableValue[] { new ScriptableValue(sv, o1), new ScriptableValue(sv, o2) })).intValue();
+                new ScriptableValue[]{new ScriptableValue(sv, o1), new ScriptableValue(sv, o2)})).intValue();
           }
         });
       } else {
@@ -303,6 +303,76 @@ public class ValueSequenceMethods {
       // Sorting a single value produces that value.
       return sv;
     }
+  }
+
+  /**
+   * Returns the {@link ValueSequence} filtered using a custom predicate algorithm (javascript function returning a boolean value).
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').filter(function(value) {
+   *      return value.isNull().not();
+   *    })
+   * </pre>
+   *
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
+   */
+  public static ScriptableValue filter(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
+                                       @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+
+    final ScriptableValue sv = (ScriptableValue) thisObj;
+    if (sv.getValue().isNull() || args == null || args.length == 0)
+      return new ScriptableValue(thisObj, sv.getValue());
+    final Callable func;
+    if (args[0] instanceof Function) func = (Callable) args[0];
+    else func = null;
+
+    return filter(thisObj, value -> {
+      if (func == null) return false;
+      Object predicate = func.call(ctx, sv.getParentScope(), sv,
+          new ScriptableValue[]{new ScriptableValue(sv, value)});
+      if (predicate instanceof ScriptableValue)
+        predicate = ((ScriptableValue) predicate).getValue().getValue();
+      return (predicate instanceof Boolean) ? (Boolean) predicate : false;
+    });
+  }
+
+
+  /**
+   * Returns the {@link ValueSequence} after removing starting and ending null values.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').trim()
+   *   // is equivalent to
+   *   $('SequenceVar').filter(function(value) {
+   *      return value.isNull().not();
+   *    })
+   * </pre>
+   *
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
+   */
+  public static ScriptableValue trim(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
+                                       @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return filter(thisObj, value -> !value.isNull());
+  }
+
+
+  private static ScriptableValue filter(Scriptable thisObj, Predicate<Value> predicate) throws MagmaJsEvaluationRuntimeException {
+    final ScriptableValue sv = (ScriptableValue) thisObj;
+    if (sv.getValue().isNull() || predicate == null)
+      return new ScriptableValue(thisObj, sv.getValue());
+    List<Value> originalValues;
+    if (sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      originalValues = valueSequence.isNull() ? Lists.newArrayList() : valueSequence.getValues();
+    } else {
+      Value value = sv.getValue();
+      originalValues = value.isNull() ? Lists.newArrayList() : Lists.newArrayList(value);
+    }
+
+    List<Value> filteredValues = originalValues.stream().filter(predicate).collect(Collectors.toList());
+    ValueSequence filteredValueSequence = filteredValues.isEmpty() ?
+        sv.getValueType().nullSequence() : sv.getValueType().sequenceOf(filteredValues);
+    return new ScriptableValue(thisObj, filteredValueSequence);
   }
 
   /**
@@ -318,14 +388,14 @@ public class ValueSequenceMethods {
   public static ScriptableValue avg(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
-    if(!sv.getValueType().isNumeric()) {
+    if (!sv.getValueType().isNumeric()) {
       throw new MagmaJsEvaluationRuntimeException(
           "Operand to avg() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, DecimalType.get().valueOf(NumericMethods.average(valueSequence)),
           sv.getUnit());
@@ -348,14 +418,14 @@ public class ValueSequenceMethods {
   public static ScriptableValue stddev(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
-    if(!sv.getValueType().isNumeric()) {
+    if (!sv.getValueType().isNumeric()) {
       throw new MagmaJsEvaluationRuntimeException(
           "Operand to stddev() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, DecimalType.get().valueOf(NumericMethods.stddev(valueSequence)),
           sv.getUnit());
@@ -379,14 +449,14 @@ public class ValueSequenceMethods {
   public static ScriptableValue sum(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(!sv.getValueType().isNumeric()) {
+    if (!sv.getValueType().isNumeric()) {
       throw new MagmaJsEvaluationRuntimeException(
           "Operand to sum() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
     }
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, sv.getValueType().valueOf(NumericMethods.sum(valueSequence)), sv.getUnit());
     } else {
@@ -408,14 +478,14 @@ public class ValueSequenceMethods {
   public static ScriptableValue min(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(!sv.getValueType().isNumeric()) {
+    if (!sv.getValueType().isNumeric()) {
       throw new MagmaJsEvaluationRuntimeException(
           "Operand to min() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
     }
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, sv.getValueType().valueOf(NumericMethods.min(valueSequence)), sv.getUnit());
     } else {
@@ -438,14 +508,14 @@ public class ValueSequenceMethods {
   public static ScriptableValue max(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(!sv.getValueType().isNumeric()) {
+    if (!sv.getValueType().isNumeric()) {
       throw new MagmaJsEvaluationRuntimeException(
           "Operand to max() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
     }
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
-    if(sv.getValue().isSequence()) {
+    if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, sv.getValueType().valueOf(NumericMethods.max(valueSequence)), sv.getUnit());
     } else {
@@ -456,13 +526,13 @@ public class ValueSequenceMethods {
   /**
    * Push a value to a value to produce a value sequence. Also accepts a value sequence as input, in which case, both sequences
    * are concatenated to produce a single one (it does not produce a sequence of sequence).
-   *
+   * <p>
    * <p>If the value being added is not of the same type as the sequence, it will be converted to the
    * sequence's type. If the conversion fails, an exception is thrown.</p>
-   *
+   * <p>
    * <p>If the sequence is null, this method returns a null sequence. If the sequence is empty, this method returns a
    * new sequence containing the parameter(s). If the parameter is null, a null value is appended.</p>
-   *
+   * <p>
    * <pre>
    *   // Add a value to a sequence, then compute the average of the resulting sequence
    *   $('BloodPressure:Measure.RES_PULSE').push($('StandingHeight:FIRST_RES_PULSE')).avg();
@@ -484,22 +554,22 @@ public class ValueSequenceMethods {
     ValueType targetType = sv.getValueType();
     Iterable<Value> sequence;
     Value svValue = sv.getValue();
-    if(svValue.isNull()) {
+    if (svValue.isNull()) {
       return new ScriptableValue(thisObj, targetType.nullSequence());
     }
 
     sequence = svValue.isSequence() ? svValue.asSequence().getValue() : ImmutableList.of(svValue);
 
-    for(Object argument : args) {
+    for (Object argument : args) {
       Value value = argument instanceof ScriptableValue //
           ? ((ScriptableValue) argument).getValue() //
           : targetType.valueOf(argument);
 
-      if(value.getValueType() != targetType) {
+      if (value.getValueType() != targetType) {
         value = targetType.convert(value);
       }
 
-      if(value.isNull()) {
+      if (value.isNull()) {
         sequence = Iterables.concat(sequence, ImmutableList.of(targetType.nullValue()));
       } else {
         sequence = value.isSequence() //
@@ -514,13 +584,13 @@ public class ValueSequenceMethods {
   /**
    * Append a value to a value to produce a value sequence. Also accepts a value sequence as input, in which case, both sequences
    * are concatenated to produce a single one (it does not produce a sequence of sequence).
-   *
+   * <p>
    * <p>If the value being added is not of the same type as the sequence, it will be converted to the
    * sequence's type. If the conversion fails, an exception is thrown.</p>
-   *
+   * <p>
    * <p>If the sequence is null or empty, this method returns a
    * new sequence containing the parameter(s). If the parameter is null, a null value is appended.</p>
-   *
+   * <p>
    * <pre>
    *   // Append a value to a sequence, then compute the average of the resulting sequence
    *   $('BloodPressure:Measure.RES_PULSE').append($('StandingHeight:FIRST_RES_PULSE')).avg();
@@ -545,13 +615,13 @@ public class ValueSequenceMethods {
   /**
    * Prepend a value to a value to produce a value sequence. Also accepts a value sequence as input, in which case, both sequences
    * are concatenated to produce a single one (it does not produce a sequence of sequence).
-   *
+   * <p>
    * <p>If the value being added is not of the same type as the sequence, it will be converted to the
    * sequence's type. If the conversion fails, an exception is thrown.</p>
-   *
+   * <p>
    * <p>If the sequence is null or empty, this method returns a
    * new sequence containing the parameter(s). If the parameter is null, a null value is appended.</p>
-   *
+   * <p>
    * <pre>
    *   // Prepend a value to a sequence, then compute the average of the resulting sequence
    *   $('BloodPressure:Measure.RES_PULSE').prepend($('StandingHeight:FIRST_RES_PULSE')).avg();
@@ -589,13 +659,13 @@ public class ValueSequenceMethods {
   /**
    * Insert a value to a value to produce a value sequence. Also accepts a value sequence as input, in which case, both sequences
    * are merged to produce a single one (it does not produce a sequence of sequence).
-   *
+   * <p>
    * <p>If the value being added is not of the same type as the sequence, it will be converted to the
    * sequence's type. If the conversion fails, an exception is thrown.</p>
-   *
+   * <p>
    * <p>If the sequence is null or empty, this method returns a
    * new sequence containing the parameter(s). If the parameter is null, a null value is appended.</p>
-   *
+   * <p>
    * <pre>
    *   // Insert a value to a sequence, then compute the average of the resulting sequence
    *   $('BloodPressure:Measure.RES_PULSE').insertAt(0, $('StandingHeight:FIRST_RES_PULSE')).avg();
@@ -613,11 +683,11 @@ public class ValueSequenceMethods {
    */
   public static ScriptableValue insertAt(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
-    if (args == null || args.length<2) throw new IllegalArgumentException("Wrong insertAt() arguments.");
+    if (args == null || args.length < 2) throw new IllegalArgumentException("Wrong insertAt() arguments.");
     int position = ((Number) args[0]).intValue();
     Object[] argValues = new Object[args.length - 1];
-    for (int i=1;i<args.length; i++) {
-      argValues[i-1] = args[i];
+    for (int i = 1; i < args.length; i++) {
+      argValues[i - 1] = args[i];
     }
     List<Value> insertSequence = prepareValuesToInsert(thisObj, argValues);
 
@@ -626,7 +696,7 @@ public class ValueSequenceMethods {
     Iterable<Value> originalSequence = asIterableValues(sv.getValue());
 
     List<Value> sequence = Lists.newArrayList();
-    int i=0;
+    int i = 0;
     for (Value value : originalSequence) {
       if (i == position) {
         for (Value insertValue : insertSequence) {
@@ -636,11 +706,10 @@ public class ValueSequenceMethods {
       sequence.add(value);
       i++;
     }
-    while (position>=i) {
-      if (i<position) {
+    while (position >= i) {
+      if (i < position) {
         sequence.add(targetType.nullValue());
-      }
-      else if (i == position) {
+      } else if (i == position) {
         for (Value insertValue : insertSequence) {
           sequence.add(insertValue);
         }
@@ -684,7 +753,7 @@ public class ValueSequenceMethods {
    * the i-th element from each of the argument sequences. The returned list length is the length of the longest
    * argument sequence (shortest argument sequence values are null). Not sequential arguments have their value repeated
    * in each tuple.
-   *
+   * <p>
    * <pre>
    *   // returns "a1, b2, c3"
    *   $('SequenceVarAZ').zip($('SequenceVar19'), function(o1,o2) {
@@ -698,11 +767,11 @@ public class ValueSequenceMethods {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+  @SuppressWarnings({"OverlyLongMethod", "PMD.NcssMethodCount"})
   public static ScriptableValue zip(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(args == null || args.length == 0) {
+    if (args == null || args.length == 0) {
       return sv;
     }
 
@@ -712,31 +781,31 @@ public class ValueSequenceMethods {
     values.add(sv.getValue());
     int length = getValueSize(sv.getValue());
     Function func = null;
-    for(Object arg : args) {
-      if(arg instanceof ScriptableValue) {
+    for (Object arg : args) {
+      if (arg instanceof ScriptableValue) {
         Value value = ((ScriptableValue) arg).getValue();
         values.add(value);
         length = Math.max(length, getValueSize(value));
-      } else if(arg instanceof Function) {
+      } else if (arg instanceof Function) {
         func = (Function) arg;
-      } else if(arg != null) {
+      } else if (arg != null) {
         values.add(arg);
         length = Math.max(length, 1);
       }
     }
 
-    if(func == null) {
+    if (func == null) {
       throw new IllegalArgumentException("Zip requires a transform function.");
     }
 
-    if(length == 0) {
+    if (length == 0) {
       return new ScriptableValue(sv, sv.getValueType().nullSequence());
     }
 
     // Transform value tuples to build a value sequence
     ValueType rValueType = null;
     Collection<Value> rvalues = new ArrayList<>();
-    for(int i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++) {
       Value fvalue = asValue(func.call(ctx, sv.getParentScope(), sv, getTupleAsArguments(sv, values, i)));
       rValueType = fvalue.getValueType();
       rvalues.add(fvalue);
@@ -748,7 +817,7 @@ public class ValueSequenceMethods {
 
   private static int getValueSize(Value value) {
     int size = value.isNull() ? 0 : 1;
-    if(!value.isNull() && value.isSequence()) {
+    if (!value.isNull() && value.isSequence()) {
       size = value.asSequence().getSize();
     }
     return size;
@@ -762,11 +831,11 @@ public class ValueSequenceMethods {
 
   private static Object[] getTupleAsArguments(ScriptableValue sv, List<Object> values, int i) {
     Object[] objects = new Object[values.size()];
-    for(int j = 0; j < values.size(); j++) {
+    for (int j = 0; j < values.size(); j++) {
       Object obj = values.get(j);
-      if(obj instanceof Value) {
+      if (obj instanceof Value) {
         Value value = (Value) obj;
-        if(value.isSequence()) {
+        if (value.isSequence()) {
           value = getValueAt(value.asSequence(), i);
         }
         objects[j] = new ScriptableValue(sv, value);
@@ -799,7 +868,7 @@ public class ValueSequenceMethods {
   public static ScriptableValue join(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
+    if (sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, TextType.get().nullValue());
     }
     String delimiter = getArgumentAsString(args, 0);
@@ -814,11 +883,11 @@ public class ValueSequenceMethods {
   private static ScriptableValue joinValueSequence(ScriptableValue sv, String delimiter, String prefix, String suffix) {
     ValueSequence valueSequence = sv.getValue().asSequence();
     String rval = "";
-    if(valueSequence.getSize() > 0) {
+    if (valueSequence.getSize() > 0) {
       StringBuilder buffer = new StringBuilder(prefix);
-      for(int i = 0; i < valueSequence.getSize(); i++) {
+      for (int i = 0; i < valueSequence.getSize(); i++) {
         buffer.append(valueSequence.get(i));
-        if(i < valueSequence.getSize() - 1) {
+        if (i < valueSequence.getSize() - 1) {
           buffer.append(delimiter);
         }
       }
@@ -830,11 +899,11 @@ public class ValueSequenceMethods {
 
   private static ScriptableValue joinValue(ScriptableValue sv, String delimiter, String prefix, String suffix) {
     Value value = sv.getValue();
-    if(value.isNull()) {
+    if (value.isNull()) {
       return new ScriptableValue(sv, TextType.get().nullValue());
     } else {
       String rval = sv.toString();
-      if(rval != null && !rval.isEmpty()) {
+      if (rval != null && !rval.isEmpty()) {
         rval = prefix + rval + suffix;
       }
       return new ScriptableValue(sv, TextType.get().valueOf(rval));

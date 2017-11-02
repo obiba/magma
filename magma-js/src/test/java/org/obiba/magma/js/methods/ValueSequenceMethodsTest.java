@@ -402,6 +402,60 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertMethod("sort()", IntegerType.get().valueOf(4), IntegerType.get().valueOf(4));
   }
 
+  // filter
+
+  @Test
+  public void test_filter_integerValues() {
+    assertFilterIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "function(v) { return v.ge(2) }",
+        Values.asSequence(IntegerType.get(), 2, 3));
+    assertFilterIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "function(v) { return v.ge(4) }",
+        IntegerType.get().nullSequence());
+  }
+
+  @Test
+  public void test_filter_integerValuesValue() {
+    assertFilterIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "function(v) { return v.ge(2).value() }",
+        Values.asSequence(IntegerType.get(), 2, 3));
+  }
+
+  @Test
+  public void test_filter_emptyIntegerValues() {
+    assertFilterIs(Values.asSequence(IntegerType.get()), "function(v) { return v.ge(2) }",
+        IntegerType.get().nullSequence());
+  }
+
+  @Test
+  public void test_filter_nullValueSequence() {
+    assertFilterIs(IntegerType.get().nullSequence(), "function(v) { return v.ge(2) }",
+        IntegerType.get().nullSequence());
+  }
+
+  @Test
+  public void test_filter_nullValue() {
+    assertFilterIs(IntegerType.get().nullValue(), "function(v) { return v.ge(2) }",
+        IntegerType.get().nullSequence());
+  }
+
+  @Test
+  public void test_filter_nullValues() {
+    assertFilterIs(Values.asSequence(IntegerType.get(), 1, null, 3), "function(v) { return v.isNull().not() }",
+        Values.asSequence(IntegerType.get(), 1, 3));
+  }
+
+  @Test
+  public void test_filter_trim() {
+    assertFilterIs(Values.asSequence(IntegerType.get(),  null, 1, 2, 3, null, null), "function(v) { return v.isNull().not() }",
+        Values.asSequence(IntegerType.get(), 1, 2, 3));
+    //assertTrimIs(Values.asSequence(IntegerType.get(),  null, 1, 2, 3, null, null), Values.asSequence(IntegerType.get(), 1, 2, 3));
+  }
+
+  @Test
+  public void test_filter_singleValue() {
+    String function = "function(v) { return v.ge(2) }";
+    assertFilterIs(IntegerType.get().valueOf(2), function, Values.asSequence(IntegerType.get(), 2));
+    assertFilterIs(IntegerType.get().valueOf(1), function, IntegerType.get().nullSequence());
+  }
+
   // avg
 
   @Test
@@ -816,6 +870,30 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   private void assertZipIs(Value valueToZip, String args, Value expected) {
     ScriptableValue result = evaluate("zip(" + args + ")", valueToZip);
+    assertThat(result).isNotNull();
+
+    if(expected.isNull()) {
+      assertThat(result.getValue().isNull()).isTrue();
+    } else {
+      assertThat(result.getValue().isSequence()).isTrue();
+      assertThat(result.getValue().asSequence().getValue()).isEqualTo(expected.asSequence().getValue());
+    }
+  }
+
+  private void assertFilterIs(Value valueToFilter, String args, Value expected) {
+    ScriptableValue result = evaluate("filter(" + args + ")", valueToFilter);
+    assertThat(result).isNotNull();
+
+    if(expected.isNull()) {
+      assertThat(result.getValue().isNull()).isTrue();
+    } else {
+      assertThat(result.getValue().isSequence()).isTrue();
+      assertThat(result.getValue().asSequence().getValue()).isEqualTo(expected.asSequence().getValue());
+    }
+  }
+
+  private void assertTrimIs(Value valueToFilter, Value expected) {
+    ScriptableValue result = evaluate("trim()", valueToFilter);
     assertThat(result).isNotNull();
 
     if(expected.isNull()) {
