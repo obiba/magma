@@ -338,10 +338,10 @@ public class ValueSequenceMethods {
 
 
   /**
-   * Returns the {@link ValueSequence} after removing starting and ending null values.
+   * Returns the {@link ValueSequence} after removing null values.
    * <p/>
    * <pre>
-   *   $('SequenceVar').trim()
+   *   $('SequenceVar').trimmer()
    *   // is equivalent to
    *   $('SequenceVar').filter(function(value) {
    *      return value.isNull().not();
@@ -350,11 +350,10 @@ public class ValueSequenceMethods {
    *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
-  public static ScriptableValue trim(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
+  public static ScriptableValue trimmer(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
                                        @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
     return filter(thisObj, value -> !value.isNull());
   }
-
 
   private static ScriptableValue filter(Scriptable thisObj, Predicate<Value> predicate) throws MagmaJsEvaluationRuntimeException {
     final ScriptableValue sv = (ScriptableValue) thisObj;
