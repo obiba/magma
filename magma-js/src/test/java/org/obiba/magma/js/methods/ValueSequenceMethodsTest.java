@@ -446,7 +446,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void test_filter_trim() {
     assertFilterIs(Values.asSequence(IntegerType.get(),  null, 1, 2, 3, null, null), "function(v) { return v.isNull().not() }",
         Values.asSequence(IntegerType.get(), 1, 2, 3));
-    //assertTrimIs(Values.asSequence(IntegerType.get(),  null, 1, 2, 3, null, null), Values.asSequence(IntegerType.get(), 1, 2, 3));
+    assertTrimmerIs(Values.asSequence(IntegerType.get(),  null, 1, 2, 3, null, null), Values.asSequence(IntegerType.get(), 1, 2, 3));
   }
 
   @Test
@@ -892,8 +892,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     }
   }
 
-  private void assertTrimIs(Value valueToFilter, Value expected) {
-    ScriptableValue result = evaluate("trim()", valueToFilter);
+  private void assertTrimmerIs(Value valueToFilter, Value expected) {
+    ScriptableValue result = evaluate("trimmer()", valueToFilter);
     assertThat(result).isNotNull();
 
     if(expected.isNull()) {
