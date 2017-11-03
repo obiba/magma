@@ -413,6 +413,14 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_filter_integerPositions() {
+    assertFilterIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "function(v,i) { return i>0 }",
+        Values.asSequence(IntegerType.get(), 2, 3));
+    assertFilterIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "function(v,i) { return i>4 }",
+        IntegerType.get().nullSequence());
+  }
+
+  @Test
   public void test_filter_integerValuesValue() {
     assertFilterIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "function(v) { return v.ge(2).value() }",
         Values.asSequence(IntegerType.get(), 2, 3));
@@ -443,6 +451,13 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_filter_singleValue() {
+    String function = "function(v) { return v.ge(2) }";
+    assertFilterIs(IntegerType.get().valueOf(2), function, Values.asSequence(IntegerType.get(), 2));
+    assertFilterIs(IntegerType.get().valueOf(1), function, IntegerType.get().nullSequence());
+  }
+
+  @Test
   public void test_filter_trim() {
     assertFilterIs(Values.asSequence(IntegerType.get(),  null, 1, 2, 3, null, null), "function(v) { return v.isNull().not() }",
         Values.asSequence(IntegerType.get(), 1, 2, 3));
@@ -450,10 +465,21 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_filter_singleValue() {
-    String function = "function(v) { return v.ge(2) }";
-    assertFilterIs(IntegerType.get().valueOf(2), function, Values.asSequence(IntegerType.get(), 2));
-    assertFilterIs(IntegerType.get().valueOf(1), function, IntegerType.get().nullSequence());
+  public void test_filter_subsetFrom() {
+    assertFilterIs(Values.asSequence(IntegerType.get(),  1, 2, 3, 4), "function(v,i) { return i>=1 }",
+        Values.asSequence(IntegerType.get(), 2, 3, 4));
+    assertSubsetIs(Values.asSequence(IntegerType.get(),  1, 2, 3, 4), "1",
+        Values.asSequence(IntegerType.get(), 2, 3, 4));
+    assertSubsetIs(Values.asSequence(IntegerType.get(),  1, 2, 3, 4), "5",
+        IntegerType.get().nullSequence());
+  }
+
+  @Test
+  public void test_filter_subsetFromTo() {
+    assertFilterIs(Values.asSequence(IntegerType.get(),  1, 2, 3, 4), "function(v,i) { return i>=1 && i<3 }",
+        Values.asSequence(IntegerType.get(), 2, 3));
+    assertSubsetIs(Values.asSequence(IntegerType.get(),  1, 2, 3, 4), "1,3",
+        Values.asSequence(IntegerType.get(), 2, 3));
   }
 
   // avg
@@ -870,30 +896,25 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   private void assertZipIs(Value valueToZip, String args, Value expected) {
     ScriptableValue result = evaluate("zip(" + args + ")", valueToZip);
-    assertThat(result).isNotNull();
-
-    if(expected.isNull()) {
-      assertThat(result.getValue().isNull()).isTrue();
-    } else {
-      assertThat(result.getValue().isSequence()).isTrue();
-      assertThat(result.getValue().asSequence().getValue()).isEqualTo(expected.asSequence().getValue());
-    }
+    assertResultIs(result, expected);
   }
 
   private void assertFilterIs(Value valueToFilter, String args, Value expected) {
     ScriptableValue result = evaluate("filter(" + args + ")", valueToFilter);
-    assertThat(result).isNotNull();
-
-    if(expected.isNull()) {
-      assertThat(result.getValue().isNull()).isTrue();
-    } else {
-      assertThat(result.getValue().isSequence()).isTrue();
-      assertThat(result.getValue().asSequence().getValue()).isEqualTo(expected.asSequence().getValue());
-    }
+    assertResultIs(result, expected);
   }
 
   private void assertTrimmerIs(Value valueToFilter, Value expected) {
     ScriptableValue result = evaluate("trimmer()", valueToFilter);
+    assertResultIs(result, expected);
+  }
+
+  private void assertSubsetIs(Value valueToFilter, String args, Value expected) {
+    ScriptableValue result = evaluate("subset(" + args + ")", valueToFilter);
+    assertResultIs(result, expected);
+  }
+
+  private void assertResultIs(ScriptableValue result, Value expected) {
     assertThat(result).isNotNull();
 
     if(expected.isNull()) {

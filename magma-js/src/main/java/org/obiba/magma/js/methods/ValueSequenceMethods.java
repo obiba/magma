@@ -326,16 +326,15 @@ public class ValueSequenceMethods {
     if (args[0] instanceof Function) func = (Callable) args[0];
     else func = null;
 
-    return filter(thisObj, value -> {
+    return filter(thisObj, (value, index) -> {
       if (func == null) return false;
       Object predicate = func.call(ctx, sv.getParentScope(), sv,
-          new ScriptableValue[]{new ScriptableValue(sv, value)});
+          new Object[]{new ScriptableValue(sv, value), index});
       if (predicate instanceof ScriptableValue)
         predicate = ((ScriptableValue) predicate).getValue().getValue();
       return (predicate instanceof Boolean) ? (Boolean) predicate : false;
     });
   }
-
 
   /**
    * Returns the {@link ValueSequence} after removing null values.
@@ -352,10 +351,41 @@ public class ValueSequenceMethods {
    */
   public static ScriptableValue trimmer(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
                                        @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
-    return filter(thisObj, value -> !value.isNull());
+    return filter(thisObj, (value, index) -> !value.isNull());
   }
 
-  private static ScriptableValue filter(Scriptable thisObj, Predicate<Value> predicate) throws MagmaJsEvaluationRuntimeException {
+  /**
+   * Returns the {@link ValueSequence} after subsetting the values.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').subset(1,4)
+   *   // is equivalent to
+   *   $('SequenceVar').filter(function(value,index) {
+   *      return index>=1 && index<4;
+   *    })
+   * </pre>
+   *
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
+   */
+  public static ScriptableValue subset(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
+                                        @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+
+    final ScriptableValue sv = (ScriptableValue) thisObj;
+    if (sv.getValue().isNull() || args == null || args.length == 0)
+      return new ScriptableValue(thisObj, sv.getValue());
+    final int from = asInteger(args[0]);
+    final int to = args.length>1 ? asInteger(args[1]) : Integer.MAX_VALUE;
+    return filter(thisObj, (value, index) -> index>=from && index<to);
+  }
+
+  private static int asInteger(Object arg) {
+    if (arg instanceof ScriptableValue) {
+      return asInteger(IntegerType.get().convert(((ScriptableValue)arg).getValue()).getValue());
+    }
+    return ((Number)arg).intValue();
+  }
+
+  private static ScriptableValue filter(Scriptable thisObj, ValueSequencePredicate predicate) throws MagmaJsEvaluationRuntimeException {
     final ScriptableValue sv = (ScriptableValue) thisObj;
     if (sv.getValue().isNull() || predicate == null)
       return new ScriptableValue(thisObj, sv.getValue());
@@ -368,10 +398,18 @@ public class ValueSequenceMethods {
       originalValues = value.isNull() ? Lists.newArrayList() : Lists.newArrayList(value);
     }
 
-    List<Value> filteredValues = originalValues.stream().filter(predicate).collect(Collectors.toList());
+    List<Value> filteredValues = Lists.newArrayList();
+    for (int i=0; i<originalValues.size(); i++) {
+      Value value = originalValues.get(i);
+      if (predicate.test(value, i)) filteredValues.add(value);
+    }
     ValueSequence filteredValueSequence = filteredValues.isEmpty() ?
         sv.getValueType().nullSequence() : sv.getValueType().sequenceOf(filteredValues);
     return new ScriptableValue(thisObj, filteredValueSequence);
+  }
+
+  private interface ValueSequencePredicate {
+    boolean test(Value value, int index);
   }
 
   /**
