@@ -606,19 +606,30 @@ public class NumericMethods {
   }
 
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
-    BigDecimal value = asBigDecimal(thisObj);
-    if(value == null) return BooleanType.get().nullValue();
-    for(Object argument : args) {
+    if (thisObj.getValue().isSequence()) {
+      for (Value value : thisObj.getValue().asSequence().getValue()) {
+        Value res = compare(value, args, comparator);
+        if (BooleanType.get().trueValue().equals(res)) return BooleanType.get().trueValue();
+      }
+      return BooleanType.get().falseValue();
+    } else
+      return compare(thisObj.getValue(), args, comparator);
+  }
+
+  static Value compare(Value valueObj, Object args[], Comps comparator) {
+    BigDecimal value = asBigDecimal(valueObj);
+    if (value == null) return BooleanType.get().nullValue();
+    for (Object argument : args) {
       BigDecimal rhs = asBigDecimal(argument);
-      if(rhs == null) return BooleanType.get().nullValue();
-      if(!comparator.apply(value.compareTo(rhs))) {
+      if (rhs == null) return BooleanType.get().nullValue();
+      if (!comparator.apply(value.compareTo(rhs))) {
         return BooleanType.get().falseValue();
       }
     }
     return BooleanType.get().trueValue();
   }
 
-  static ScriptableValue operate(ScriptableValue thisObj, Object args[], Unary operation) {
+    static ScriptableValue operate(ScriptableValue thisObj, Object args[], Unary operation) {
     try {
       BigDecimal value = asBigDecimal(thisObj);
       if(value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
@@ -690,15 +701,18 @@ public class NumericMethods {
   }
 
   static BigDecimal asBigDecimal(ScriptableValue scriptableValue) {
-    if(scriptableValue == null) throw new IllegalArgumentException("value cannot be null");
-    Value value = scriptableValue.getValue();
+    if (scriptableValue == null) throw new IllegalArgumentException("value cannot be null");
+    return asBigDecimal(scriptableValue.getValue());
+  }
+
+  static BigDecimal asBigDecimal(Value value) {
     if(value.isNull()) {
       // Throw a runtime exception if the null value provided in scriptableValue argument is not convertible to decimal.
       // This is to manipulate the null value only created by a "Number" Type.
-      ValueType.Factory.converterFor(scriptableValue.getValueType(), DecimalType.get());
+      ValueType.Factory.converterFor(value.getValueType(), DecimalType.get());
       return null;
     }
-    if(scriptableValue.getValueType().isNumeric()) {
+    if(value.getValueType().isNumeric()) {
       return new BigDecimal(((Number) value.getValue()).doubleValue());
     }
     Value decimalValue = DecimalType.get().convert(value);
