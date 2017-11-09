@@ -330,8 +330,10 @@ public class ValueSequenceMethods {
       if (func == null) return false;
       Object predicate = func.call(ctx, sv.getParentScope(), sv,
           new Object[]{new ScriptableValue(sv, value), index});
-      if (predicate instanceof ScriptableValue)
-        predicate = ((ScriptableValue) predicate).getValue().getValue();
+      if (predicate instanceof ScriptableValue) {
+        Value val = ((ScriptableValue) predicate).getValue();
+        predicate = val.isNull() ? false : val.getValue();
+      }
       return (predicate instanceof Boolean) ? (Boolean) predicate : false;
     });
   }
