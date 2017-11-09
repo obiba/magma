@@ -607,11 +607,13 @@ public class NumericMethods {
 
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
     if (thisObj.getValue().isSequence()) {
+      ValueSequence seq = thisObj.getValue().asSequence();
+      if (seq.isNull() || seq.getSize() == 0) return BooleanType.get().nullValue();
       for (Value value : thisObj.getValue().asSequence().getValue()) {
         Value res = compare(value, args, comparator);
-        if (BooleanType.get().trueValue().equals(res)) return BooleanType.get().trueValue();
+        if (!BooleanType.get().trueValue().equals(res)) return BooleanType.get().falseValue();
       }
-      return BooleanType.get().falseValue();
+      return BooleanType.get().trueValue();
     } else
       return compare(thisObj.getValue(), args, comparator);
   }
