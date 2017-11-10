@@ -13,6 +13,7 @@ package org.obiba.magma.js.methods;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.obiba.magma.Value;
@@ -45,6 +46,36 @@ public class BooleanMethodsTest extends AbstractJsTest {
   @Test
   public void texAnyNoArgsFalse() {
     assertMethod("any()", TextType.get().valueOf("CAT2"), BooleanType.get().falseValue());
+  }
+
+  @Test
+  public void testAnyFunctionOnSequence() {
+    assertMethod("any(function(v) { return v.ge(3) })", IntegerType.get().sequenceOf("1,2,3,4"), BooleanType.get().trueValue());
+    assertMethod("any(function(v) { return v.ge(30) })", IntegerType.get().sequenceOf("1,2,3,4"), BooleanType.get().falseValue());
+  }
+
+  @Test
+  public void testAnyFunctionOnSequenceWithNull() {
+    assertMethod("any(function(v) { return v.ge(3) })", IntegerType.get().sequenceOf(Lists.newArrayList(
+        IntegerType.get().valueOf(1), IntegerType.get().nullValue(),
+        IntegerType.get().valueOf(2), IntegerType.get().nullValue(),
+        IntegerType.get().valueOf(3), IntegerType.get().nullValue())), BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void testAnyFunctionOnNullSequence() {
+    assertMethod("any(function(v) { return v.ge(3) })", IntegerType.get().nullSequence(), BooleanType.get().falseValue());
+  }
+
+  @Test
+  public void testAnyFunctionOnSingleValue() {
+    assertMethod("any(function(v) { return v.ge(3) })", IntegerType.get().valueOf("4"), BooleanType.get().trueValue());
+    assertMethod("any(function(v) { return v.ge(30) })", IntegerType.get().valueOf("4"), BooleanType.get().falseValue());
+  }
+
+  @Test
+  public void testAnyFunctionOnNullSingleValue() {
+    assertMethod("any(function(v) { return v.ge(3) })", IntegerType.get().nullValue(), BooleanType.get().falseValue());
   }
 
   @Test

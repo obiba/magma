@@ -10,6 +10,8 @@
 
 package org.obiba.magma;
 
+import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 
 import javax.annotation.Nullable;
@@ -93,7 +95,7 @@ public class Value implements Serializable, Comparable<Value> {
   @SuppressWarnings("ClassReferencesSubclass")
   @NotNull
   public ValueSequence asSequence() {
-    throw new IllegalStateException("value is not a sequence");
+    return isNull() ? getValueType().nullSequence() : getValueType().sequenceOf(Lists.newArrayList(this));
   }
 
   @Nullable
