@@ -16,11 +16,13 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ValueTest extends AbstractValueTest {
 
-  @Test(expected = RuntimeException.class)
-  public void test_asSequence_throwsExceptionWhenNotASequence() {
+  @Test
+  public void test_asSequence_NotASequence() {
     Value value = testValue();
     assertThat(value.isSequence()).isFalse();
-    value.asSequence();
+    ValueSequence sequence = value.asSequence();
+    assertThat(sequence.isSequence()).isTrue();
+    assertThat(sequence.getSize()).isEqualTo(1);
   }
 
   @Override
