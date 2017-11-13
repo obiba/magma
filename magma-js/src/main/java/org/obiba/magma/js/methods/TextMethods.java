@@ -356,7 +356,7 @@ public class TextMethods {
    * @return
    */
   public static ScriptableValue map(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    if(args == null || args.length < 1 || !(args[0] instanceof NativeObject)) {
+    if(args == null || args.length < 1 || (!(args[0] instanceof NativeObject) && !(args[0] instanceof Function))) {
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to map()");
     }
 
@@ -376,13 +376,15 @@ public class TextMethods {
       }
       Collection<Value> newValues = new ArrayList<>();
       //noinspection ConstantConditions
+      int idx = 0;
       for(Value value : currentValue.asSequence().getValue()) {
-        newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultArg, nullArg));
+        newValues.add(lookupValue(ctx, thisObj, value, idx, returnType, valueMap, defaultArg, nullArg));
+        idx++;
       }
       return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
     }
     return new ScriptableValue(thisObj,
-        lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultArg, nullArg));
+        lookupValue(ctx, thisObj, currentValue, -1, returnType, valueMap, defaultArg, nullArg));
   }
 
   /**
@@ -531,24 +533,31 @@ public class TextMethods {
    * @param ctx
    * @param thisObj
    * @param value
+   * @param idx the position of the value in its value sequence (-1 if single value)
    * @param returnType
    * @param valueMap
    * @return
    */
   @SuppressWarnings("PMD.ExcessiveParameterList")
-  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType,
+  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, int idx, ValueType returnType,
       Scriptable valueMap, Object defaultArg, Object nullArg) {
 
-    if(value.isNull()) return nullValue(ctx, thisObj, returnType, defaultArg, nullArg);
-
-    // MAGMA-163: lookup using string and index-based keys
-    String asName = value.toString();
-    Object newValue = valueMap.get(asName, null);
-    if(newValue == NativeObject.NOT_FOUND) {
-      // Not found, try converting the input to an Integer and use an indexed-lookup if it works
-      Integer index = asJsIndex(value);
-      if(index != null) {
-        newValue = valueMap.get(index, null);
+    Object newValue;
+    if (valueMap instanceof Function) {
+      ScriptableValue scrValue = new ScriptableValue(thisObj, value);
+      Object[] valueArgs = idx>=0 ? new Object[]{ scrValue, idx } : new Object[]{ scrValue };
+      newValue = callValueFunction(ctx, thisObj, (Function) valueMap, valueArgs);
+    } else {
+      if(value.isNull()) return nullValue(ctx, thisObj, returnType, defaultArg, nullArg);
+      // MAGMA-163: lookup using string and index-based keys
+      String asName = value.toString();
+      newValue = valueMap.get(asName, null);
+      if (newValue == NativeObject.NOT_FOUND) {
+        // Not found, try converting the input to an Integer and use an indexed-lookup if it works
+        Integer index = asJsIndex(value);
+        if (index != null) {
+          newValue = valueMap.get(index, null);
+        }
       }
     }
 

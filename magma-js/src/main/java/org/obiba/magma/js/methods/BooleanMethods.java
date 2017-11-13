@@ -59,6 +59,7 @@ public class BooleanMethods {
         int idx = 0;
         for (Value value : sv.getValue().asSequence().getValue()) {
           Object predicate = func.call(ctx, sv.getParentScope(), sv, new Object[]{new ScriptableValue(sv, value), idx});
+          idx++;
           if (predicate instanceof ScriptableValue) {
             Value val = ((ScriptableValue) predicate).getValue();
             predicate = val.isNull() ? false : val.getValue();
