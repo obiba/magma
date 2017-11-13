@@ -355,7 +355,61 @@ public class TextMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void testMapWithFunctionMapping() {
+  public void testMapWithFunctionMappingOnValueSequence() {
+    ScriptableValue value = evaluate("map(function(value,idx){return idx == 0 ? 1 : 2})",
+        TextType.get().sequenceOf("YES,NO"));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isSequence()).isTrue();
+    assertThat(value.getValue().asSequence().get(0)).isEqualTo(TextType.get().valueOf("1"));
+    assertThat(value.getValue().asSequence().get(1)).isEqualTo(TextType.get().valueOf("2"));
+    value = evaluate("map(function(value,idx){return value.eq('YES').value() ? 1 : 2})",
+        TextType.get().sequenceOf("YES,NO"));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isSequence()).isTrue();
+    assertThat(value.getValue().asSequence().get(0)).isEqualTo(TextType.get().valueOf("1"));
+    assertThat(value.getValue().asSequence().get(1)).isEqualTo(TextType.get().valueOf("2"));
+  }
+
+  @Test
+  public void testMapWithFunctionMappingOnSingleValue() {
+    ScriptableValue value = evaluate("map(function(value){return value.eq('YES').value() ? 1 : 2})",
+        TextType.get().valueOf("YES"));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isSequence()).isFalse();
+    assertThat(value.getValue()).isEqualTo(TextType.get().valueOf("1"));
+  }
+
+  @Test
+  public void testMapWithFunctionMappingOnNullValueSequence() {
+    ScriptableValue value = evaluate("map(function(value){return value.isNull().value() ? 9 : (value.eq('YES').value() ? 1 : 2)})",
+        TextType.get().sequenceOf("YES,,NO"));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isSequence()).isTrue();
+    assertThat(value.getValue().asSequence().get(0)).isEqualTo(TextType.get().valueOf("1"));
+    assertThat(value.getValue().asSequence().get(1)).isEqualTo(TextType.get().valueOf("9"));
+    assertThat(value.getValue().asSequence().get(2)).isEqualTo(TextType.get().valueOf("2"));
+  }
+
+  @Test
+  public void testMapWithFunctionMappingOnValueSequenceWithNull() {
+    ScriptableValue value = evaluate("map(function(value){return value.isNull().value() ? 9 : (value.eq('YES').value() ? 1 : 2)})",
+        TextType.get().nullValue());
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isSequence()).isFalse();
+    assertThat(value.getValue()).isEqualTo(TextType.get().valueOf("9"));
+  }
+
+  @Test
+  public void testMapWithFunctionMappingOnSingleNullValue() {
+    ScriptableValue value = evaluate("map(function(value){return value.isNull().value() ? 9 : (value.eq('YES').value() ? 1 : 2)})",
+        TextType.get().nullValue());
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isSequence()).isFalse();
+    assertThat(value.getValue()).isEqualTo(TextType.get().valueOf("9"));
+  }
+
+  @Test
+  public void testMapWithValueMapFunctionMapping() {
     ScriptableValue value = evaluate("map({'YES':function(value){return value.concat('-YES');}, 'NO':2})",
         TextType.get().valueOf("YES"));
     assertThat(value).isNotNull();
