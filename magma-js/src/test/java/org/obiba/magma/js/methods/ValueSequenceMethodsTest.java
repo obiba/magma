@@ -482,6 +482,46 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
         Values.asSequence(IntegerType.get(), 2, 3));
   }
 
+  // reduce
+
+  @Test
+  public void test_filter_reduce_to_sum() {
+    assertReduceIs(Values.asSequence(IntegerType.get(), 1, 2, 3, 4), "function(a,v,i) { return a.plus(v) }",
+        IntegerType.get().valueOf(10));
+  }
+
+  @Test
+  public void test_filter_reduce_null_value_to_sum() {
+    assertReduceIs(IntegerType.get().nullSequence(), "function(a,v,i) { return a.plus(v) }",
+        IntegerType.get().nullValue());
+  }
+
+  @Test
+  public void test_filter_reduce_single_value_to_sum() {
+    assertReduceIs(IntegerType.get().valueOf(1), "function(a,v,i) { return a.plus(v) }",
+        IntegerType.get().valueOf(1));
+  }
+
+  @Test
+  public void test_filter_reduce_sequence_with_null_to_sum() {
+    assertReduceIs(Values.asSequence(IntegerType.get(),  1, 2, null, 3, 4), "function(a,v,i) { return a.plus(v) }",
+        IntegerType.get().valueOf(10));
+    assertReduceIs(Values.asSequence(IntegerType.get(),  null, 1, 2, 3, 4), "function(a,v,i) { return a.plus(v) }",
+        IntegerType.get().valueOf(10));
+  }
+
+  @Test
+  public void test_filter_reduce_sequence_with_nulls_to_sum() {
+    assertReduceIs(Values.asSequence(IntegerType.get(),  null, null, null), "function(a,v,i) { return a.plus(v) }",
+        IntegerType.get().nullValue());
+  }
+
+  @Test
+  public void test_filter_reduce_sequence_with_nulls_to_not_null_sum() {
+    assertReduceIs(Values.asSequence(IntegerType.get(),  null, null, null), "function(a,v,i) { return a.plus(v) }, 0",
+        IntegerType.get().valueOf(0));
+  }
+
   // avg
 
   @Test
@@ -914,14 +954,22 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertResultIs(result, expected);
   }
 
+  private void assertReduceIs(Value valueToReduce, String args, Value expected) {
+    ScriptableValue result = evaluate("reduce(" + args + ")", valueToReduce);
+    assertResultIs(result, expected);
+  }
+
   private void assertResultIs(ScriptableValue result, Value expected) {
     assertThat(result).isNotNull();
 
     if(expected.isNull()) {
       assertThat(result.getValue().isNull()).isTrue();
-    } else {
+    } else if (expected.isSequence()) {
       assertThat(result.getValue().isSequence()).isTrue();
       assertThat(result.getValue().asSequence().getValue()).isEqualTo(expected.asSequence().getValue());
+    } else {
+      assertThat(result.getValue().isSequence()).isFalse();
+      assertThat(result.getValue().getValue()).isEqualTo(expected.getValue());
     }
   }
 

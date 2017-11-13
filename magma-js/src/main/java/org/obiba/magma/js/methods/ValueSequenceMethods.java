@@ -13,7 +13,10 @@ package org.obiba.magma.js.methods;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.mozilla.javascript.*;
+import org.mozilla.javascript.Callable;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -23,14 +26,11 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.*;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * JavaScript methods that operate on {@link ValueSequence} objects wrapped in {@link ScriptableValue} objects.
@@ -352,7 +352,7 @@ public class ValueSequenceMethods {
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue trimmer(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
-                                       @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+                                        @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
     return filter(thisObj, (value, index) -> !value.isNull());
   }
 
@@ -370,21 +370,21 @@ public class ValueSequenceMethods {
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue subset(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
-                                        @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+                                       @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
 
     final ScriptableValue sv = (ScriptableValue) thisObj;
     if (sv.getValue().isNull() || args == null || args.length == 0)
       return new ScriptableValue(thisObj, sv.getValue());
     final int from = asInteger(args[0]);
-    final int to = args.length>1 ? asInteger(args[1]) : Integer.MAX_VALUE;
-    return filter(thisObj, (value, index) -> index>=from && index<to);
+    final int to = args.length > 1 ? asInteger(args[1]) : Integer.MAX_VALUE;
+    return filter(thisObj, (value, index) -> index >= from && index < to);
   }
 
   private static int asInteger(Object arg) {
     if (arg instanceof ScriptableValue) {
-      return asInteger(IntegerType.get().convert(((ScriptableValue)arg).getValue()).getValue());
+      return asInteger(IntegerType.get().convert(((ScriptableValue) arg).getValue()).getValue());
     }
-    return ((Number)arg).intValue();
+    return ((Number) arg).intValue();
   }
 
   private static ScriptableValue filter(Scriptable thisObj, ValueSequencePredicate predicate) throws MagmaJsEvaluationRuntimeException {
@@ -401,7 +401,7 @@ public class ValueSequenceMethods {
     }
 
     List<Value> filteredValues = Lists.newArrayList();
-    for (int i=0; i<originalValues.size(); i++) {
+    for (int i = 0; i < originalValues.size(); i++) {
       Value value = originalValues.get(i);
       if (predicate.test(value, i)) filteredValues.add(value);
     }
@@ -412,6 +412,64 @@ public class ValueSequenceMethods {
 
   private interface ValueSequencePredicate {
     boolean test(Value value, int index);
+  }
+
+  /**
+   * Returns a generic reduction of the {@link Value}s contained in the {@link ValueSequence} using an accumulation function.
+   * <p/>
+   * <pre>
+   *   // equivalent to a sum()
+   *   $('SequenceVar').reduce(function(acc, value, index) { return acc.plus(value) })
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   * @throws MagmaJsEvaluationRuntimeException
+   */
+  public static ScriptableValue reduce(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+
+    final ScriptableValue sv = (ScriptableValue) thisObj;
+    Value result = sv.getValueType().nullValue();
+    if (sv.getValue().isNull() || args == null || args.length == 0 || !(args[0] instanceof Function))
+      return new ScriptableValue(thisObj, result);
+    final Callable reduceFunc = (Callable) args[0];
+    Value accInit = null;
+    if (args.length>1) {
+      if (args[1] instanceof ScriptableValue)
+        accInit = ((ScriptableValue)args[1]).getValue();
+      else accInit = sv.getValueType().valueOf(args[1]);
+    }
+
+    boolean foundAny = false;
+    if (accInit != null) {
+      foundAny = true;
+      result = accInit;
+    }
+    int idx = 0;
+    for (Value value : sv.getValue().asSequence().getValues()) {
+      if (!foundAny) {
+        // init accumulator with first not null element
+        if (!value.isNull()) {
+          foundAny = true;
+          result = value;
+        }
+      } else {
+        Object reduction = reduceFunc.call(ctx, sv.getParentScope(), sv,
+            new Object[]{new ScriptableValue(sv, result), new ScriptableValue(sv, value), idx});
+        Value reductionValue;
+        if (reduction instanceof ScriptableValue)
+          reductionValue = ((ScriptableValue)reduction).getValue();
+        else
+          reductionValue = sv.getValueType().valueOf(result);
+        if (!reductionValue.isNull()) result = reductionValue;
+      }
+      idx++;
+    }
+    return new ScriptableValue(thisObj, result);
   }
 
   /**
