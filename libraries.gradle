@@ -66,7 +66,7 @@ ext {
 
       mariadb_connector_java: 'org.mariadb.jdbc:mariadb-java-client:1.5.4',
 
-      mongodb_java_driver: 'org.mongodb:mongo-java-driver:3.0.3',
+      mongodb_driver: 'org.mongodb:mongodb-driver:3.5.0',
 
       mysql_connector_java: 'mysql:mysql-connector-java:5.1.36',
 
