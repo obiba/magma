@@ -11,6 +11,7 @@
 package org.obiba.magma.support;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -221,6 +222,7 @@ public class MultithreadedDatasourceCopier {
       list.add(sourceTable.getVariableValueSource(variable.getName()));
       vars.add(variable);
     }
+    vars.sort(Comparator.comparingInt(Variable::getIndex));
     sources = list.toArray(new VariableValueSource[list.size()]);
     variables = vars.toArray(new Variable[list.size()]);
   }
