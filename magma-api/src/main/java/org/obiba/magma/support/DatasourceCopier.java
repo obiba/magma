@@ -13,12 +13,11 @@ package org.obiba.magma.support;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceCopierProgressListener;
 import org.obiba.magma.MagmaEngine;
@@ -254,7 +253,9 @@ public class DatasourceCopier {
       ValueSetWriter valueSetWriter) {
     if(!copyValues) return;
     notifyListeners(sourceTable, valueSet, false);
-    for(Variable variable : sourceTable.getVariables()) {
+    List<Variable> variables = Lists.newArrayList(sourceTable.getVariables());
+    variables.sort(Comparator.comparingInt(Variable::getIndex));
+    for(Variable variable : variables) {
       Value value = sourceTable.getValue(variable, valueSet);
       if(!value.isNull() || copyNullValues) {
         valueSetWriter.writeValue(variableTransformer.transform(variable), value);
@@ -278,7 +279,9 @@ public class DatasourceCopier {
 
   public void copyMetadata(ValueTable sourceTable, VariableWriter variableWriter) {
     if(!copyMetadata) return;
-    for(Variable variable : sourceTable.getVariables()) {
+    List<Variable> variables = Lists.newArrayList(sourceTable.getVariables());
+    variables.sort(Comparator.comparingInt(Variable::getIndex));
+    for(Variable variable : variables) {
       notifyListeners(variable, false);
       variableWriter.writeVariable(variableTransformer.transform(variable));
       notifyListeners(variable, true);
