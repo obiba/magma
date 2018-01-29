@@ -258,6 +258,10 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       if(existingDbObject == null) {
         table.addVariableValueSource(new MongoDBVariableValueSource(table, variable.getName()));
       }
+      else {
+        // reset the cached variable object
+        ((MongoDBVariableValueSource)table.getVariableValueSource(variable.getName())).invalidate();
+      }
       // insert or update
       DBObject varObject = VariableConverter.marshall(variable);
       if(existingDbObject != null) {
