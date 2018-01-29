@@ -42,8 +42,6 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
   private MongoDBVariable variable;
 
-  private Value lastUpdated;
-
   public MongoDBVariableValueSource(MongoDBValueTable table, String name) {
     this.table = table;
     this.name = name;
@@ -58,9 +56,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
   @NotNull
   @Override
   public synchronized MongoDBVariable getVariable() {
-    Value tableLastUpdate = table.getTimestamps().getLastUpdate();
-    if(variable == null || lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
-      lastUpdated = tableLastUpdate;
+    if(variable == null) {
       variable = VariableConverter.unmarshall(table.findVariable(name));
     }
     return variable;
@@ -95,6 +91,11 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
   @Override
   public VectorSource asVectorSource() {
     return this;
+  }
+
+  void invalidate() {
+    // reset the cached variable object
+    variable = null;
   }
 
   private class ValueIterator implements Iterator<Value> {
