@@ -21,6 +21,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -218,11 +220,12 @@ public class MultithreadedDatasourceCopier {
   private void prepareVariables() {
     List<VariableValueSource> list = Lists.newArrayList();
     List<Variable> vars = Lists.newArrayList();
-    for(Variable variable : sourceTable.getVariables()) {
-      list.add(sourceTable.getVariableValueSource(variable.getName()));
-      vars.add(variable);
-    }
-    vars.sort(Comparator.comparingInt(Variable::getIndex));
+    StreamSupport.stream(sourceTable.getVariables().spliterator(), false)
+      .sorted(Comparator.comparingInt(Variable::getIndex))
+      .forEach(variable -> {
+        list.add(sourceTable.getVariableValueSource(variable.getName()));
+        vars.add(variable);
+      });
     sources = list.toArray(new VariableValueSource[list.size()]);
     variables = vars.toArray(new Variable[list.size()]);
   }
