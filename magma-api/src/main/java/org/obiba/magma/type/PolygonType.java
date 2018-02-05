@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
@@ -88,6 +89,12 @@ public class PolygonType extends JSONAwareValueType {
     }
 
     try {
+      if (string.trim().startsWith("{")) {
+        JSONObject object = new JSONObject(string.trim());
+        if (object.has(Coordinate.COORDINATES_KEY)) {
+          return valueOf(object.getJSONArray(Coordinate.COORDINATES_KEY));
+        }
+      }
       JSONArray array = new JSONArray(string.trim());
       return valueOf(array);
     } catch(JSONException e) {

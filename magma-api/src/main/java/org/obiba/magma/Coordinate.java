@@ -21,6 +21,8 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
 
   private static final long serialVersionUID = 8139103526460838188L;
 
+  public static final String COORDINATES_KEY = "coordinates";
+
   private static final String[] LATITUDES_KEYS = new String[] { "lat", "latitude", "lt" };
 
   private static final String[] LONGITUDES_KEYS = new String[] { "lon", "lng", "longitude", "lg" };
@@ -93,7 +95,9 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
     // JSON coordinate
     if(string.trim().startsWith("{")) {
       try {
-        return getCoordinateFrom(new JSONObject(string));
+        JSONObject object = new JSONObject(string.trim());
+        if (object.has(COORDINATES_KEY)) return getCoordinateFrom(object.getJSONArray(COORDINATES_KEY));
+        return getCoordinateFrom(object);
       } catch(JSONException e) {
         throw new MagmaRuntimeException("Not a valid JSON coordinate", e);
       }

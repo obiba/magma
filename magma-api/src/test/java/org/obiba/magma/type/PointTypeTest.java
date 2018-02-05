@@ -71,6 +71,13 @@ public class PointTypeTest extends BaseValueTypeTest {
   }
 
   @Test
+  public void testFullGeoJSONCoordinates() {
+    Coordinate result1 = (Coordinate) getValueType().valueOf("{\"type\" : \"Point\",\"coordinates\" : [-71.34,41.12] }").getValue();
+    assertThat(result1.getLatitude()).isEqualTo(41.12);
+    assertThat(result1.getLongitude()).isEqualTo(-71.34);
+  }
+
+  @Test
   public void testJSONCoordinates() {
     Coordinate result1 = (Coordinate) getValueType().valueOf("{\"lat\" : 41.12,\"lon\" : -71.34 }").getValue();
     assertThat(result1.getLatitude()).isEqualTo(41.12);

@@ -69,6 +69,14 @@ public class PolygonTypeTest extends BaseValueTypeTest {
   }
 
   @Test
+  public void testParseOneShapePolygonFullGeoJSONPoints() {
+    List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType()
+      .valueOf("{'type':'Polygon','coordinates':[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]  ]]}").getValue();
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).hasSize(5);
+  }
+
+  @Test
   public void testParseTwoShapePolygonGeoJSONPoints() {
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType()
         .valueOf("[[ {\"lat\" : 100.0,\"lon\" : 0.0 } , {\"lat\" : 101.0,\"lon\" : 0.0 }, " +
