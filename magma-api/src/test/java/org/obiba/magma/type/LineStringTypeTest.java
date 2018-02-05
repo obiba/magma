@@ -65,6 +65,15 @@ public class LineStringTypeTest extends BaseValueTypeTest {
   }
 
   @Test
+  public void testValidGeoJSONLine() {
+    List<Coordinate> result = (List<Coordinate>) getValueType()
+      .valueOf("{'type':'LineString','coordinates': [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]}").getValue();
+    assertThat(result).hasSize(5);
+    assertThat(result.get(0).getLatitude()).isEqualTo(0.0);
+    assertThat(result.get(0).getLongitude()).isEqualTo(100.0);
+  }
+
+  @Test
   public void testLine2() {
     List<Coordinate> result = (List<Coordinate>) getValueType().valueOf(
         "[{\"lat\" : 41.12,\"lon\" : -72.34}, {\"lat\" : 41.12,\"lon\" :" +
