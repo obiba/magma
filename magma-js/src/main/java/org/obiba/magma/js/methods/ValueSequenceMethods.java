@@ -177,7 +177,8 @@ public class ValueSequenceMethods {
     Integer index = null;
     if (args != null && args.length > 0) {
       try {
-        index = ((Number) IntegerType.get().valueOf(getRawValue(args[0])).getValue()).intValue();
+        Value indexValue = IntegerType.get().valueOf(getRawValue(args[0]));
+        index = indexValue.isNull() ? -1 : ((Number) indexValue.getValue()).intValue();
       } catch (MagmaRuntimeException e) {
         // ignore, will be handled after
       }
