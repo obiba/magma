@@ -263,6 +263,18 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testValueAtNullValue() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods
+      .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { TextType.get().nullValue() }, null);
+    assertThat(result.getValue().isNull()).isTrue();
+    result = ValueSequenceMethods
+      .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { null }, null);
+    assertThat(result.getValue().isNull()).isTrue();
+  }
+
+  @Test
   public void testValueIndexOf() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\", \"A\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
