@@ -23,6 +23,8 @@ import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.Values;
 import org.obiba.magma.test.AbstractMagmaTest;
+import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.ImmutableList;
@@ -43,6 +45,56 @@ public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
     CategoricalVariableSummary summary = computeFromTable(variable,
         Values.asValues(TextType.get(), "YES", "NO", "YES", "PNA", "DNK"));
     assertThat(summary.getMode()).isEqualTo("YES");
+  }
+
+  @Test
+  public void test_withIntegerType() {
+    Variable variable = Variable.Builder.newVariable("mock", IntegerType.get(), "mock")
+      .addCategories("1", "2", "3", "9").build();
+    CategoricalVariableSummary summary = computeFromTable(variable,
+      Values.asValues(IntegerType.get(), "1", "2", "1", "9", "3"));
+    assertThat(summary.getMode()).isEqualTo("1");
+    for (CategoricalVariableSummary.Frequency frequency : summary.getFrequencies()) {
+      switch (frequency.getValue()) {
+        case "1":
+          assertThat(frequency.getFreq()).isEqualTo(2);
+          break;
+        case "2":
+          assertThat(frequency.getFreq()).isEqualTo(1);
+          break;
+        case "3":
+          assertThat(frequency.getFreq()).isEqualTo(1);
+          break;
+        case "9":
+          assertThat(frequency.getFreq()).isEqualTo(1);
+          break;
+      }
+    }
+  }
+
+  @Test
+  public void test_withDecimalType() {
+    Variable variable = Variable.Builder.newVariable("mock", IntegerType.get(), "mock")
+      .addCategories("1", "2", "3", "9").build();
+    CategoricalVariableSummary summary = computeFromTable(variable,
+      Values.asValues(DecimalType.get(), "1", "2", "1", "9", "3"));
+    assertThat(summary.getMode()).isEqualTo("1");
+    for (CategoricalVariableSummary.Frequency frequency : summary.getFrequencies()) {
+      switch (frequency.getValue()) {
+        case "1":
+          assertThat(frequency.getFreq()).isEqualTo(2);
+          break;
+        case "2":
+          assertThat(frequency.getFreq()).isEqualTo(1);
+          break;
+        case "3":
+          assertThat(frequency.getFreq()).isEqualTo(1);
+          break;
+        case "9":
+          assertThat(frequency.getFreq()).isEqualTo(1);
+          break;
+      }
+    }
   }
 
   @Test

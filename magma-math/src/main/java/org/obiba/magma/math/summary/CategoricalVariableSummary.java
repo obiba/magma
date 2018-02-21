@@ -206,10 +206,17 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
       } else {
         if(value.isNull()) {
           summary.frequencyDist.addValue(NULL_NAME);
-        } else if(summary.distinct || categoryNames.contains(value.toString())) {
-          summary.frequencyDist.addValue(value.toString());
         } else {
-          summary.frequencyDist.addValue(OTHER_NAME);
+          String valueStr = value.toString();
+          String intValueStr = null;
+          if (value.getValueType().isNumeric() && valueStr.endsWith(".0")) intValueStr = valueStr.substring(0, valueStr.length() - 2);
+          if(summary.distinct || categoryNames.contains(valueStr)) {
+            summary.frequencyDist.addValue(valueStr);
+          } else if (intValueStr != null && categoryNames.contains(intValueStr)) {
+            summary.frequencyDist.addValue(intValueStr);
+          } else {
+            summary.frequencyDist.addValue(OTHER_NAME);
+          }
         }
 
       }
