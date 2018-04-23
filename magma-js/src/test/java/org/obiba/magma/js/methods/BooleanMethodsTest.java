@@ -34,11 +34,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class BooleanMethodsTest extends AbstractJsTest {
 
   @Test
-  public void testAny() {
-    assertMethod("any('CAT1', 'CAT2')", TextType.get().valueOf("CAT2"), BooleanType.get().trueValue());
-  }
-
-  @Test
   public void testAnyWithNullValue() {
     assertMethod("any('CAT1', 'CAT2')", TextType.get().nullValue(), BooleanType.get().falseValue());
   }
@@ -605,6 +600,25 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue date = newValue(DateType.get().now());
     ScriptableValue resultDate = BooleanMethods.eq(Context.getCurrentContext(), date, new Object[] { date }, null);
     assertThat(resultDate.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void testEqualsText() {
+    assertMethod("eq('CAT1')", TextType.get().valueOf("CAT1"), BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void testEqualsRepeatableText() {
+    assertMethod("eq('CAT1')", TextType.get().sequenceOf("CAT1,CAT2"), BooleanType.get().falseValue());
+    assertMethod("any('CAT1')", TextType.get().sequenceOf("CAT1,CAT2"), BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void testEqualsNumber() {
+    assertMethod("eq('1')", IntegerType.get().valueOf(1), BooleanType.get().trueValue());
+    assertMethod("eq('1')", IntegerType.get().nullValue(), BooleanType.get().falseValue());
+    assertMethod("eq(1)", IntegerType.get().valueOf(1), BooleanType.get().trueValue());
+    assertMethod("eq(1)", IntegerType.get().nullValue(), BooleanType.get().falseValue());
   }
 
   @Test

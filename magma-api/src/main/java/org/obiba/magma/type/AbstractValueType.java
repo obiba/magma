@@ -10,21 +10,16 @@
 
 package org.obiba.magma.type;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueConverter;
-import org.obiba.magma.ValueLoader;
-import org.obiba.magma.ValueSequence;
-import org.obiba.magma.ValueType;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.obiba.magma.*;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 public abstract class AbstractValueType implements ValueType {
 
@@ -173,5 +168,20 @@ public abstract class AbstractValueType implements ValueType {
   @Nullable
   protected String escapeAndQuoteIfRequired(@Nullable String value) {
     return value;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other == null) return false;
+    if (other == this) return true;
+    if (!(other instanceof ValueType)) return false;
+    ValueType otherType = (ValueType) other;
+    // compare type name instead of instances (in case there is not a single instance as expected)
+    return Objects.equals(getName(), otherType.getName());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName());
   }
 }
