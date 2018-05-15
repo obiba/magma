@@ -118,8 +118,13 @@ public class CsvDatasource extends AbstractDatasource {
   }
 
   public CsvDatasource addValueTable(File tableDirectory) {
+    addValueTable(tableDirectory, CsvValueTable.DEFAULT_ENTITY_TYPE);
+    return this;
+  }
+
+  public CsvDatasource addValueTable(File tableDirectory, String entityType) {
     addValueTable(tableDirectory.getName(), new File(tableDirectory, VARIABLES_FILE),
-        new File(tableDirectory, DATA_FILE));
+        new File(tableDirectory, DATA_FILE), entityType);
     return this;
   }
 
