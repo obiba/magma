@@ -13,13 +13,8 @@ import javax.validation.constraints.NotNull;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.VariableEntity;
+import org.obiba.magma.*;
 import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DateTimeType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -27,7 +22,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 /**
  *
  */
-public class IncrementalWhereClauseTest extends AbstractMagmaTest {
+public class IncrementalWhereClauseTest extends MagmaTest {
 
   private final VariableEntity entity = new VariableEntityBean("P", "123");
 

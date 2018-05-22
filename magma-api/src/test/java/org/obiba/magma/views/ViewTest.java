@@ -17,12 +17,10 @@ import java.util.Set;
 
 import org.fest.util.Sets;
 import org.junit.Test;
-import org.mockito.internal.matchers.Null;
 import org.obiba.magma.*;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.base.Predicate;
@@ -35,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
-public class ViewTest extends AbstractMagmaTest {
+public class ViewTest extends MagmaTest {
 
   @Test
   public void testHasValueSetWithDefaultWhereClause() {

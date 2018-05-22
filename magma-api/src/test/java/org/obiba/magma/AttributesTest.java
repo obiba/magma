@@ -12,11 +12,10 @@ package org.obiba.magma;
 import java.util.Locale;
 
 import org.junit.Test;
-import org.obiba.magma.test.AbstractMagmaTest;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class AttributesTest extends AbstractMagmaTest {
+public class AttributesTest extends MagmaTest {
 
   @Test
   public void test_decodeFromHeader_handlesNameOnly() {

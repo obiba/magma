@@ -11,12 +11,11 @@ package org.obiba.magma;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public abstract class AbstractValueTest extends AbstractMagmaTest {
+public abstract class AbstractValueTest extends MagmaTest {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")

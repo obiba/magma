@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  ~ Copyright (c) 2018 OBiBa. All rights reserved.
+  ~
+  ~ This program and the accompanying materials
+  ~ are made available under the terms of the GNU Public License v3.0.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses />.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <name>Magma Integration</name>
+
+  <parent>
+    <groupId>org.obiba.magma</groupId>
+    <artifactId>magma</artifactId>
+    <version>1.17-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>magma-integration</artifactId>
+
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-beans</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-js</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-data-generator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-datasource-fs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-datasource-csv</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-datasource-excel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-datasource-hibernate</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-datasource-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-datasource-mongodb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-crypt</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-xstream</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-ehcache</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>

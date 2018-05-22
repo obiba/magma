@@ -14,13 +14,13 @@ import java.util.Date;
 
 import org.junit.Test;
 import org.obiba.magma.MagmaDate;
+import org.obiba.magma.MagmaTest;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
-import org.obiba.magma.test.AbstractMagmaTest;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class DateTimeValueConverterTest extends AbstractMagmaTest {
+public class DateTimeValueConverterTest extends MagmaTest {
 
   @Test
   public void test_convert_handlesDateTimeToDate() {

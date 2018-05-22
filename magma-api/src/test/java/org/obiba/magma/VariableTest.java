@@ -15,14 +15,13 @@ import java.util.List;
 import java.util.Locale;
 
 import org.junit.Test;
-import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
-public class VariableTest extends AbstractMagmaTest {
+public class VariableTest extends MagmaTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullName() {
