@@ -17,7 +17,6 @@ import org.fest.util.Strings;
 import org.junit.Test;
 import org.obiba.magma.*;
 import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
 import java.util.*;
@@ -28,7 +27,7 @@ import static org.obiba.magma.views.JoinTableTest.MockValueTableBuilder.newTable
 import static org.obiba.magma.views.JoinTableTest.MockVariableBuilder.newVariableMock;
 
 @SuppressWarnings("ReuseOfLocalVariable")
-public class JoinTableTest extends AbstractMagmaTest {
+public class JoinTableTest extends MagmaTest {
 
   private static final String PARTICIPANT_ENTITY_TYPE = "Participant";
 

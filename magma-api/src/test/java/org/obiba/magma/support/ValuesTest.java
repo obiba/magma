@@ -11,8 +11,8 @@
 package org.obiba.magma.support;
 
 import org.junit.Test;
+import org.obiba.magma.MagmaTest;
 import org.obiba.magma.Value;
-import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 
 import com.google.common.base.Function;
@@ -21,7 +21,7 @@ import com.google.common.collect.Iterables;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class ValuesTest extends AbstractMagmaTest {
+public class ValuesTest extends MagmaTest {
 
   @Test
   public void test_toValueFunction_returnsFunctionForProperType() {

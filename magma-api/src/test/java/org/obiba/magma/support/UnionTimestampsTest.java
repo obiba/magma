@@ -14,10 +14,10 @@ import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.magma.MagmaTest;
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
-import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableList;
@@ -28,7 +28,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class UnionTimestampsTest extends AbstractMagmaTest {
+public class UnionTimestampsTest extends MagmaTest {
 
   private Value earlyValue;
 

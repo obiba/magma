@@ -10,14 +10,14 @@
 package org.obiba.magma.type;
 
 import org.junit.Test;
+import org.obiba.magma.MagmaTest;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.test.AbstractMagmaTest;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class IdentityValueConverterTest extends AbstractMagmaTest {
+public class IdentityValueConverterTest extends MagmaTest {
 
   @Test
   public void test_converterFor_returnsAConverter() {

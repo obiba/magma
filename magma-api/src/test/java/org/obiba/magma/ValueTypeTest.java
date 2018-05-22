@@ -12,7 +12,6 @@ package org.obiba.magma;
 import java.util.Locale;
 
 import org.junit.Test;
-import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
@@ -26,7 +25,7 @@ import com.google.common.collect.ImmutableList;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class ValueTypeTest extends AbstractMagmaTest {
+public class ValueTypeTest extends MagmaTest {
 
   @Test
   public void test_factory_forName() {
