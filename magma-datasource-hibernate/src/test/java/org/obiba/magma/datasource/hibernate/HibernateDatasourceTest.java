@@ -412,8 +412,10 @@ public class HibernateDatasourceTest {
             assertThat(value.isSequence()).isEqualTo(variable.isRepeatable());
             if(value.isSequence()) {
               for(Value v : value.asSequence().getValue()) {
-                assertThat(v.getValue()).isInstanceOf(byte[].class);
-                assertThat(v.getLength()).isEqualTo(length);
+                if (!v.isNull()) {
+                  assertThat(v.getValue()).isInstanceOf(byte[].class);
+                  assertThat(v.getLength()).isEqualTo(length);
+                }
               }
             } else {
               assertThat(value.getValue()).isInstanceOf(byte[].class);
