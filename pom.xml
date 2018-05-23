@@ -93,9 +93,6 @@
     <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
     <maven-source-plugin.version>2.2</maven-source-plugin.version>
 
-    <!-- maven extensions -->
-    <maven-packagecloud-wagon.version>0.0.4</maven-packagecloud-wagon.version>
-
   </properties>
 
   <dependencyManagement>
@@ -764,14 +761,6 @@
 
     </plugins>
 
-    <extensions>
-      <extension>
-        <groupId>io.packagecloud.maven.wagon</groupId>
-        <artifactId>maven-packagecloud-wagon</artifactId>
-        <version>${maven-packagecloud-wagon.version}</version>
-      </extension>
-    </extensions>
-
     <resources>
       <resource>
         <directory>${project.basedir}/src/main/java</directory>
@@ -798,7 +787,7 @@
   <repositories>
     <repository>
       <id>obiba-releases</id>
-      <name>Obiba Maven 2.x Repository</name>
+      <name>Obiba Maven Releases Repository</name>
       <url>https://dl.bintray.com/obiba/maven</url>
       <releases>
         <enabled>true</enabled>
@@ -809,8 +798,8 @@
     </repository>
     <repository>
       <id>obiba-snapshots</id>
-      <name>Obiba Maven 2.x Repository</name>
-      <url>https://packagecloud.io/obiba/repo/maven2</url>
+      <name>Obiba Maven Snapshots Repository</name>
+      <url>https://obiba.jfrog.io/obiba/libs-snapshot</url>
       <releases>
         <enabled>false</enabled>
       </releases>
@@ -837,8 +826,8 @@
       <url>https://api.bintray.com/obiba/maven/</url>
     </repository>
     <snapshotRepository>
-      <id>obiba-packagecloud</id>
-      <url>packagecloud+https://packagecloud.io/obiba/repo</url>
+      <id>obiba-artifactory</id>
+      <url>https://obiba.jfrog.io/obiba/libs-snapshot</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -846,8 +835,17 @@
     <connection>scm:git:git://github.com/obiba/magma.git</connection>
     <developerConnection>scm:git:https://github.com/obiba/magma.git</developerConnection>
     <url>https://github.com/obiba/magma</url>
-    <tag>HEAD</tag>
   </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/obiba/magma/issues</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Travis</system>
+    <url>https://travis-ci.org/obiba/magma</url>
+  </ciManagement>
 
   <profiles>
     <profile>

@@ -9,8 +9,9 @@
       <password>${env.BINTRAY_API_KEY}</password>
     </server>
     <server>
-      <id>obiba-packagecloud</id>
-      <password>${env.PACKAGECLOUD_TOKEN}</password>
+      <id>obiba-artifactory</id>
+      <username>${env.ARTIFACTORY_USER}</username>
+      <password>${env.ARTIFACTORY_PWD}</password>
     </server>
   </servers>
 </settings>
