@@ -64,9 +64,9 @@
     <liquibase-core.version>3.4.2</liquibase-core.version>
     <logback.version>1.1.2</logback.version>
     <mockito.version>1.10.8</mockito.version>
-    <mariadb-connector-java.version>1.5.4</mariadb-connector-java.version>
-    <mongodb-driver.version>3.5.0</mongodb-driver.version>
-    <mysql-connector-java.version>5.1.36</mysql-connector-java.version>
+    <mariadb-connector-java.version>2.2.5</mariadb-connector-java.version>
+    <mongodb-driver.version>3.7.1</mongodb-driver.version>
+    <mysql-connector-java.version>8.0.11</mysql-connector-java.version>
     <obiba-commons.version>1.10.1</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>3.9</poi-ooxml.version>
