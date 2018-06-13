@@ -108,12 +108,7 @@ public class JoinTable implements ValueTable, Initialisable {
     tables.forEach(table ->
         table.getVariables().forEach(variable -> {
 
-          Variable joinableVariable = VariableBean.Builder.newVariable(variable.getName(), variable.getValueType(), variable.getEntityType()) //
-              .repeatable(variable.isRepeatable()).occurrenceGroup(variable.getOccurrenceGroup()) //
-              .referencedEntityType(variable.getReferencedEntityType()) //
-              .mimeType(variable.getMimeType()) //
-              .unit(variable.getUnit()) //
-              .build();
+          Variable joinableVariable = VariableBean.Builder.sameAs(variable).build();
           Variable existing = joinableVariablesByName.get(variable.getName());
           if (existing != null && !existing.equals(joinableVariable)) {
             throw new IllegalArgumentException(

@@ -309,7 +309,10 @@ public class JoinTableTest extends MagmaTest {
       expect(builder.mock.getReferencedEntityType()).andReturn(null).anyTimes();
       expect(builder.mock.getMimeType()).andReturn(null).anyTimes();
       expect(builder.mock.getUnit()).andReturn(null).anyTimes();
+      expect(builder.mock.getIndex()).andReturn(0).anyTimes();
       expect(builder.mock.getEntityType()).andReturn("Participant").anyTimes();
+      expect(builder.mock.hasAttributes()).andReturn(false).anyTimes();
+      expect(builder.mock.hasCategories()).andReturn(false).anyTimes();
       return builder;
     }
 

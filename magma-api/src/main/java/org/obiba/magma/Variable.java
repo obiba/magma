@@ -53,7 +53,7 @@ public interface Variable extends AttributeAware {
   /**
    * Returns true when this variable is repeatable. A repeatable variable is one where multiple {@code Value} instances
    * may exist within a single {@code ValueSet}. A single {@code Value} within a {@code ValueSet} is referenced by an
-   * {@link Occurrence} instance.
+   * occurrence instance.
    *
    * @return true when this variable may have multiple values within a single {@code ValueSet}
    */
@@ -184,10 +184,12 @@ public interface Variable extends AttributeAware {
       if(variable.isRepeatable()) {
         builder.repeatable().occurrenceGroup(variable.getOccurrenceGroup());
       }
-      for(Attribute a : variable.getAttributes()) {
-        builder.addAttribute(a);
+      if (variable.hasAttributes()) {
+        for (Attribute a : variable.getAttributes()) {
+          builder.addAttribute(a);
+        }
       }
-      if(sameCategories) {
+      if(sameCategories && variable.hasCategories()) {
         for(Category c : variable.getCategories()) {
           builder.addCategory(c);
         }
