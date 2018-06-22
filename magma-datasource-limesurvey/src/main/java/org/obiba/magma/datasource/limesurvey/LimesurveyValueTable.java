@@ -467,7 +467,7 @@ class LimesurveyValueTable extends AbstractValueTable {
           NamedParameterJdbcOperations jdbcTemplate = new NamedParameterJdbcTemplate(getDatasource().getDataSource());
           MapSqlParameterSource parameters = new MapSqlParameterSource();
           parameters.addValue("ids", Lists.newArrayList(extractIdentifiers(entities)));
-          String sql = "SELECT " + quoteAndPrefix(getLimesurveyVariableField()) + " FROM " +
+          String sql = "SELECT " + getLimesurveyVariableField() + " FROM " +
               quoteAndPrefix("survey_" + getSid()) + " WHERE token IN (:ids) ORDER BY token";
           return new ValueIterator(entities, jdbcTemplate.queryForRowSet(sql, parameters));
         }
