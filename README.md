@@ -1,4 +1,4 @@
-# Magma [![Build Status](http://ci.obiba.org/view/Magma/job/Magma/badge/icon)](http://ci.obiba.org/view/Magma/job/Magma/)
+# Magma [![Build Status](https://travis-ci.org/obiba/magma.svg?branch=master)](https://travis-ci.org/obiba/magma)
 
 Data and meta-data abstraction layer.
 
