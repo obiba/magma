@@ -50,13 +50,14 @@ public class LimesurveyTimestamps implements Timestamps {
     sql.append("SELECT ").append(sqlOperator).append("(submitdate) ");
     sql.append("FROM ").append(limesurveyValueTable.quoteAndPrefix("survey_" + limesurveyValueTable.getSid()));
     sql.append("WHERE submitdate is not NULL");
-    Date lastUpdateDate;
+    Date lastUpdateDate = null;
     try {
       lastUpdateDate = jdbcTemplate.queryForObject(sql.toString(), Date.class);
     } catch(BadSqlGrammarException e) {
-      lastUpdateDate = new Date();
       log.info("survey_{} is probably not active", limesurveyValueTable.getSid());
     }
+
+    if (lastUpdateDate == null) lastUpdateDate = new Date();
     return DateTimeType.get().valueOf(lastUpdateDate);
   }
 }
