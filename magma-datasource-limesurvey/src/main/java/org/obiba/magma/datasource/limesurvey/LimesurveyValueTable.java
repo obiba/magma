@@ -38,6 +38,8 @@ import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -51,6 +53,8 @@ import com.google.common.collect.Sets;
 
 @SuppressWarnings("OverlyCoupledClass")
 class LimesurveyValueTable extends AbstractValueTable {
+
+  private static final Logger log = LoggerFactory.getLogger(LimesurveyValueTable.class);
 
   public static final String PARTICIPANT = "Participant";
 
@@ -142,8 +146,8 @@ class LimesurveyValueTable extends AbstractValueTable {
     // here are managed special case
     if(question.hasParentId()) {
       parentQuestion = getParentQuestion(question);
-      isHierarchicalQuestion = buildArraySubQuestions(question, parentQuestion) ||
-          buildArrayDualScale(question, parentQuestion) || buildArrayFlexibleLabels(question, parentQuestion);
+      isHierarchicalQuestion = parentQuestion != null && (buildArraySubQuestions(question, parentQuestion) ||
+          buildArrayDualScale(question, parentQuestion) || buildArrayFlexibleLabels(question, parentQuestion));
     }
     buildFileCountIfNecessary(question);
     buildOtherVariableIfNecessary(question);
@@ -283,8 +287,12 @@ class LimesurveyValueTable extends AbstractValueTable {
       String variableName = question.getName();
       if(question.hasParentId()) {
         LimeQuestion parentQuestion = getParentQuestion(question);
-        String hierarchicalVariableName = parentQuestion.getName() + " [" + variableName + "]";
-        builder = build(parentQuestion, hierarchicalVariableName);
+        if (parentQuestion == null) {
+          builder = build(question, variableName);
+        } else {
+          String hierarchicalVariableName = parentQuestion.getName() + " [" + variableName + "]";
+          builder = build(parentQuestion, hierarchicalVariableName);
+        }
       } else {
         builder = build(question, variableName);
       }
@@ -309,7 +317,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     if(!question.isScaleEqual1()) {
       for(LimeQuestion scalableQuestion : scalableSubQuestions) {
         String dualName = question.getName() + "_" + scalableQuestion.getName();
-        String arrayVariableName = parentQuestion.getName() + " [" + dualName + "]";
+        String arrayVariableName = parentQuestion == null ? dualName : parentQuestion.getName() + " [" + dualName + "]";
         Variable.Builder subVb = build(parentQuestion, arrayVariableName);
         buildLabelAttributes(scalableQuestion, subVb);
         VariableValueSource variable = new LimesurveyQuestionVariableValueSource(subVb, scalableQuestion, dualName);
@@ -364,14 +372,19 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   @Nullable
   private LimeQuestion getParentQuestion(LimeQuestion limeQuestion) {
-    return limeQuestion.hasParentId() ? mapQuestions.get(limeQuestion.getParentQid()) : null;
+    if (!limeQuestion.hasParentId()) return null;
+    if (!mapQuestions.containsKey(limeQuestion.getParentQid())) {
+      log.warn("Unidentified parent question with ID {} from survey {}", limeQuestion.getParentQid(), sid);
+      return null;
+    }
+    return mapQuestions.get(limeQuestion.getParentQid());
   }
 
   private boolean hasSubQuestions(final LimeQuestion limeQuestion) {
     return Iterables.any(mapQuestions.values(), new Predicate<LimeQuestion>() {
       @Override
       public boolean apply(LimeQuestion question) {
-        return question.getParentQid() == limeQuestion.getQid();
+        return limeQuestion != null && question.getParentQid() == limeQuestion.getQid();
       }
     });
   }
@@ -380,7 +393,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     return Lists.newArrayList(Iterables.filter(mapQuestions.values(), new Predicate<LimeQuestion>() {
       @Override
       public boolean apply(LimeQuestion question) {
-        return question.getParentQid() == limeQuestion.getQid() && question.isScaleEqual1();
+        return limeQuestion != null && question.getParentQid() == limeQuestion.getQid() && question.isScaleEqual1();
       }
     }));
   }
