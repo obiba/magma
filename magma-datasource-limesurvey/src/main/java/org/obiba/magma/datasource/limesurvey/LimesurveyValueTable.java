@@ -374,8 +374,8 @@ class LimesurveyValueTable extends AbstractValueTable {
   private LimeQuestion getParentQuestion(LimeQuestion limeQuestion) {
     if (!limeQuestion.hasParentId()) return null;
     if (!mapQuestions.containsKey(limeQuestion.getParentQid())) {
-      log.warn("Unidentified parent question with ID {} from survey {}", limeQuestion.getParentQid(), sid);
-      return null;
+      throw new LimesurveyParsingException("Unidentified parent question with ID: " + limeQuestion.getParentQid(),
+        "LimeUnknownParentQuestion", limeQuestion.getParentQid());
     }
     return mapQuestions.get(limeQuestion.getParentQid());
   }
