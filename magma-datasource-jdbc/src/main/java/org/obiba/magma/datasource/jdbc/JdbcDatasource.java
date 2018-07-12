@@ -53,6 +53,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.*;
 import static org.obiba.magma.datasource.jdbc.support.TableUtils.newTable;
@@ -206,6 +207,7 @@ public class JdbcDatasource extends AbstractDatasource {
       table = new JdbcValueTable(this, tableSettings);
       Initialisables.initialise(table);
       addValueTable(table);
+      getValueTableMap().put(tableName, tableSettings.getSqlTableName());
       addTableMetaData(tableName, tableSettings);
     }
 
@@ -403,9 +405,20 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   private String generateSqlTableName(String tableName) {
-    return getSettings().isMultipleDatasources()
+    String normalizedName = getSettings().isMultipleDatasources()
         ? String.format("%s_%s", TableUtils.normalize(getName()), TableUtils.normalize(tableName))
         : TableUtils.normalize(tableName);
+
+    // #401 prevent case sensitive conflicts
+    String proposedName = normalizedName;
+    List<String> lowerCaseSqlTableNames = getValueTableMap().values().stream().map(v -> v.toLowerCase()).collect(Collectors.toList());
+    int i = 1;
+    while (lowerCaseSqlTableNames.contains(proposedName.toLowerCase())) {
+      proposedName = normalizedName + "_" + i;
+      i++;
+    }
+
+    return proposedName;
   }
 
   private Map<String, String> getValueTableMap() {
