@@ -9,3 +9,8 @@ atlassian-ide-plugin.xml
 *.jnl
 .gradle
 *.log
+
+# vscode
+.vscode
+.settings
+**/.attach_pid*
