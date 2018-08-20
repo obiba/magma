@@ -28,7 +28,6 @@
     <module>magma-datasource-excel</module>
     <module>magma-datasource-null</module>
     <module>magma-datasource-csv</module>
-    <module>magma-datasource-spss</module>
     <module>magma-security</module>
     <module>magma-data-generator</module>
     <module>magma-test</module>
