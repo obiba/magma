@@ -25,6 +25,7 @@ import org.obiba.magma.Datasource;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
+import org.obiba.magma.SocketFactoryProvider;
 
 /**
  * Create a MongoDB datasource by either providing a connection string
@@ -47,17 +48,24 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
 
   private int batchSize = 100;
 
+  private SocketFactoryProvider socketFactoryProvider;
+
   public MongoDBDatasourceFactory(@NotNull String name, @NotNull String url) {
-    this(name, url, null, null, null);
+    this(name, url, null, null, null, null);
   }
 
   public MongoDBDatasourceFactory(@NotNull String name, @NotNull String url, String username, String password,
       String options) {
+  }
+
+  public MongoDBDatasourceFactory(@NotNull String name, @NotNull String url, String username, String password,
+                                  String options, SocketFactoryProvider socketFactoryProvider) {
     setName(name);
     this.url = url;
     this.username = username;
     this.password = password;
     this.options = options;
+    this.socketFactoryProvider = socketFactoryProvider;
   }
 
   @NotNull
@@ -70,7 +78,9 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
   }
 
   public MongoDBFactory getMongoDBFactory() {
-    return new MongoDBFactory(getUri());
+    MongoDBFactory factory = new MongoDBFactory(getUri());
+    factory.setSocketFactoryProvider(socketFactoryProvider);
+    return factory;
   }
 
   public URI getUri() {
