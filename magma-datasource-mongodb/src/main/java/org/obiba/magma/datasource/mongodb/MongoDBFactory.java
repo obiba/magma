@@ -16,15 +16,13 @@ import java.net.URI;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import com.mongodb.*;
 import org.obiba.magma.MagmaRuntimeException;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
+import org.obiba.magma.SocketFactoryProvider;
 
 public class MongoDBFactory implements Serializable {
 
@@ -39,6 +37,9 @@ public class MongoDBFactory implements Serializable {
   @Nullable
   private transient MongoClient mongoClient;
 
+  @Nullable
+  private SocketFactoryProvider socketFactoryProvider;
+
   public MongoDBFactory(@NotNull URI uri) {
     this(uri.toString());
   }
@@ -46,6 +47,15 @@ public class MongoDBFactory implements Serializable {
   public MongoDBFactory(@NotNull String connectionURI) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(connectionURI), "connectionURI cannot be null or empty");
     this.connectionURI = connectionURI;
+  }
+
+  /**
+   * Use the provided socket factory to connect to a MongoDB server.
+   *
+   * @param socketFactoryProvider
+   */
+  public void setSocketFactoryProvider(@Nullable SocketFactoryProvider socketFactoryProvider) {
+    this.socketFactoryProvider = socketFactoryProvider;
   }
 
   @NotNull
@@ -56,7 +66,17 @@ public class MongoDBFactory implements Serializable {
   @NotNull
   public MongoClientURI getMongoClientURI() {
     if(mongoClientURI == null) {
-      mongoClientURI = new MongoClientURI(connectionURI);
+      mongoClientURI = new MongoClientURI(connectionURI) {
+
+        @Override
+        public MongoClientOptions getOptions() {
+          MongoClientOptions options = super.getOptions();
+          if (socketFactoryProvider == null || !options.isSslEnabled()) return options;
+          MongoClientOptions.Builder newOptions = MongoClientOptions.builder(options);
+          newOptions.socketFactory(socketFactoryProvider.getSocketFactory());
+          return newOptions.build();
+        }
+      };
     }
     return mongoClientURI;
   }
