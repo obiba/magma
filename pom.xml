@@ -75,7 +75,6 @@
     <shiro-extras.version>1.0.3-obiba</shiro-extras.version>
     <slf4j.version>1.7.12</slf4j.version>
     <spring.version>4.2.1.RELEASE</spring.version>
-    <spssreader.version>1.2.1</spssreader.version>
     <truezip.version>6.6</truezip.version>
     <validation.version>1.1.0.Final</validation.version>
     <xstream.version>1.4.8</xstream.version>
@@ -161,11 +160,6 @@
       <dependency>
         <groupId>org.obiba.magma</groupId>
         <artifactId>magma-datasource-jdbc</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.obiba.magma</groupId>
-        <artifactId>magma-datasource-spss</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -489,12 +483,6 @@
         <artifactId>opencsv</artifactId>
         <version>${opencsv.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.opendatafoundation</groupId>
-        <artifactId>spssreader</artifactId>
-        <version>${spssreader.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>com.vividsolutions</groupId>
         <artifactId>jts</artifactId>
