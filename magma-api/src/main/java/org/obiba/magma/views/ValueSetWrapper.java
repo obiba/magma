@@ -31,7 +31,7 @@ public class ValueSetWrapper implements ValueSet {
   @NotNull
   private final ValueSet wrapped;
 
-  ValueSetWrapper(@NotNull TransformingValueTable mappingTable, @NotNull ValueSet wrapped) {
+  public ValueSetWrapper(@NotNull TransformingValueTable mappingTable, @NotNull ValueSet wrapped) {
     this.mappingTable = mappingTable;
     this.wrapped = wrapped;
   }

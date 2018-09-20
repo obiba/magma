@@ -26,8 +26,11 @@ import org.obiba.magma.type.TextType;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import javax.validation.constraints.NotNull;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -348,10 +351,13 @@ public class ViewTest extends MagmaTest {
     ValueTable valueTableMock = mock(ValueTable.class);
     VariableEntity variableEntity = new VariableEntityBean("type", "id1");
     Variable variable = new Variable.Builder("someVariable", TextType.get(), "type").build();
+    VariableValueSource vvsMock = mock(VariableValueSource.class);
     ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
     Value value = TextType.get().valueOf("someValue");
 
     when(valueTableMock.getValue((Variable) anyObject(), (ValueSet) anyObject())).thenReturn(value);
+    when(valueTableMock.getVariableValueSource((String) anyString())).thenReturn(vvsMock);
+    when(vvsMock.getValue(valueSet)).thenReturn(value);
 
     View view = View.Builder.newView("view", valueTableMock).build();
     Value result = view.getValue(variable, new ValueSetWrapper(view, valueSet));
@@ -365,10 +371,13 @@ public class ViewTest extends MagmaTest {
     WhereClause whereClauseMock = mock(WhereClause.class);
     VariableEntity variableEntity = new VariableEntityBean("type", "id1");
     Variable variable = new Variable.Builder("someVariable", TextType.get(), "type").build();
+    VariableValueSource vvsMock = mock(VariableValueSource.class);
     ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
     Value value = TextType.get().valueOf("someValue");
 
     when(valueTableMock.getValue((Variable) anyObject(), (ValueSet) anyObject())).thenReturn(value);
+    when(valueTableMock.getVariableValueSource((String) anyString())).thenReturn(vvsMock);
+    when(vvsMock.getValue(valueSet)).thenReturn(value);
     when(whereClauseMock.where((ValueSet) anyObject(), (View) anyObject())).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();

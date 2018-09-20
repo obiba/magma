@@ -364,7 +364,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(!getWhereClause().where(valueSet, this)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
-    return super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));
+    // let the value get transformed
+    return getVariableValueSource(variable.getName()).getValue(valueSet);
   }
 
   private Value getListClauseValue(Variable variable, ValueSet valueSet) {
@@ -431,11 +432,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     // do not use Guava functional stuff to avoid multiple iterations over entities
     Set<VariableEntity> entities = Sets.newConcurrentHashSet();
     if(hasVariables()) {
-      StreamSupport.stream(super.getVariableEntities().spliterator(), false) //
+      super.getVariableEntities().stream() //
           .forEach(entity -> {
             // filter the resulting entities to remove the ones for which hasValueSet() is false
             // (usually due to a where clause)
-            boolean hasValueSet = true;
+            boolean hasValueSet;
             if(getWhereClause() instanceof AllClause) {
               hasValueSet = true;
             } else if(getWhereClause() instanceof NoneClause) {
