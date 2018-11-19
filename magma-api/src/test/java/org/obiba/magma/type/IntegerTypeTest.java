@@ -83,6 +83,23 @@ public class IntegerTypeTest extends BaseValueTypeTest {
     assertThat(result).isEqualTo(0);
   }
 
+
+  @Test
+  public void testParseScientificNotation() {
+    Value leftValue = getValueType().valueOf("1.0003776E7");
+    Value rightValue = getValueType().valueOf(10003776);
+    int result = getValueType().compare(leftValue, rightValue);
+    assertThat(result).isEqualTo(0);
+  }
+
+  @Test
+  public void testParseScientificNotation2() {
+    Value leftValue = getValueType().valueOf("1.0003776E5");
+    Value rightValue = getValueType().valueOf(100037);
+    int result = getValueType().compare(leftValue, rightValue);
+    assertThat(result).isEqualTo(0);
+  }
+
   @Test
   public void test_compare_with_null() throws Exception {
     Value leftValue = getValueType().valueOf(42);

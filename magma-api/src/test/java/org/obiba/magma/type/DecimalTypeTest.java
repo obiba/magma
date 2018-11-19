@@ -90,4 +90,12 @@ public class DecimalTypeTest extends BaseValueTypeTest {
     assertThat(result).isEqualTo(2.2);
   }
 
+  @Test
+  public void testParseScientificNotation() {
+    Value leftValue = getValueType().valueOf("1.0003776E7");
+    Value rightValue = getValueType().valueOf(10003776);
+    int result = getValueType().compare(leftValue, rightValue);
+    assertThat(result).isEqualTo(0);
+  }
+
 }
