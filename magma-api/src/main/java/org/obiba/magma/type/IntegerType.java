@@ -65,7 +65,7 @@ public class IntegerType extends AbstractNumberType {
   @Override
   public Value valueOf(@Nullable String string) {
     try {
-      return Strings.isNullOrEmpty(string) ? nullValue() : Factory.newValue(this, Long.valueOf(normalize(string)));
+      return Strings.isNullOrEmpty(string) ? nullValue() : Factory.newValue(this, isScientificNotation(string) ? parseDoubleAsLong(string) : parseLong(string));
     } catch(NumberFormatException e) {
       throw new MagmaRuntimeException("Not a integer value: " + string, e);
     }
@@ -91,8 +91,20 @@ public class IntegerType extends AbstractNumberType {
         "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
+  private boolean isScientificNotation(String string) {
+    return !Strings.isNullOrEmpty(string) && string.toUpperCase().contains("E");
+  }
+
+  private Long parseDoubleAsLong(String string) {
+    return Double.valueOf(normalize(string)).longValue();
+  }
+
+  private Long parseLong(String string) {
+    return Long.valueOf(normalize(string));
+  }
+
   private String normalize(String string) {
-    String rval = string.trim();
+    String rval = string.replace(",", ".").trim();
     if (rval.length()>2 && rval.endsWith(".0")) return rval.substring(0, rval.length()-2);
     return rval;
   }
