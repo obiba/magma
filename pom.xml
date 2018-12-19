@@ -23,7 +23,6 @@
     <module>magma-datasource-fs</module>
     <module>magma-datasource-hibernate</module>
     <module>magma-datasource-jdbc</module>
-    <module>magma-datasource-limesurvey</module>
     <module>magma-datasource-mongodb</module>
     <module>magma-datasource-excel</module>
     <module>magma-datasource-null</module>
