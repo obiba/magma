@@ -290,15 +290,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private void addNewColumn(String variableName, String dataType) {
-      String columnName = generateColumnName(variableName);
+      String columnName = valueTable.getVariableSqlName(variableName);
       AddColumnChange addColumnChange = AddColumnChangeBuilder.newBuilder()//
           .table(valueTable.getSqlName())//
           .column(columnName, dataType).build();
       changes.add(addColumnChange);
-    }
-
-    String generateColumnName(String variableName) {
-      return String.format("%s", TableUtils.normalize(variableName, 64));
     }
 
     boolean variableExists(Variable variable) {
@@ -340,7 +336,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
           .withColumn("is_repeatable", variable.isRepeatable()) //
           .withColumn("occurrence_group", variable.getOccurrenceGroup()) //
           .withColumn("index", Integer.toString(variable.getIndex())) //
-          .withColumn(SQL_NAME_COLUMN, generateColumnName(variable.getName()));
+          .withColumn(SQL_NAME_COLUMN, valueTable.getVariableSqlName(variable.getName()));
 
       changes.add(builder.build());
       writeAttributes(variable);
