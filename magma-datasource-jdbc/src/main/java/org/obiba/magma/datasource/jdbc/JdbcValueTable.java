@@ -496,17 +496,30 @@ class JdbcValueTable extends AbstractValueTable {
   String getVariableSqlName(String variableName) {
     if(getVariablesMap().containsKey(variableName)) return getVariablesMap().get(variableName);
 
-    return TableUtils.normalize(variableName);
+    String normVariableName = String.format("%s", TableUtils.normalize(variableName, 64));
+
+    if (!getVariablesMap().isEmpty()) {
+      // make sure the sql variable name has not been already assigned
+      int i = 0;
+      while (getVariablesMap().containsValue(normVariableName)) {
+        normVariableName = normVariableName + i;
+        i++;
+      }
+    }
+
+    getVariablesMap().put(variableName, normVariableName);
+
+    return normVariableName;
   }
 
-  String getVariableName(String variableName) {
+  String getVariableName(String variableSqlName) {
     BiMap<String, String> tmp = getVariablesMap().inverse();
 
-    if(tmp.containsKey(variableName.toLowerCase())) return tmp.get(variableName.toLowerCase());
+    if(tmp.containsKey(variableSqlName.toLowerCase())) return tmp.get(variableSqlName.toLowerCase());
 
-    if(tmp.containsKey(variableName)) return tmp.get(variableName);
+    if(tmp.containsKey(variableSqlName)) return tmp.get(variableSqlName);
 
-    return variableName;
+    return variableSqlName;
   }
 
   public void refreshTable() {
