@@ -12,6 +12,7 @@ package org.obiba.magma.type;
 
 import java.math.BigDecimal;
 
+import com.google.common.base.Strings;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
 import org.obiba.magma.ValueType;
@@ -26,7 +27,11 @@ public class TextToNumericTypeValueConverter implements ValueConverter {
   @Override
   public Value convert(Value value, ValueType to) {
     if (value == null || value.isNull()) return to.nullValue();
-    return to.valueOf(new BigDecimal(value.toString()));
+    String valueStr = value.toString();
+    if (valueStr == null) return to.nullValue();
+    valueStr = valueStr.trim();
+    if (valueStr.isEmpty()) return to.nullValue();
+    return to.valueOf(new BigDecimal(valueStr));
   }
 
 }
