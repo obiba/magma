@@ -54,6 +54,20 @@ public class TextToAnyValueTypeConverterTest extends MagmaTest {
   }
 
   @Test
+  public void test_convert_empty_text_to_long() {
+    Value value = TextType.get().valueOf("");
+    Value converted = IntegerType.get().convert(value);
+    assertThat(converted.isNull()).isTrue();
+  }
+
+  @Test
+  public void test_convert_null_text_to_long() {
+    Value value = TextType.get().nullValue();
+    Value converted = IntegerType.get().convert(value);
+    assertThat(converted.isNull()).isTrue();
+  }
+
+  @Test
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("FE_FLOATING_POINT_EQUALITY")
   public void test_convert_1_text_to_decimal() {
     Value value = TextType.get().valueOf("1.1");
