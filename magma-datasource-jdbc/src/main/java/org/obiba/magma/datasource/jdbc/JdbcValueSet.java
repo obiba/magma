@@ -21,6 +21,8 @@ import org.obiba.magma.support.ValueSetBean;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class JdbcValueSet extends ValueSetBean {
 
-  private final Map<String, Value> resultSetCache = Maps.newHashMap();
+  private final Map<String, Value> resultSetCache = Maps.newConcurrentMap();
 
   private final JdbcValueSetFetcher fetcher;
 
@@ -122,13 +124,17 @@ public class JdbcValueSet extends ValueSetBean {
         : variable.getValueType().sequenceOf(value.toString());
   }
 
-  private synchronized void loadResultSetCache() {
+  private void loadResultSetCache() {
     if (resultSetCache.isEmpty()) {
-      populateResultSetCache(fetcher.loadNonBinaryVariableValues(getVariableEntity()));
+      doPopulateResultSetCache(fetcher.loadNonBinaryVariableValues(getVariableEntity()));
     }
   }
 
   void populateResultSetCache(List<Map<String, Value>> rows) {
+    doPopulateResultSetCache(rows);
+  }
+
+  private synchronized void doPopulateResultSetCache(List<Map<String, Value>> rows) {
     if (rows == null) return;
     rows.forEach(row ->
       row.forEach((key, value) -> {

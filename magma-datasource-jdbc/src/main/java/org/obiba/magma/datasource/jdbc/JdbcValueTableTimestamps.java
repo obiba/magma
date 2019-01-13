@@ -30,6 +30,10 @@ public class JdbcValueTableTimestamps implements Timestamps {
 
   private final boolean withMultipleDatasources;
 
+  private Value createdTimestamp;
+
+  private Value lastUpdateTimestamp;
+
   private final String ESC_CREATED_COLUMN, ESC_UPDATED_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN,
       ESC_NAME_COLUMN;
 
@@ -47,6 +51,8 @@ public class JdbcValueTableTimestamps implements Timestamps {
 
   @Override
   public Value getLastUpdate() {
+    if (lastUpdateTimestamp != null) return lastUpdateTimestamp;
+
     Date date = null;
 
     if(fromMetaData) {
@@ -61,11 +67,13 @@ public class JdbcValueTableTimestamps implements Timestamps {
       }
     }
 
-    return DateTimeType.get().valueOf(date == null ? new Date() : date);
+    return lastUpdateTimestamp = (DateTimeType.get().valueOf(date == null ? new Date() : date));
   }
 
   @Override
   public Value getCreated() {
+    if (createdTimestamp != null) return createdTimestamp;
+
     Date date = null;
 
     if(fromMetaData) {
@@ -76,7 +84,7 @@ public class JdbcValueTableTimestamps implements Timestamps {
       date = getOldestValueSetCreatedDate();
     }
 
-    return DateTimeType.get().valueOf(date == null ? new Date() : date);
+    return createdTimestamp = (DateTimeType.get().valueOf(date == null ? new Date() : date));
   }
 
   //

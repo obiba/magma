@@ -51,6 +51,8 @@ class JdbcValueTable extends AbstractValueTable {
 
   private BiMap<String, String> variableMap;
 
+  private JdbcValueTableTimestamps jdbcValueTableTimestamps;
+
   private final String ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN,
       ESC_VALUE_TABLE_COLUMN, ESC_CATEGORIES_TABLE, ESC_VARIABLES_TABLE,
       ESC_VARIABLE_ATTRIBUTES_TABLE, ESC_VALUE_TABLES_TABLE, ESC_NAME_COLUMN,
@@ -144,7 +146,13 @@ class JdbcValueTable extends AbstractValueTable {
   @NotNull
   @Override
   public Timestamps getTimestamps() {
-    return new JdbcValueTableTimestamps(this);
+    if (jdbcValueTableTimestamps != null) return jdbcValueTableTimestamps;
+
+    return jdbcValueTableTimestamps = new JdbcValueTableTimestamps(this);
+  }
+
+  public void clearTimestamps() {
+    jdbcValueTableTimestamps = null;
   }
 
   //
@@ -523,6 +531,7 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   public void refreshTable() {
+    clearTimestamps();
     getDatasource().databaseChanged();
     // no need to refresh a view
     if (tableOrView instanceof Table) {
