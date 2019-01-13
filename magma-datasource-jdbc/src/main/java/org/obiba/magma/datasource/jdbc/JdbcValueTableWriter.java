@@ -211,6 +211,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       });
 
       log.debug("batchUpdate modified {} rows", res.length);
+      valueTable.clearTimestamps();
     }
   }
 
