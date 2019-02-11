@@ -52,11 +52,11 @@ class JdbcLine {
     return columnNames;
   }
 
-  List<List<Object>> getLines() {
+  List<List<Value>> getLines() {
     if (multilines) {
       return getMultipleLines();
     } else {
-      List<List<Object>> lines = Lists.newArrayList();
+      List<List<Value>> lines = Lists.newArrayList();
       lines.add(getSingleLine());
       return lines;
     }
@@ -90,8 +90,8 @@ class JdbcLine {
    * Convert each {@link Value} into a SQL value for a single line (then sequences are turned into CSV strings).
    * @return
    */
-  private List<Object> getSingleLine() {
-    return values.stream().map(this::toColumnValue).collect(Collectors.toList());
+  private List<Value> getSingleLine() {
+    return values;
   }
 
   private void setValue(String columnName, Value value) {
@@ -103,25 +103,8 @@ class JdbcLine {
     return valueTable.getVariableSqlName(variable.getName());
   }
 
-  private Object toColumnValue(Value value) {
-    Object columnValue = null;
-    if(!value.isNull()) {
-      if(value.isSequence()) {
-        columnValue = value.toString();
-      } else {
-        columnValue = value.getValue();
-
-        // Persist some objects as strings.
-        if(value.getValueType() == LocaleType.get() || value.getValueType().isGeo()) {
-          columnValue = value.toString();
-        }
-      }
-    }
-    return columnValue;
-  }
-
-  public List<List<Object>> getMultipleLines() {
-    List<List<Object>> lines = Lists.newArrayList();
+  public List<List<Value>> getMultipleLines() {
+    List<List<Value>> lines = Lists.newArrayList();
     // first detect the longest value sequence
     int length = values.stream().mapToInt(v -> v.isSequence() ? v.asSequence().getSize() : 1).max().orElse(1);
 
@@ -131,8 +114,8 @@ class JdbcLine {
     return lines;
   }
 
-  private List<Object> getMultipleLinesAt(int position) {
-    List<Object> line = Lists.newArrayListWithExpectedSize(columnNames.size());
+  private List<Value> getMultipleLinesAt(int position) {
+    List<Value> line = Lists.newArrayListWithExpectedSize(columnNames.size());
     for (Value value : values) {
       Value valueAt = value;
       if (value.isSequence()) {
@@ -142,7 +125,7 @@ class JdbcLine {
           valueAt = value.getValueType().nullValue();
         }
       }
-      line.add(toColumnValue(valueAt));
+      line.add(valueAt);
     }
     return line;
   }
