@@ -29,6 +29,9 @@ import org.obiba.magma.datasource.jdbc.support.AddColumnChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.TableUtils;
 import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
+import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,7 @@ import java.security.InvalidParameterException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -181,7 +185,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     List<String> sqls = operations.stream().map(JdbcOperation::getSql).distinct().collect(Collectors.toList());
 
     for (String sql : sqls) {
-      final List<List<Object>> batchValues = operations.stream()
+      final List<List<Value>> batchValues = operations.stream()
           .filter(op -> sql.equals(op.getSql()))
           .map(JdbcOperation::getParameters).collect(Collectors.toList());
       int[] res = getJdbcTemplate().batchUpdate(sql, new AbstractInterruptibleBatchPreparedStatementSetter() {
@@ -193,21 +197,48 @@ class JdbcValueTableWriter implements ValueTableWriter {
             return false;
           }
 
-          for (Object value : batchValues.get(i)) {
-            if (value instanceof byte[]) {
-              lobHandler.getLobCreator().setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) value),
-                  ((byte[]) value).length);
-            } else if (value instanceof java.util.Date) {
-              ps.setDate(index++, new Date(((java.util.Date) value).getTime()));
-            } else if (value instanceof MagmaDate) {
-              ps.setDate(index++, new Date(((MagmaDate) value).asDate().getTime()));
+          for (Value value : batchValues.get(i)) {
+            Object columnValue = toColumnValue(value);
+            if (columnValue instanceof byte[]) {
+              lobHandler.getLobCreator().setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) columnValue),
+                  ((byte[]) columnValue).length);
             } else {
-              ps.setObject(index++, value);
+              ps.setObject(index++, columnValue);
             }
           }
 
           return true;
         }
+
+        private Object toColumnValue(Value value) {
+          Object columnValue = null;
+          if(!value.isNull()) {
+            if(value.isSequence()) {
+              columnValue = value.toString();
+            } else {
+              columnValue = value.getValue();
+
+              // Persist some objects as strings.
+              if(value.getValueType() == LocaleType.get() || value.getValueType().isGeo()) {
+                columnValue = value.toString();
+              } else if (value.getValueType() == DateType.get()) {
+                if (columnValue instanceof java.util.Date) {
+                  columnValue = new Date(((java.util.Date) columnValue).getTime());
+                } else if (columnValue instanceof MagmaDate) {
+                  columnValue = new Date(((MagmaDate) columnValue).asDate().getTime());
+                }
+              } else if (value.getValueType() == DateTimeType.get()) {
+                if (columnValue instanceof java.util.Date) {
+                  columnValue = new Timestamp(((java.util.Date) columnValue).getTime());
+                } else if (columnValue instanceof MagmaDate) {
+                  columnValue = new Timestamp(((MagmaDate) columnValue).asDate().getTime());
+                }
+              }
+            }
+          }
+          return columnValue;
+        }
+
       });
 
       log.debug("batchUpdate modified {} rows", res.length);
@@ -526,7 +557,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
       synchronized (valueTable) {
         jdbcLine.getLines().forEach(values -> {
-          values.add(entity.getIdentifier());
+          values.add(TextType.get().valueOf(entity.getIdentifier()));
           batch.add(new JdbcOperation(sql, values));
         });
 
@@ -592,9 +623,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private final String sql;
 
-    private final List<Object> parameters;
+    private final List<Value> parameters;
 
-    private JdbcOperation(String sql, List<Object> parameters) {
+    private JdbcOperation(String sql, List<Value> parameters) {
       this.sql = sql;
       this.parameters = parameters;
     }
@@ -603,7 +634,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       return sql;
     }
 
-    public List<Object> getParameters() {
+    public List<Value> getParameters() {
       return parameters;
     }
   }
