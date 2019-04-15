@@ -188,7 +188,16 @@ public class StaticValueTable extends AbstractValueTable {
   }
 
   public StaticValueTable removeValues(String entity) {
-    if (table.containsKey(entity)) table.remove(entity);
+    if (table.containsKey(entity)) {
+      table.remove(entity);
+      entities.remove(new VariableEntityBean(StaticValueTable.this.entityType, entity));
+    }
+    return this;
+  }
+
+  public StaticValueTable removeAllValues() {
+    entities.clear();
+    table.clear();
     return this;
   }
 
