@@ -274,8 +274,13 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     return entityBatchSize;
   }
 
-  protected void setEntityBatchSize(int entityBatchSize) {
+  protected void setVariableEntityBatchSize(int entityBatchSize) {
     this.entityBatchSize = entityBatchSize;
+  }
+
+  @Deprecated
+  protected void setEntityBatchSize(int entityBatchSize) {
+    setVariableEntityBatchSize(entityBatchSize);
   }
 
   /**
