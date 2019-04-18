@@ -31,10 +31,10 @@ public class SplitValueTablesFactory {
       List<VariableEntity> entities = Lists.newArrayList(valueTable.getVariableEntities());
 
       int from = 0;
-      int to = maxRowCount - 1;
+      int to = maxRowCount;
       while (from < totalRowCount) {
         splitValueTables.add(new SplitValueTable(valueTable, entities.subList(from, to)));
-        from = to + 1;
+        from = to;
         to = to + maxRowCount;
         if (to > totalRowCount)
           to = totalRowCount - 1;
