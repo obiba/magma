@@ -234,8 +234,6 @@ class MongoDBValueTableWriter implements ValueTableWriter {
           }
         }
       }
-
-      updateLastUpdate();
     }
 
     private DBObject getBinaryValueMetadata(@Nullable GridFSInputFile gridFSFile, Integer occurrence) {
@@ -268,8 +266,6 @@ class MongoDBValueTableWriter implements ValueTableWriter {
         varObject.put("_id", existingDbObject.get("_id"));
       }
       table.getVariablesCollection().save(varObject);
-
-      updateLastUpdate();
     }
 
     @Override
@@ -287,8 +283,6 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       if(table.getVariableCount() == 0) {
         table.getValueSetCollection().remove(BasicDBObjectBuilder.start().get());
       }
-
-      updateLastUpdate();
     }
 
     private void removeVariableValues(@NotNull MongoDBVariable variable) {

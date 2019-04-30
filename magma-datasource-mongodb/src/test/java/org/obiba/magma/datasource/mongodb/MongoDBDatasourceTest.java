@@ -329,8 +329,11 @@ public class MongoDBDatasourceTest {
     Value tableLastUpdate = table.getTimestamps().getLastUpdate();
     Value valueSetLastUpdate = valueSet.getTimestamps().getLastUpdate();
 
-    ValueTableWriter.VariableWriter variableWriter = ds.createWriter(TABLE_TEST, PARTICIPANT).writeVariables();
+    ValueTableWriter valueTableWriter = ds.createWriter(TABLE_TEST, PARTICIPANT);
+    ValueTableWriter.VariableWriter variableWriter = valueTableWriter.writeVariables();
     variableWriter.removeVariable(textVariable);
+    variableWriter.close();
+    valueTableWriter.close();
 
     int tableLastUpdateCompare = ds.getValueTable(TABLE_TEST).getTimestamps().getLastUpdate()
         .compareTo(tableLastUpdate);
@@ -360,9 +363,11 @@ public class MongoDBDatasourceTest {
 
     Value tableLastUpdate = table.getTimestamps().getLastUpdate();
 
-    ValueTableWriter.ValueSetWriter valueSetWriter = ds.createWriter(TABLE_TEST, PARTICIPANT).writeValueSet(oneEntity);
+    ValueTableWriter valueTableWriter = ds.createWriter(TABLE_TEST, PARTICIPANT);
+    ValueTableWriter.ValueSetWriter valueSetWriter = valueTableWriter.writeValueSet(oneEntity);
     valueSetWriter.remove();
     valueSetWriter.close();
+    valueTableWriter.close();
 
     int tableLastUpdateCompare = ds.getValueTable(TABLE_TEST).getTimestamps().getLastUpdate()
         .compareTo(tableLastUpdate);
