@@ -10,15 +10,13 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.mongodb.*;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSInputFile;
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -27,17 +25,10 @@ import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.type.BinaryType;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.BulkWriteOperation;
-import com.mongodb.BulkWriteResult;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFS;
-import com.mongodb.gridfs.GridFSInputFile;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.List;
 
 class MongoDBValueTableWriter implements ValueTableWriter {
 
@@ -113,10 +104,12 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     private DBObject getValueSetObject() {
       if(valueSetObject == null) {
-        DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
-        valueSetObject = table.getValueSetCollection().findOne(template);
+        if (table.hasValueSet(entity)) {
+          DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
+          valueSetObject = table.getValueSetCollection().findOne(template);
+        }
         if(valueSetObject == null) {
-          valueSetObject = template;
+          valueSetObject = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
           valueSetObject.put(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject());
         }
       }
@@ -209,9 +202,6 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     @Override
     public void close() {
       if(!removed) {
-        BSONObject timestamps = (BSONObject) getValueSetObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
-        timestamps.put(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD, new Date());
-
         int batchSize = ((MongoDBDatasource)table.getDatasource()).getBatchSize();
 
         if(batchSize == 1) {
