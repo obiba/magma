@@ -161,8 +161,10 @@ public class JoinTableTest extends MagmaTest {
   public void testJoinTableValueSetExistsForValueSetInAnyValueTable() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
         .withMockTable(newTableMock("T1").expectHasValueSet("1", true).expectHasValueSet("2", false) //
+            .expectGetVariableEntityBatchSize()
             .expectGetValueSets("1").withEntities("1")) //
         .withMockTable(newTableMock("T2").expectHasValueSet("1", true).expectHasValueSet("2", true) //
+            .expectGetVariableEntityBatchSize()
             .expectGetValueSets("1","2").withEntities("1", "2")).build();
 
     Iterable<ValueSet> valueSets = joinTable.getValueSets();
@@ -363,6 +365,11 @@ public class JoinTableTest extends MagmaTest {
     MockValueTableBuilder expectGetValueSets(String... identifiers) {
       List<VariableEntity> entities = Lists.newArrayList(createEntitySet(entityType, identifiers));
       expect(mock.getValueSets(entities)).andReturn(new ArrayList<>()).anyTimes();
+      return this;
+    }
+
+    MockValueTableBuilder expectGetVariableEntityBatchSize() {
+      expect(mock.getVariableEntityBatchSize()).andReturn(100).anyTimes();
       return this;
     }
 

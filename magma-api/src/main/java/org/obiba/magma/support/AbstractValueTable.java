@@ -20,8 +20,14 @@ import org.obiba.magma.*;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractValueTable implements ValueTable, Initialisable {
+
+  private static final Logger log = LoggerFactory.getLogger(AbstractValueTable.class);
+
+  private static final int MAX_DATA_POINTS = 100000;
 
   @NotNull
   private final Datasource datasource;
@@ -33,7 +39,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   private VariableEntityProvider variableEntityProvider;
 
-  private int entityBatchSize = ENTITY_BATCH_SIZE;
+  private int entityBatchSize = 0;
 
   @SuppressWarnings("ConstantConditions")
   public AbstractValueTable(@NotNull Datasource datasource, @NotNull String name,
@@ -271,6 +277,13 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public int getVariableEntityBatchSize() {
+    synchronized (this) {
+      if (entityBatchSize == 0) {
+        int variableCount = getVariableCount();
+        entityBatchSize = Math.max(1, variableCount == 0 ? 1 : MAX_DATA_POINTS / variableCount);
+        log.info("Entity batch size for {}: {}", getName(), entityBatchSize);
+      }
+    }
     return entityBatchSize;
   }
 

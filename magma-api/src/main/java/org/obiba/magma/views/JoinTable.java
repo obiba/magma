@@ -16,6 +16,8 @@ package org.obiba.magma.views;
 import com.google.common.collect.*;
 import org.obiba.magma.*;
 import org.obiba.magma.support.UnionTimestamps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings({"UnusedDeclaration", "TransientFieldInNonSerializableClass"})
 public class JoinTable implements ValueTable, Initialisable {
+
+  private static final Logger log = LoggerFactory.getLogger(JoinTable.class);
 
   private static final int DEFAULT_ENTITY_COUNT = 5000;
 
@@ -60,6 +64,8 @@ public class JoinTable implements ValueTable, Initialisable {
   private transient int lastEntityCount = DEFAULT_ENTITY_COUNT;
 
   private transient boolean variableAnalysed = false;
+
+  private transient int entityBatchSize = 0;
 
   /**
    * No-arg constructor (mainly for XStream).
@@ -313,6 +319,23 @@ public class JoinTable implements ValueTable, Initialisable {
     return Iterables.size(getVariableEntities());
   }
 
+  @Override
+  public int getVariableEntityBatchSize() {
+    synchronized (this) {
+      if (entityBatchSize == 0) {
+        for (ValueTable table : tables) {
+          if (entityBatchSize == 0) {
+            entityBatchSize = table.getVariableEntityBatchSize();
+          } else {
+            entityBatchSize = Math.min(entityBatchSize, table.getVariableEntityBatchSize());
+          }
+        }
+        log.info("Join entity batch size for {}: {}", getName(), entityBatchSize);
+      }
+    }
+    return entityBatchSize;
+  }
+
   //
   // Private methods
   //
@@ -385,7 +408,7 @@ public class JoinTable implements ValueTable, Initialisable {
     private Iterator<ValueSet> currentBatch;
 
     public ValueSetIterator(Iterable<VariableEntity> entities) {
-      this.partitions = Iterables.partition(entities, ValueTable.ENTITY_BATCH_SIZE).iterator();
+      this.partitions = Iterables.partition(entities, getVariableEntityBatchSize()).iterator();
     }
 
     @Override
