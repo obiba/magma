@@ -18,8 +18,6 @@ import javax.validation.constraints.NotNull;
 import com.google.common.collect.*;
 import org.obiba.magma.*;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +25,9 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractValueTable.class);
 
-  private static final int MAX_DATA_POINTS = 100000;
+  public static final String READ_DATA_POINTS_COUNT_KEY = "readDataPointsCount";
+
+  private static final int DEFAULT_MAX_DATA_POINTS = 100000;
 
   @NotNull
   private final Datasource datasource;
@@ -40,6 +40,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   private VariableEntityProvider variableEntityProvider;
 
   private int entityBatchSize = 0;
+
+  private int maxDataPoints = 0;
 
   @SuppressWarnings("ConstantConditions")
   public AbstractValueTable(@NotNull Datasource datasource, @NotNull String name,
@@ -280,7 +282,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     synchronized (this) {
       if (entityBatchSize == 0) {
         int variableCount = getVariableCount();
-        entityBatchSize = Math.max(1, variableCount == 0 ? 1 : MAX_DATA_POINTS / variableCount);
+        entityBatchSize = Math.max(1, variableCount == 0 ? 1 : getMaxDataPoints() / variableCount);
         log.info("Entity batch size for {}: {}", getName(), entityBatchSize);
       }
     }
@@ -294,6 +296,25 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   @Deprecated
   protected void setEntityBatchSize(int entityBatchSize) {
     setVariableEntityBatchSize(entityBatchSize);
+  }
+
+  private int getMaxDataPoints() {
+    if (maxDataPoints == 0) {
+      if (MagmaEngine.get().hasExtension(MagmaParametersExtension.class)) {
+        MagmaParametersExtension paramsExt = MagmaEngine.get().getExtension(MagmaParametersExtension.class);
+        if (paramsExt.hasParameter(READ_DATA_POINTS_COUNT_KEY)) {
+          try {
+            maxDataPoints = paramsExt.getParameterInteger(READ_DATA_POINTS_COUNT_KEY);
+          } catch (Exception e) {
+            maxDataPoints = DEFAULT_MAX_DATA_POINTS;
+          }
+        }
+      }
+    }
+    if (maxDataPoints <= 0) {
+      maxDataPoints = DEFAULT_MAX_DATA_POINTS;
+    }
+    return maxDataPoints;
   }
 
   /**
