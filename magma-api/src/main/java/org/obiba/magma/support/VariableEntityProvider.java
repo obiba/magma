@@ -10,19 +10,37 @@
 
 package org.obiba.magma.support;
 
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
 import org.obiba.magma.VariableEntity;
 
+import javax.validation.constraints.NotNull;
+import java.util.List;
+
+/**
+ * Provider of entities.
+ */
 public interface VariableEntityProvider {
 
+  /**
+   * What the entities are about.
+   *
+   * @return
+   */
   @NotNull
   String getEntityType();
 
+  /**
+   * Check it applies to the entity type.
+   *
+   * @param entityType
+   * @return
+   */
   boolean isForEntityType(String entityType);
 
+  /**
+   * Get the whole list of entities.
+   *
+   * @return
+   */
   @NotNull
-  Set<VariableEntity> getVariableEntities();
+  List<VariableEntity> getVariableEntities();
 }

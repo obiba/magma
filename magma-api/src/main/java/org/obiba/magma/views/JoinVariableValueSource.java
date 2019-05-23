@@ -12,11 +12,9 @@ package org.obiba.magma.views;
 
 import com.google.common.collect.Iterables;
 import org.obiba.magma.*;
-import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.SortedSet;
 
 /**
  *
@@ -79,7 +77,7 @@ public class JoinVariableValueSource implements VariableValueSource, VectorSourc
   }
 
   @Override
-  public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+  public Iterable<Value> getValues(final List<VariableEntity> entities) {
     return () -> new JoinValueIterator(entities, owners, getVariable());
   }
 

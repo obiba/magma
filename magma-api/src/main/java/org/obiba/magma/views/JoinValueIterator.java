@@ -16,13 +16,12 @@ import org.obiba.magma.*;
 import javax.validation.constraints.NotNull;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 class JoinValueIterator implements Iterator<Value> {
 
   @NotNull
-  private final SortedSet<VariableEntity> entities;
+  private final List<VariableEntity> entities;
 
   private final Iterator<VariableEntity> entitiesIterator;
 
@@ -34,7 +33,7 @@ class JoinValueIterator implements Iterator<Value> {
 
   private List<Iterator<Value>> valueIterators = Lists.newArrayList();
 
-  JoinValueIterator(SortedSet<VariableEntity> entities, List<ValueTable> owners, Variable variable) {
+  JoinValueIterator(List<VariableEntity> entities, List<ValueTable> owners, Variable variable) {
     this.entities = entities;
     this.owners = owners;
     this.variable = variable;

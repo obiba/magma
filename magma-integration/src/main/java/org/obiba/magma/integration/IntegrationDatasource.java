@@ -10,8 +10,7 @@
 
 package org.obiba.magma.integration;
 
-import java.util.Set;
-
+import com.google.common.collect.ImmutableSet;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -32,7 +31,7 @@ import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 
 public class IntegrationDatasource extends AbstractDatasource {
 

@@ -10,17 +10,11 @@
 
 package org.obiba.magma.support;
 
-import java.util.Collections;
-import java.util.SortedSet;
+import org.obiba.magma.*;
 
 import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VectorSource;
+import java.util.Collections;
+import java.util.List;
 
 public final class NullValueSource implements ValueSource, VectorSource {
 
@@ -54,7 +48,7 @@ public final class NullValueSource implements ValueSource, VectorSource {
   }
 
   @Override
-  public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+  public Iterable<Value> getValues(List<VariableEntity> entities) {
     return Collections.nCopies(entities.size(), valueType.nullValue());
   }
 

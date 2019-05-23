@@ -10,7 +10,7 @@
 
 package org.obiba.magma.views;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.fest.util.Strings;
@@ -19,7 +19,10 @@ import org.obiba.magma.*;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.TextType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.easymock.EasyMock.*;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -123,12 +126,12 @@ public class JoinTableTest extends MagmaTest {
     assertThat(variables).isNotNull();
 
     Collection<String> variableNameList = new ArrayList<>();
-    for(Variable variable : variables) {
+    for (Variable variable : variables) {
       variableNameList.add(variable.getName());
     }
 
     assertThat(variableNameList).hasSize(6);
-    for(String variableName : new String[] { "var1", "var2", "var3", "var4", "var5", "var6" }) {
+    for (String variableName : new String[]{"var1", "var2", "var3", "var4", "var5", "var6"}) {
       assertThat(variableNameList).contains(variableName);
     }
   }
@@ -165,7 +168,7 @@ public class JoinTableTest extends MagmaTest {
             .expectGetValueSets("1").withEntities("1")) //
         .withMockTable(newTableMock("T2").expectHasValueSet("1", true).expectHasValueSet("2", true) //
             .expectGetVariableEntityBatchSize()
-            .expectGetValueSets("1","2").withEntities("1", "2")).build();
+            .expectGetValueSets("1", "2").withEntities("1", "2")).build();
 
     Iterable<ValueSet> valueSets = joinTable.getValueSets();
     assertThat(valueSets).hasSize(2);
@@ -194,11 +197,11 @@ public class JoinTableTest extends MagmaTest {
 
   @Test
   public void test_hasValueSet_withInner() {
-      JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
         .withMockTable(newTableMock("T1").expectHasValueSet("1", true).expectHasValueSet("2", false)) //
         .withMockTable(newTableMock("T2").expectHasValueSet("2", true))
         .withInnerTable("T2")
-          .build();
+        .build();
 
     assertThat(joinTable.hasValueSet(newEntity("1"))).isTrue();
     assertThat(joinTable.hasValueSet(newEntity("2"))).isFalse();
@@ -363,7 +366,7 @@ public class JoinTableTest extends MagmaTest {
     }
 
     MockValueTableBuilder expectGetValueSets(String... identifiers) {
-      List<VariableEntity> entities = Lists.newArrayList(createEntitySet(entityType, identifiers));
+      List<VariableEntity> entities = Lists.newArrayList(createEntityList(entityType, identifiers));
       expect(mock.getValueSets(entities)).andReturn(new ArrayList<>()).anyTimes();
       return this;
     }
@@ -375,14 +378,14 @@ public class JoinTableTest extends MagmaTest {
 
     MockValueTableBuilder withVariables(String... names) {
       Collection<Variable> list = Lists.newArrayList();
-      for(String variableName : names) {
+      for (String variableName : names) {
         list.add(newVariableMock(variableName).build());
       }
       return withVariables(Iterables.toArray(list, Variable.class));
     }
 
     MockValueTableBuilder withVariables(@SuppressWarnings("ParameterHidesMemberVariable") Variable... variables) {
-      for(Variable variable : variables) {
+      for (Variable variable : variables) {
         expect(mock.hasVariable(variable.getName())).andReturn(true).anyTimes();
         expect(mock.getVariable(variable.getName())).andReturn(variable).anyTimes();
 
@@ -395,7 +398,7 @@ public class JoinTableTest extends MagmaTest {
     }
 
     MockValueTableBuilder withEntities(String... identifiers) {
-      expect(mock.getVariableEntities()).andReturn(createEntitySet(entityType, identifiers)).anyTimes();
+      expect(mock.getVariableEntities()).andReturn(createEntityList(entityType, identifiers)).anyTimes();
       return this;
     }
 
@@ -404,9 +407,9 @@ public class JoinTableTest extends MagmaTest {
       return mock;
     }
 
-    private static Set<VariableEntity> createEntitySet(String entityType, String... identifiers) {
-      ImmutableSet.Builder<VariableEntity> set = ImmutableSet.builder();
-      for(String identifier : identifiers) {
+    private static List<VariableEntity> createEntityList(String entityType, String... identifiers) {
+      ImmutableList.Builder<VariableEntity> set = ImmutableList.builder();
+      for (String identifier : identifiers) {
         set.add(new VariableEntityBean(entityType, identifier));
       }
       return set.build();

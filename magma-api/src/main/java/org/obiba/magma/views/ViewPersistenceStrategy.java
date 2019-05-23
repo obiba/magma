@@ -18,7 +18,7 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.views.support.VariableOperationContext;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public interface ViewPersistenceStrategy extends Initialisable, Disposable {
 

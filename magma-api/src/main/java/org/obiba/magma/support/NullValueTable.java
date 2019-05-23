@@ -10,37 +10,22 @@
 
 package org.obiba.magma.support;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.obiba.magma.*;
+
+import javax.validation.constraints.NotNull;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
-import com.google.common.collect.Lists;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 
 public class NullValueTable implements ValueTable {
 
   @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<NullValueTable> instance = MagmaEngine.get().registerInstance(new NullValueTable());
+
+  private final List<VariableEntity> entities = ImmutableList.<VariableEntity>builder().build();
 
   private NullValueTable() {
   }
@@ -72,8 +57,8 @@ public class NullValueTable implements ValueTable {
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
-    return ImmutableSet.of();
+  public List<VariableEntity> getVariableEntities() {
+    return entities;
   }
 
   @Override
@@ -112,7 +97,7 @@ public class NullValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
     List<Timestamps> timestamps = Lists.newArrayList();
     for (VariableEntity entity : entities) {
       timestamps.add(getValueSetTimestamps(entity));
@@ -180,7 +165,7 @@ public class NullValueTable implements ValueTable {
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @NotNull
   public static NullValueTable get() {
-    if(instance == null || instance.get() == null) {
+    if (instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new NullValueTable());
     }
     return instance.get();

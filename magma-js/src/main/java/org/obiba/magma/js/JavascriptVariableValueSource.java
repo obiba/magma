@@ -10,25 +10,18 @@
 
 package org.obiba.magma.js;
 
-import java.util.SortedSet;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
+import com.google.common.base.Objects;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.*;
 import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 import static org.obiba.magma.js.JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME;
 
@@ -98,7 +91,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
-  public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+  public Iterable<Value> getValues(List<VariableEntity> entities) {
     validateScript();
     return super.getValues(entities);
   }
@@ -113,7 +106,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     super.enterContext(context, scope);
     if (valueTable != null) {
       context.push(ValueTable.class, getValueTable());
-      if(valueTable.isView() && valueTable instanceof View) {
+      if (valueTable.isView() && valueTable instanceof View) {
         context.push(View.class, (View) valueTable);
       }
     }
@@ -125,7 +118,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     super.exitContext(context);
     if (valueTable != null) {
       context.pop(ValueTable.class);
-      if(valueTable.isView()) {
+      if (valueTable.isView()) {
         context.pop(View.class);
       }
     }
@@ -139,8 +132,8 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   @Override
   public boolean equals(Object obj) {
-    if(this == obj) return true;
-    if(obj == null || getClass() != obj.getClass()) return false;
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
     JavascriptVariableValueSource other = (JavascriptVariableValueSource) obj;
     return Objects.equal(variable, other.variable) && Objects.equal(valueTable, other.valueTable);
   }

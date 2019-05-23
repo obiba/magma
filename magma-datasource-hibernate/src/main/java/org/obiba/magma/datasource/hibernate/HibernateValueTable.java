@@ -10,21 +10,8 @@
 
 package org.obiba.magma.datasource.hibernate;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedSet;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
+import com.google.common.base.Predicate;
+import com.google.common.collect.*;
 import org.hibernate.Query;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -39,6 +26,7 @@ import org.obiba.magma.datasource.hibernate.domain.Timestamped;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
+import org.obiba.magma.lang.VariableEntityList;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.NullTimestamps;
@@ -47,11 +35,11 @@ import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("OverlyCoupledClass")
 class HibernateValueTable extends AbstractValueTable {
@@ -85,7 +73,7 @@ class HibernateValueTable extends AbstractValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    if(!hasValueSet(entity)) {
+    if (!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
     return new HibernateValueSet(this, entity);
@@ -108,17 +96,17 @@ class HibernateValueTable extends AbstractValueTable {
         session.getNamedQuery("findValueSetIdsByTableId").setParameter("valueTableId", getValueTableState().getId())
             .list());
     getValueTableState().setUpdated(new Date());
-    variableEntityProvider.initialise();
+    variableEntityProvider.clear();
   }
 
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
-    if(valueSetTimestamps == null) {
+    if (valueSetTimestamps == null) {
       cacheValueSetTimestamps();
     }
     Timestamps cachedTimestamps = valueSetTimestamps.get(entity.getIdentifier());
-    if(cachedTimestamps == null) {
-      if(hasValueSet(entity)) {
+    if (cachedTimestamps == null) {
+      if (hasValueSet(entity)) {
         // not in the cache because cache is outdated
         cacheValueSetTimestamps();
         cachedTimestamps = valueSetTimestamps.get(entity.getIdentifier());
@@ -132,8 +120,8 @@ class HibernateValueTable extends AbstractValueTable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(final SortedSet<VariableEntity> entities) {
-    if(entities.isEmpty()) {
+  public Iterable<Timestamps> getValueSetTimestamps(final List<VariableEntity> entities) {
+    if (entities.isEmpty()) {
       return ImmutableList.of();
     }
     return () -> new TimestampsIterator(entities.iterator());
@@ -155,7 +143,7 @@ class HibernateValueTable extends AbstractValueTable {
             "WHERE ve.id = vs.variable_entity_id AND vs.value_table_id = :value_table_id AND ve.type = :entity_type").setParameter(
         "value_table_id", valueTableId) //
         .setParameter("entity_type", getEntityType());
-    for(final Object[] row : (List<Object[]>) query.list()) {
+    for (final Object[] row : (List<Object[]>) query.list()) {
       valueSetTimestamps.put((String) row[0], new Timestamps() {
 
         @NotNull
@@ -236,15 +224,15 @@ class HibernateValueTable extends AbstractValueTable {
           return variableValueSource.getVariable().getName().equals(variableName);
         }
       });
-    } catch(NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       throw new NoSuchVariableException(getName(), variableName);
     }
   }
 
   @Override
   public boolean hasVariable(String variableName) {
-    for(VariableValueSource source : getSources()) {
-      if(source.getVariable().getName().equals(variableName)) {
+    for (VariableValueSource source : getSources()) {
+      if (source.getVariable().getName().equals(variableName)) {
         return true;
       }
     }
@@ -257,7 +245,7 @@ class HibernateValueTable extends AbstractValueTable {
    */
   @Override
   protected Set<VariableValueSource> getSources() {
-    if(getDatasource().hasTableTransaction(getName())) {
+    if (getDatasource().hasTableTransaction(getName())) {
       return new ImmutableSet.Builder<VariableValueSource>() //
           .addAll(super.getSources()) //
           .addAll(getDatasource().getTableTransaction(getName()).getUncommittedSources()) //
@@ -305,12 +293,12 @@ class HibernateValueTable extends AbstractValueTable {
   }
 
   void refreshEntityProvider() {
-    ((HibernateVariableEntityProvider)getVariableEntityProvider()).initialise();
+    ((HibernateVariableEntityProvider) getVariableEntityProvider()).initialise();
   }
 
   public class HibernateVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
-    private final Set<VariableEntity> entities = new LinkedHashSet<>();
+    private final List<VariableEntity> entities = new VariableEntityList();
 
     public HibernateVariableEntityProvider(String entityType) {
       super(entityType);
@@ -318,17 +306,18 @@ class HibernateValueTable extends AbstractValueTable {
 
     @Override
     public void initialise() {
-      log.debug("Populating entity cache for table {}", getName());
-      entities.clear();
-      // get the variable entities that have a value set in the table
-      AssociationCriteria criteria = AssociationCriteria
-          .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
-          .add("valueTable.id", Operation.eq, valueTableId);
-      for(Object obj : criteria.list()) {
-        VariableEntity entity = ((ValueSetState) obj).getVariableEntity();
-        entities.add(new VariableEntityBean(entity.getType(), entity.getIdentifier()));
+      if (entities.isEmpty()) {
+        log.debug("Populating entity cache for table {}", getName());
+        // get the variable entities that have a value set in the table
+        AssociationCriteria criteria = AssociationCriteria
+            .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
+            .add("valueTable.id", Operation.eq, valueTableId);
+        entities.addAll(criteria.list().stream().map(obj -> {
+          VariableEntity entity = ((ValueSetState) obj).getVariableEntity();
+          return new VariableEntityBean(entity.getType(), entity.getIdentifier());
+        }).collect(Collectors.toList()));
+        log.debug("Populating entity cache - done. {} entities loaded.", entities.size());
       }
-      log.debug("Populating entity cache - done. {} entities loaded.", entities.size());
     }
 
     /**
@@ -337,17 +326,21 @@ class HibernateValueTable extends AbstractValueTable {
      */
     @NotNull
     @Override
-    public Set<VariableEntity> getVariableEntities() {
+    public List<VariableEntity> getVariableEntities() {
       //TODO cache these entities instead of recreating an ImmutableSet each time
-      if(getDatasource().hasTableTransaction(getName())) {
-        return ImmutableSet.copyOf(
+      if (getDatasource().hasTableTransaction(getName())) {
+        return ImmutableList.copyOf(
             Iterables.concat(entities, getDatasource().getTableTransaction(getName()).getUncommittedEntities()));
       }
-      return Collections.unmodifiableSet(entities);
+      return Collections.unmodifiableList(entities);
     }
 
     public void remove(VariableEntity entity) {
       entities.remove(entity);
+    }
+
+    public void clear() {
+      entities.clear();
     }
   }
 
@@ -383,17 +376,17 @@ class HibernateValueTable extends AbstractValueTable {
     public Timestamps next() {
       VariableEntity entity = entities.next();
 
-      if(timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
+      if (timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
 
       boolean found = false;
       // Scroll until we find the required entity or reach the end of the results
-      while(hasNextResults && !found) {
+      while (hasNextResults && !found) {
         String id = results.getString(0);
         Value created = DateTimeType.get().valueOf(results.getDate(1));
         Value updated = DateTimeType.get().valueOf(results.getDate(2));
 
         timestampsMap.put(id, new TimestampsBean(created, updated));
-        if(entity.getIdentifier().equals(id)) {
+        if (entity.getIdentifier().equals(id)) {
           found = true;
         }
         hasNextResults = results.next();
@@ -401,7 +394,7 @@ class HibernateValueTable extends AbstractValueTable {
 
       closeCursorIfNecessary();
 
-      if(timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
+      if (timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
       return NullTimestamps.get();
     }
 
@@ -423,9 +416,9 @@ class HibernateValueTable extends AbstractValueTable {
     }
 
     private void closeCursorIfNecessary() {
-      if(!closed) {
+      if (!closed) {
         // Close the cursor if we don't have any more results or no more entities to return
-        if(!hasNextResults || !hasNext()) {
+        if (!hasNextResults || !hasNext()) {
           closed = true;
           results.close();
         }

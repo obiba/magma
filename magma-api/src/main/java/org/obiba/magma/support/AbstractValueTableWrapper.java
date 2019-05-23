@@ -10,21 +10,10 @@
 
 package org.obiba.magma.support;
 
-import java.util.Set;
-import java.util.SortedSet;
+import org.obiba.magma.*;
 
 import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Datasource;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
+import java.util.List;
 
 public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
 
@@ -54,7 +43,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
+  public List<VariableEntity> getVariableEntities() {
     return getWrappedValueTable().getVariableEntities();
   }
 
@@ -79,7 +68,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
     return getWrappedValueTable().getValueSetTimestamps(entities);
   }
 

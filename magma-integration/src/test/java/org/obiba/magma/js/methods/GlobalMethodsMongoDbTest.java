@@ -10,33 +10,21 @@
 
 package org.obiba.magma.js.methods;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.DatasourceFactory;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
-import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
+import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.views.DefaultViewManagerImpl;
 import org.obiba.magma.views.MemoryViewPersistenceStrategy;
@@ -46,13 +34,14 @@ import org.obiba.magma.xstream.MagmaXStreamExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
-@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
+@SuppressWarnings({"OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass"})
 public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalMethodsMongoDbTest.class);
@@ -97,7 +86,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
       mongo.start();
       mongoDbUrl = "mongodb://" + mongo.getServerSocketAddress() + '/' + MONGO_DB_TEST;
       return true;
-    } catch(Exception e) {
+    } catch (Exception e) {
       return false;
     }
   }
@@ -149,24 +138,24 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable lbsWeight = AbstractJsTest.createIntVariable("weight_in_lbs", "$('ds.table:weight') * 2.2");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(lbsWeight);
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    Map<String,Long> tableValues = Maps.newHashMap();
-    for(ValueSet valueSet : table.getValueSets()) {
+    Map<String, Long> tableValues = Maps.newHashMap();
+    for (ValueSet valueSet : table.getValueSets()) {
       tableValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) table.getValue(kgWeight, valueSet).getValue());
     }
 
     Map<String, Long> viewValues = Maps.newHashMap();
     View view = viewManager.getView(DATASOURCE, "view");
-    for(ValueSet valueSet : view.getValueSets()) {
+    for (ValueSet valueSet : view.getValueSets()) {
       viewValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) view.getValue(lbsWeight, valueSet).getValue());
     }
     assertThat(tableValues.size()).isEqualTo(viewValues.size()).isEqualTo(NB_ENTITIES);
 
-    for(String id : tableValues.keySet()) {
+    for (String id : tableValues.keySet()) {
       Long kg = tableValues.get(id);
       Long lbs = viewValues.get(id);
       assertThat(lbs).isEqualTo((long) (kg * 2.2));
@@ -184,7 +173,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable weight2 = AbstractJsTest.createIntVariable("weight2", "$('ds.table2:weight')");
 
     View viewTemplate = View.Builder.newView("view", table, table2).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(weight);
       variableWriter.writeVariable(weight1);
       variableWriter.writeVariable(weight2);
@@ -198,7 +187,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     allEntities.addAll(table2.getVariableEntities());
     assertThat(view.getValueSetCount()).isEqualTo(allEntities.size());
 
-    for(ValueSet vs : view.getValueSets()) {
+    for (ValueSet vs : view.getValueSets()) {
       Value w = view.getValue(weight, vs);
       Value w1 = view.getValue(weight1, vs);
       Value w2 = view.getValue(weight2, vs);
@@ -216,7 +205,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable lbsWeight = AbstractJsTest.createIntVariable("weight_in_lbs", "$('ds.table:weight') * 2.2");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(lbsWeight);
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
@@ -224,13 +213,13 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     VectorSource tableVectorSource = table.getVariableValueSource("weight").asVectorSource();
     assertThat(tableVectorSource).isNotNull();
     List<Value> tableValues = Lists
-        .newArrayList(tableVectorSource.getValues(new TreeSet<>(table.getVariableEntities())));
+        .newArrayList(tableVectorSource.getValues(table.getVariableEntities()));
 
     View view = viewManager.getView(DATASOURCE, "view");
     VectorSource viewVectorSource = view.getVariableValueSource("weight_in_lbs").asVectorSource();
     assertThat(viewVectorSource).isNotNull();
     int i = 0;
-    for(Value viewValue : viewVectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
+    for (Value viewValue : viewVectorSource.getValues(view.getVariableEntities())) {
       Long kg = (Long) tableValues.get(i++).getValue();
       Long lbs = (Long) viewValue.getValue();
       assertThat(lbs).isEqualTo((long) (kg * 2.2));
@@ -248,7 +237,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable weight2 = AbstractJsTest.createIntVariable("weight2", "$('ds.table2:weight')");
 
     View viewTemplate = View.Builder.newView("view", table, table2).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(weight);
       variableWriter.writeVariable(weight1);
       variableWriter.writeVariable(weight2);
@@ -262,12 +251,12 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     VectorSource weight1Vector = view.getVariableValueSource("weight1").asVectorSource();
     VectorSource weight2Vector = view.getVariableValueSource("weight2").asVectorSource();
 
-    SortedSet<VariableEntity> entities = Sets.newTreeSet(view.getVariableEntities());
+    List<VariableEntity> entities = view.getVariableEntities();
     Iterator<Value> weightValues = weightVector.getValues(entities).iterator();
     Iterator<Value> weight1Values = weight1Vector.getValues(entities).iterator();
     Iterator<Value> weight2Values = weight2Vector.getValues(entities).iterator();
 
-    for(VariableEntity entity : entities) {
+    for (VariableEntity entity : entities) {
       Value w = weightValues.next();
       Value w1 = weight1Values.next();
       Value w2 = weight2Values.next();
@@ -289,7 +278,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable varE = AbstractJsTest.createIntVariable("E", "5");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(varA);
       variableWriter.writeVariable(varB);
       variableWriter.writeVariable(varC);
@@ -299,7 +288,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
-    for(ValueSet valueSet : view.getValueSets()) {
+    for (ValueSet valueSet : view.getValueSets()) {
       view.getValue(varA, valueSet);
     }
   }
@@ -316,7 +305,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable varE = AbstractJsTest.createIntVariable("E", "5");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(varA);
       variableWriter.writeVariable(varB);
       variableWriter.writeVariable(varC);
@@ -330,7 +319,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     assertThat(variableValueSource.supportVectorSource()).isTrue();
     VectorSource vectorSource = variableValueSource.asVectorSource();
     assertThat(vectorSource).isNotNull();
-    for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
+    for (Value value : vectorSource.getValues(view.getVariableEntities())) {
       value.getValue();
     }
   }
@@ -345,23 +334,23 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable lbsWeight = AbstractJsTest.createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.2");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(kgWeightRef);
       variableWriter.writeVariable(lbsWeight);
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    Map<String,Long> tableValues = Maps.newHashMap();
-    for(ValueSet valueSet : table.getValueSets()) {
+    Map<String, Long> tableValues = Maps.newHashMap();
+    for (ValueSet valueSet : table.getValueSets()) {
       tableValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) table.getValue(kgWeight, valueSet).getValue());
     }
 
-    Map<String,Long> viewValues = Maps.newHashMap();
+    Map<String, Long> viewValues = Maps.newHashMap();
     View view = viewManager.getView(DATASOURCE, "view");
-    for(ValueSet valueSet : view.getValueSets()) {
+    for (ValueSet valueSet : view.getValueSets()) {
       viewValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) view.getValue(lbsWeight, valueSet).getValue());
     }
-    for(String id : tableValues.keySet()) {
+    for (String id : tableValues.keySet()) {
       Long kg = tableValues.get(id);
       Long lbs = viewValues.get(id);
       assertThat(lbs).isEqualTo((long) (kg * 2.2));
@@ -387,15 +376,15 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         .newArrayList(weight_in_kg, height_in_cm, height_in_m, bmi_metric, weight_in_lbs, height_in_inches, bmi);
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      for(Variable variable : variables) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for (Variable variable : variables) {
         variableWriter.writeVariable(variable);
       }
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
-    for(ValueSet valueSet : view.getValueSets()) {
+    for (ValueSet valueSet : view.getValueSets()) {
 //      log.debug("weight_in_kg: {}", view.getValue(weight_in_kg, valueSet));
 //      log.debug("weight_in_lbs: {}", view.getValue(weight_in_lbs, valueSet));
 //      log.debug("height_in_cm: {}", view.getValue(height_in_cm, valueSet));
@@ -428,8 +417,8 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         .newArrayList(weight_in_kg, height_in_cm, height_in_m, bmi_metric, weight_in_lbs, height_in_inches, bmi);
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      for(Variable variable : variables) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for (Variable variable : variables) {
         variableWriter.writeVariable(variable);
       }
     }
@@ -437,20 +426,20 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
     View view = viewManager.getView(DATASOURCE, "view");
 
-    SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
+    List<VariableEntity> entities = view.getVariableEntities();
 
     List<Double> bmiValues = new ArrayList<>();
-    for(Value viewValue : view.getVariableValueSource("bmi").asVectorSource().getValues(entities)) {
+    for (Value viewValue : view.getVariableValueSource("bmi").asVectorSource().getValues(entities)) {
       bmiValues.add((Double) viewValue.getValue());
     }
 
     List<Double> bmiMetricValues = new ArrayList<>();
-    for(Value viewValue : view.getVariableValueSource("bmi_metric").asVectorSource().getValues(entities)) {
+    for (Value viewValue : view.getVariableValueSource("bmi_metric").asVectorSource().getValues(entities)) {
       bmiMetricValues.add((Double) viewValue.getValue());
     }
 
     assertThat(bmiValues.size()).isEqualTo(bmiMetricValues.size()).isEqualTo(NB_ENTITIES);
-    for(int i = 0; i < NB_ENTITIES; i++) {
+    for (int i = 0; i < NB_ENTITIES; i++) {
       assertThat(Math.abs(bmiValues.get(i) - bmiMetricValues.get(i))).isLessThan(2);
     }
   }
@@ -466,8 +455,8 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         AbstractJsTest.createIntVariable("C", "$this('B')"));
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      for(Variable variable : variables) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for (Variable variable : variables) {
         variableWriter.writeVariable(variable);
       }
     }
@@ -478,7 +467,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable varC = view.getVariable("C");
 
     Stopwatch stopwatch = Stopwatch.createStarted();
-    for(ValueSet valueSet : view.getValueSets()) {
+    for (ValueSet valueSet : view.getValueSets()) {
       view.getValue(varC, valueSet).getValue();
     }
     log.info("Load {} value sets in {}", NB_ENTITIES, stopwatch.stop());
@@ -496,8 +485,8 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         AbstractJsTest.createIntVariable("C", "$this('B')"));
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      for(Variable variable : variables) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for (Variable variable : variables) {
         variableWriter.writeVariable(variable);
       }
     }
@@ -505,10 +494,10 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
     View view = viewManager.getView(DATASOURCE, "view");
     Stopwatch stopwatch = Stopwatch.createStarted();
-    SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
+    List<VariableEntity> entities = view.getVariableEntities();
     log.info("Load {} entities in {}", entities.size(), stopwatch);
     stopwatch.reset().start();
-    for(Value viewValue : view.getVariableValueSource("C").asVectorSource().getValues(entities)) {
+    for (Value viewValue : view.getVariableValueSource("C").asVectorSource().getValues(entities)) {
       viewValue.getValue();
     }
     log.info("Load vector for {} entities in {}", NB_ENTITIES, stopwatch.stop());
@@ -528,7 +517,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable varD = AbstractJsTest.createIntVariable("D", "$this('B') * 5");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(varA);
       variableWriter.writeVariable(varB);
       variableWriter.writeVariable(varC);
@@ -537,7 +526,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
-    for(ValueSet valueSet : view.getValueSets()) {
+    for (ValueSet valueSet : view.getValueSets()) {
       view.getValue(varA, valueSet);
     }
   }
@@ -553,7 +542,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Variable varD = AbstractJsTest.createIntVariable("D", "$this('B') * 5");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(varA);
       variableWriter.writeVariable(varB);
       variableWriter.writeVariable(varC);
@@ -562,13 +551,13 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
-    for(ValueSet valueSet : view.getValueSets()) {
+    for (ValueSet valueSet : view.getValueSets()) {
       view.getValue(varA, valueSet);
     }
 
     VectorSource vectorSource = view.getVariableValueSource("A").asVectorSource();
     assertThat(vectorSource).isNotNull();
-    for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
+    for (Value value : vectorSource.getValues(view.getVariableEntities())) {
       value.getValue();
     }
   }

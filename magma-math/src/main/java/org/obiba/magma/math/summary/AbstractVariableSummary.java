@@ -10,19 +10,13 @@
 
 package org.obiba.magma.math.summary;
 
-import java.util.SortedSet;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import org.obiba.magma.*;
 
 import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import java.util.List;
 
 public abstract class AbstractVariableSummary implements VariableSummary {
 
@@ -45,18 +39,18 @@ public abstract class AbstractVariableSummary implements VariableSummary {
     variableName = variable.getName();
   }
 
-  protected SortedSet<VariableEntity> getFilteredVariableEntities(@NotNull ValueTable table) {
-    if(offset == null && limit == null) return Sets.newTreeSet(table.getVariableEntities());
+  protected List<VariableEntity> getFilteredVariableEntities(@NotNull ValueTable table) {
+    if (offset == null && limit == null) return table.getVariableEntities();
 
-    Iterable<VariableEntity> entities = Sets.newTreeSet(table.getVariableEntities());
+    Iterable<VariableEntity> entities = table.getVariableEntities();
     // Apply offset then limit (in that order)
-    if(offset != null) {
+    if (offset != null) {
       entities = Iterables.skip(entities, offset);
     }
-    if(limit != null && limit >= 0) {
+    if (limit != null && limit >= 0) {
       entities = Iterables.limit(entities, limit);
     }
-    return Sets.newTreeSet(entities);
+    return ImmutableList.copyOf(entities);
   }
 
   @NotNull

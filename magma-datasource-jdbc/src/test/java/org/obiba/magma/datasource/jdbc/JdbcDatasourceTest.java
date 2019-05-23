@@ -10,13 +10,7 @@
 
 package org.obiba.magma.datasource.jdbc;
 
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -25,18 +19,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.obiba.core.test.spring.Dataset;
 import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
-import org.obiba.magma.Category;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.*;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.test.SchemaTestExecutionListener;
@@ -53,18 +38,19 @@ import org.springframework.test.context.support.DirtiesContextTestExecutionListe
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import com.google.common.collect.Sets;
+import javax.sql.DataSource;
+import java.util.stream.Collectors;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 
-@SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
+@SuppressWarnings({"ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount"})
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/test-spring-context.xml")
 @TransactionConfiguration
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class,
-    DbUnitAwareTestExecutionListener.class })
+    DbUnitAwareTestExecutionListener.class})
 public class JdbcDatasourceTest extends AbstractMagmaTest {
 
   @Rule
@@ -183,11 +169,11 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     assertThat(bdVar).isNotNull();
     assertThat(bdVar2).isNotNull();
 
-    Iterable<Value> values = bdVar.getValues(new TreeSet<>(valueTable.getVariableEntities()));
+    Iterable<Value> values = bdVar.getValues(valueTable.getVariableEntities());
 
     assertThat(values).hasSize(2);
 
-    values = bdVar2.getValues(new TreeSet<>(valueTable.getVariableEntities()));
+    values = bdVar2.getValues(valueTable.getVariableEntities());
     assertThat(values).hasSize(2);
 
     jdbcDatasource.dispose();
@@ -214,11 +200,11 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     assertThat(bdVar).isNotNull();
     assertThat(bdVar2).isNotNull();
 
-    Iterable<Value> values = bdVar.getValues(new TreeSet<>(valueTable.getVariableEntities()));
+    Iterable<Value> values = bdVar.getValues(valueTable.getVariableEntities());
 
     assertThat(values).hasSize(2);
 
-    values = bdVar2.getValues(new TreeSet<>(valueTable.getVariableEntities()));
+    values = bdVar2.getValues(valueTable.getVariableEntities());
     assertThat(values).hasSize(2);
 
     jdbcDatasource.dispose();
@@ -319,8 +305,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
 
     VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
 
-    try(ValueTableWriter writer = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
-      try(ValueSetWriter vsWriter = writer.writeValueSet(myEntity1)) {
+    try (ValueTableWriter writer = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+      try (ValueSetWriter vsWriter = writer.writeValueSet(myEntity1)) {
         vsWriter.remove();
       }
     }
@@ -337,8 +323,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
 
     createDatasourceFromScratch(jdbcDatasource);
 
-    try(ValueTableWriter writer = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
-      try(VariableWriter varWriter = writer.writeVariables()) {
+    try (ValueTableWriter writer = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+      try (VariableWriter varWriter = writer.writeVariables()) {
         varWriter.removeVariable(jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1"));
       }
     }
@@ -373,9 +359,9 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
     jdbcDatasource.initialise();
 
-    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+    try (ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
       // Write some variables.
-      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+      try (VariableWriter variableWriter = tableWriter.writeVariables()) {
         variableWriter.writeVariable(Variable.Builder.newVariable("test.MY_VAR1", IntegerType.get(), "Participant").build());
         variableWriter.writeVariable(Variable.Builder.newVariable("test.MY_VAR2", DecimalType.get(), "Participant").build());
       }
@@ -383,7 +369,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       // Write a value set.
       VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
 
-      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
+      try (ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
         Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("test.MY_VAR1");
         Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("test.MY_VAR2");
         valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
@@ -628,16 +614,16 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   private void writeTestValueSet(JdbcDatasource jdbcDatasource) {
     VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
 
-    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+    try (ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
       // Write some variables.
-      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+      try (VariableWriter variableWriter = tableWriter.writeVariables()) {
         variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR1", IntegerType.get(), "Participant").repeatable().build());
         variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR2", DecimalType.get(), "Participant").repeatable().build());
         variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR3", TextType.get(), "Participant").build());
       }
 
       // Write a value set.
-      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
+      try (ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
         Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
         Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
         Variable myVar3 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR3");
@@ -705,20 +691,20 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
 
   private void createDatasourceFromScratch(JdbcDatasource jdbcDatasource) {
     // Create a new ValueTable.
-    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+    try (ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
       assertThat(tableWriter).isNotNull();
       assertThat(jdbcDatasource.getName()).isEqualTo("my-datasource-nodb");
       assertThat(jdbcDatasource.hasValueTable("MY_TABLE")).isTrue();
 
       // Write some variables.
-      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+      try (VariableWriter variableWriter = tableWriter.writeVariables()) {
         variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR1", IntegerType.get(), "Participant").build());
         variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR2", DecimalType.get(), "Participant").build());
       }
 
       // Write a value set.
       VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
-      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
+      try (ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
         Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
         Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
         valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
@@ -728,9 +714,9 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   }
 
   private boolean hasCategory(Variable variable, String categoryName) {
-    if(variable.hasCategories()) {
-      for(Category category : variable.getCategories()) {
-        if(category.getName().equals(categoryName)) {
+    if (variable.hasCategories()) {
+      for (Category category : variable.getCategories()) {
+        if (category.getName().equals(categoryName)) {
           return true;
         }
       }

@@ -12,6 +12,7 @@ package org.obiba.magma.support;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.obiba.magma.Value;
@@ -21,15 +22,15 @@ public class VariableEntitiesCache implements Serializable {
 
   private static final long serialVersionUID = 69918333951801112L;
 
-  private Set<VariableEntity> entities;
+  private List<VariableEntity> entities;
 
   private long lastUpdate;
 
-  public VariableEntitiesCache(Set<VariableEntity> entities, Value lastUpdate) {
+  public VariableEntitiesCache(List<VariableEntity> entities, Value lastUpdate) {
     this(entities, ((Date)lastUpdate.getValue()).getTime());
   }
 
-  public VariableEntitiesCache(Set<VariableEntity> entities, long lastUpdate) {
+  public VariableEntitiesCache(List<VariableEntity> entities, long lastUpdate) {
     this.entities = entities;
     this.lastUpdate = lastUpdate;
   }
@@ -38,7 +39,7 @@ public class VariableEntitiesCache implements Serializable {
     return lastUpdate == ((Date)updated.getValue()).getTime();
   }
 
-  public Set<VariableEntity> getEntities() {
+  public List<VariableEntity> getEntities() {
     return entities;
   }
 }

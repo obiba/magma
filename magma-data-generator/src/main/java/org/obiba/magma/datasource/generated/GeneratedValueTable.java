@@ -10,29 +10,21 @@
 
 package org.obiba.magma.datasource.generated;
 
-import java.util.*;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
-import com.google.common.collect.*;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.*;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GeneratedValueTable implements ValueTable {
 
@@ -40,7 +32,7 @@ public class GeneratedValueTable implements ValueTable {
 
   private final Set<Variable> dictionary;
 
-  private final Set<VariableEntity> entities;
+  private final List<VariableEntity> entities;
 
   private final RandomGenerator randomGenerator;
 
@@ -56,18 +48,18 @@ public class GeneratedValueTable implements ValueTable {
   public GeneratedValueTable(@Nullable Datasource ds, Collection<Variable> dictionary, int entities, long seed) {
     datasource = ds;
     this.dictionary = ImmutableSet.copyOf(dictionary);
-    this.entities = Sets.newTreeSet();
+    this.entities = Lists.newArrayList();
     randomGenerator = new JDKRandomGenerator();
     randomGenerator.setSeed(seed);
     timestamp = DateTimeType.get().now();
-    while(this.entities.size() < entities) {
+    while (this.entities.size() < entities) {
       VariableEntity entity = generateEntity();
-      if(!this.entities.contains(entity)) this.entities.add(entity);
+      if (!this.entities.contains(entity)) this.entities.add(entity);
     }
 
     VariableValueGeneratorFactory factory = new DefaultVariableValueGeneratorFactory();
     generators = Maps.newHashMap();
-    for(Variable v : this.dictionary) {
+    for (Variable v : this.dictionary) {
       generators.put(v.getName(), factory.newGenerator(v));
     }
   }
@@ -116,7 +108,7 @@ public class GeneratedValueTable implements ValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    if(entities.contains(entity)) {
+    if (entities.contains(entity)) {
       return new GeneratedValueSet(this, entity);
     }
     throw new NoSuchValueSetException(this, entity);
@@ -138,14 +130,8 @@ public class GeneratedValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
-    return Iterables.transform(entities, new Function<VariableEntity, Timestamps>() {
-      @Nullable
-      @Override
-      public Timestamps apply(@Nullable VariableEntity input) {
-        return getValueSetTimestamps(input);
-      }
-    });
+  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
+    return entities.stream().map(this::getValueSetTimestamps).collect(Collectors.toList());
   }
 
   @Override
@@ -171,14 +157,14 @@ public class GeneratedValueTable implements ValueTable {
           return input.getName().equals(name);
         }
       });
-    } catch(NoSuchElementException e) {
+    } catch (NoSuchElementException e) {
       throw new NoSuchVariableException(getName(), name);
     }
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
-    return Collections.unmodifiableSet(entities);
+  public List<VariableEntity> getVariableEntities() {
+    return Collections.unmodifiableList(entities);
   }
 
   @Override
@@ -217,7 +203,7 @@ public class GeneratedValueTable implements ValueTable {
 
   private VariableEntity generateEntity(long seed, int length) {
     StringBuilder id = new StringBuilder(Long.toString(Math.abs(seed)));
-    while(id.length() < length) {
+    while (id.length() < length) {
       id.append(0).append(id);
     }
     return new VariableEntityBean(getEntityType(), id.toString());

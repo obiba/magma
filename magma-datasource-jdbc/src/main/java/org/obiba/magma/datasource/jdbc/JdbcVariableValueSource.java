@@ -10,29 +10,15 @@
 
 package org.obiba.magma.datasource.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedSet;
+import com.google.common.collect.Maps;
+import liquibase.structure.core.Column;
+import org.obiba.magma.*;
 
 import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.AbstractVariableValueSource;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
-
-import com.google.common.collect.Maps;
-
-import liquibase.structure.core.Column;
+import java.sql.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 class JdbcVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
   //
@@ -101,12 +87,12 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
   }
 
   @Override
-  public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+  public Iterable<Value> getValues(final List<VariableEntity> entities) {
     return () -> {
       try {
         return new ValueIterator(valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection(),
             entities);
-      } catch(SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException(e);
       }
     };
@@ -163,12 +149,12 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
       VariableEntity entity = entities.next();
       String nextId = entity.getIdentifier();
 
-      if(valueMap.containsKey(nextId)) return getValueFromMap(entity);
+      if (valueMap.containsKey(nextId)) return getValueFromMap(entity);
 
       try {
         // Scroll until we find the required entity or reach the end of the results
         boolean found = false;
-        while(hasNextResults && !found) {
+        while (hasNextResults && !found) {
           String id = valueTable.extractEntityIdentifier(rs);
           valueMap.put(id, getValueFromResult());
           hasNextResults = rs.next();
@@ -177,9 +163,9 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
         closeCursorIfNecessary();
 
-        if(valueMap.containsKey(nextId)) return getValueFromMap(entity);
+        if (valueMap.containsKey(nextId)) return getValueFromMap(entity);
         return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-      } catch(SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException(e);
       }
     }
@@ -191,10 +177,10 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
     private Value getValueFromResult() throws SQLException {
       Object resObj = rs.getObject(columnName);
-      if(resObj == null) {
+      if (resObj == null) {
         return variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
       }
-      if(variable.isRepeatable()) {
+      if (variable.isRepeatable()) {
         return getValueType().sequenceOf(resObj.toString());
       }
       return getValueType().valueOf(resObj);
@@ -202,9 +188,9 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     }
 
     private void closeCursorIfNecessary() {
-      if(!closed) {
+      if (!closed) {
         // Close the cursor if we don't have any more results or no more entities to return
-        if(!hasNextResults || !hasNext()) {
+        if (!hasNextResults || !hasNext()) {
           closed = true;
           closeQuietly(rs, statement, connection);
         }
@@ -223,21 +209,21 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
       return value;
     }
 
-    @SuppressWarnings({ "OverlyStrongTypeCast", "ChainOfInstanceofChecks" })
+    @SuppressWarnings({"OverlyStrongTypeCast", "ChainOfInstanceofChecks"})
     private void closeQuietly(Object... objs) {
-      if(objs != null) {
-        for(Object o : objs) {
+      if (objs != null) {
+        for (Object o : objs) {
           try {
-            if(o instanceof ResultSet) {
+            if (o instanceof ResultSet) {
               ((ResultSet) o).close();
             }
-            if(o instanceof Statement) {
+            if (o instanceof Statement) {
               ((Statement) o).close();
             }
-            if(o instanceof Connection) {
+            if (o instanceof Connection) {
               ((Connection) o).close();
             }
-          } catch(SQLException e) {
+          } catch (SQLException e) {
             // ignored
           }
         }

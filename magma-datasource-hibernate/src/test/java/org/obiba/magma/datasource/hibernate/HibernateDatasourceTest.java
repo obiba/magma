@@ -10,51 +10,25 @@
 
 package org.obiba.magma.datasource.hibernate;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.obiba.magma.Category;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchValueTableException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.*;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.BinaryValueGenerator;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
-import org.obiba.magma.datasource.hibernate.domain.CategoryState;
-import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
-import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
-import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
-import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
-import org.obiba.magma.datasource.hibernate.domain.VariableState;
+import org.obiba.magma.datasource.hibernate.domain.*;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.type.BinaryType;
-import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.type.DateType;
-import org.obiba.magma.type.DecimalType;
-import org.obiba.magma.type.IntegerType;
-import org.obiba.magma.type.TextType;
+import org.obiba.magma.type.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,17 +39,18 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/test-context.xml")
-@SuppressWarnings({ "OverlyLongMethod", "MagicNumber", "PMD.NcssMethodCount" })
+@SuppressWarnings({"OverlyLongMethod", "MagicNumber", "PMD.NcssMethodCount"})
 public class HibernateDatasourceTest {
 
   private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceTest.class);
@@ -162,13 +137,13 @@ public class HibernateDatasourceTest {
 
         MagmaEngine.get().addDatasource(ds);
 
-        try(ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT)) {
+        try (ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT)) {
 
           // Test that the table is visible
           assertThat(ds.hasValueTable(TABLE)).isTrue();
 
           // Write variables and assert that they are visible.
-          try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+          try (VariableWriter variableWriter = tableWriter.writeVariables()) {
             variableWriter.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
             assertThat(ds.getValueTable(TABLE).getVariable("Var1")).isNotNull();
             variableWriter.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build());
@@ -208,9 +183,9 @@ public class HibernateDatasourceTest {
 
         MagmaEngine.get().addDatasource(ds);
 
-        try(ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT)) {
+        try (ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT)) {
           // Write variables and assert that they are visible.
-          try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+          try (VariableWriter variableWriter = tableWriter.writeVariables()) {
             variableWriter.writeVariable(initialState);
           }
         }
@@ -225,8 +200,8 @@ public class HibernateDatasourceTest {
         Variable variable = ds.getValueTable(TABLE).getVariable("Var1");
         assertSameCategories(initialState, variable);
 
-        try(ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
-            VariableWriter variableWriter = tableWriter.writeVariables()) {
+        try (ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+             VariableWriter variableWriter = tableWriter.writeVariables()) {
           variableWriter.writeVariable(changedState);
         }
       }
@@ -289,19 +264,19 @@ public class HibernateDatasourceTest {
         HibernateDatasource ds = getDatasource();
         ValueTable valueTable = ds.getValueTable("NewTable");
 
-        for(Variable variable : variables) {
+        for (Variable variable : variables) {
           VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
           assertThat(valueSource).isNotNull();
           assertThat(valueSource.supportVectorSource()).isTrue();
           VectorSource vectorSource = valueSource.asVectorSource();
           assertThat(vectorSource).isNotNull();
 
-          SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
+          List<VariableEntity> entities = valueTable.getVariableEntities();
           Iterable<Value> values = vectorSource.getValues(entities);
           assertThat(values).isNotNull();
           assertThat(values).hasSize(entities.size());
           Iterator<Value> valuesIter = values.iterator();
-          for(VariableEntity entity : entities) {
+          for (VariableEntity entity : entities) {
             Value value = valuesIter.next();
             assertThat(value).isNotNull();
             assertThat(value.isSequence()).isEqualTo(variable.isRepeatable());
@@ -338,7 +313,7 @@ public class HibernateDatasourceTest {
         HibernateDatasource ds = getDatasource();
         ValueTable valueTable = ds.getValueTable("NewTable");
 
-        for(Variable variable : variables) {
+        for (Variable variable : variables) {
           VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
           assertThat(valueSource).isNotNull();
           assertThat(valueSource.supportVectorSource()).isTrue();
@@ -347,19 +322,18 @@ public class HibernateDatasourceTest {
 
           VariableEntity unexpected = new VariableEntityBean(valueTable.getEntityType(), "0000000");
 
-          SortedSet<VariableEntity> entities = Sets
-              .newTreeSet(Iterables.concat(Sets.newHashSet(unexpected), valueTable.getVariableEntities()));
+          List<VariableEntity> entities = Lists.newArrayList(Iterables.concat(Sets.newHashSet(unexpected), valueTable.getVariableEntities()));
           Iterable<Value> values = vectorSource.getValues(entities);
           assertThat(values).isNotNull();
           assertThat(values).hasSize(entities.size());
           Iterator<Value> valuesIter = values.iterator();
-          for(VariableEntity entity : entities) {
+          for (VariableEntity entity : entities) {
 
             Value value = valuesIter.next();
             log.info("Entity={} Value={}", entity, value);
             assertThat(value).isNotNull();
             assertThat(value.isSequence()).isEqualTo(variable.isRepeatable());
-            if(valueTable.hasValueSet(entity)) {
+            if (valueTable.hasValueSet(entity)) {
               assertThat(value).isEqualTo(valueTable.getValue(variable, valueTable.getValueSet(entity)));
             } else {
               assertThat(value.isNull()).isTrue();
@@ -394,7 +368,7 @@ public class HibernateDatasourceTest {
         HibernateDatasource ds = getDatasource();
         ValueTable valueTable = ds.getValueTable("NewTable");
 
-        for(Variable variable : variables) {
+        for (Variable variable : variables) {
 
           VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
           assertThat(valueSource).isNotNull();
@@ -402,16 +376,16 @@ public class HibernateDatasourceTest {
           VectorSource vectorSource = valueSource.asVectorSource();
           assertThat(vectorSource).isNotNull();
 
-          SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
+          List<VariableEntity> entities = valueTable.getVariableEntities();
           Iterable<Value> values = vectorSource.getValues(entities);
           assertThat(values).isNotNull();
           assertThat(values).hasSize(entities.size());
           long length = BinaryValueGenerator.getLength();
-          for(Value value : values) {
+          for (Value value : values) {
             assertThat(value.isNull()).isFalse();
             assertThat(value.isSequence()).isEqualTo(variable.isRepeatable());
-            if(value.isSequence()) {
-              for(Value v : value.asSequence().getValue()) {
+            if (value.isSequence()) {
+              for (Value v : value.asSequence().getValue()) {
                 if (!v.isNull()) {
                   assertThat(v.getValue()).isInstanceOf(byte[].class);
                   assertThat(v.getLength()).isEqualTo(length);
@@ -465,9 +439,9 @@ public class HibernateDatasourceTest {
         HibernateDatasource ds = getDatasource();
         ValueTable table = ds.getValueTable("NewTable");
         Date lastValueSetUpdate = null;
-        for(ValueSet valueSet : table.getValueSets()) {
+        for (ValueSet valueSet : table.getValueSets()) {
           Date lastUpdate = (Date) valueSet.getTimestamps().getLastUpdate().getValue();
-          if(lastValueSetUpdate == null || lastValueSetUpdate.before(lastUpdate)) {
+          if (lastValueSetUpdate == null || lastValueSetUpdate.before(lastUpdate)) {
             lastValueSetUpdate = lastUpdate;
           }
         }
@@ -508,8 +482,8 @@ public class HibernateDatasourceTest {
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
 
-        try(ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
-            VariableWriter variableWriter = tableWriter.writeVariables()) {
+        try (ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+             VariableWriter variableWriter = tableWriter.writeVariables()) {
           variableWriter
               .writeVariable(Variable.Builder.newVariable("New Variable", TextType.get(), PARTICIPANT).build());
         }
@@ -546,8 +520,8 @@ public class HibernateDatasourceTest {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
-        try(ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
-            VariableWriter variableWriter = tableWriter.writeVariables()) {
+        try (ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+             VariableWriter variableWriter = tableWriter.writeVariables()) {
           variableWriter.removeVariable(variable);
         }
       }
@@ -758,7 +732,7 @@ public class HibernateDatasourceTest {
         try {
           ds.getValueTable(TABLE);
           fail("Should throw NoSuchValueTableException");
-        } catch(NoSuchValueTableException ignored) {
+        } catch (NoSuchValueTableException ignored) {
         }
 
         Session session = ds.getSessionFactory().getCurrentSession();
@@ -869,7 +843,7 @@ public class HibernateDatasourceTest {
         try {
           ds.getValueTable(TABLE).getVariable("Variable to delete");
           fail("Should throw NoSuchVariableException");
-        } catch(NoSuchVariableException ignored) {
+        } catch (NoSuchVariableException ignored) {
         }
 
         Variable found = ds.getValueTable(TABLE).getVariable("Other Variable");
@@ -936,7 +910,7 @@ public class HibernateDatasourceTest {
         try {
           table.getValueSet(entity[0]);
           fail("Should throw NoSuchValueSetException");
-        } catch(NoSuchValueSetException ignored) {
+        } catch (NoSuchValueSetException ignored) {
         }
 
         assertThat(table.getVariableEntities()).hasSize(9);
@@ -998,7 +972,7 @@ public class HibernateDatasourceTest {
         try {
           ds.getValueTable(TABLE).getVariable(variable.getName());
           fail("Should throw NoSuchVariableException");
-        } catch(NoSuchVariableException ignored) {
+        } catch (NoSuchVariableException ignored) {
         }
 
         Session session = ds.getSessionFactory().getCurrentSession();
@@ -1102,7 +1076,7 @@ public class HibernateDatasourceTest {
           HibernateDatasource ds = getDatasource();
           ds.getValueTable(TABLE);
           fail("Should fail with NoSuchValueTableException");
-        } catch(NoSuchValueTableException ignored) {
+        } catch (NoSuchValueTableException ignored) {
         }
       }
     });
@@ -1138,8 +1112,8 @@ public class HibernateDatasourceTest {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
-        try(ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
-            ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+        try (ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+             ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
           variableWriter.writeVariable(newVariable);
         }
       }
@@ -1167,7 +1141,7 @@ public class HibernateDatasourceTest {
   public void test_count_variables() {
 
     final List<Variable> variables = new ArrayList<>();
-    for(int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++) {
       variables.add(Variable.Builder.newVariable("Variable " + i, IntegerType.get(), PARTICIPANT).build());
     }
 
@@ -1240,9 +1214,9 @@ public class HibernateDatasourceTest {
         VariableValueSource variableValueSource = ds.getValueTable(TABLE).getVariableValueSource("V1");
         assertThat(variableValueSource.getValueType().getName().equals(BinaryType.get().getName()));
 
-        TreeSet<VariableEntity> entities = Sets.newTreeSet(ds.getValueTable(TABLE).getVariableEntities());
+        List<VariableEntity> entities = ds.getValueTable(TABLE).getVariableEntities();
         Iterable<Value> values = variableValueSource.asVectorSource().getValues(entities);
-        for(Value value : values) {
+        for (Value value : values) {
           assertThat(value.getValue()).isNotNull();
           assertThat(value.getValueType().getName()).isEqualTo(BinaryType.get().getName());
         }
@@ -1254,7 +1228,7 @@ public class HibernateDatasourceTest {
     List<Category> expectedCategories = Lists.newArrayList(expected.getCategories());
     List<Category> actualCategories = Lists.newArrayList(actual.getCategories());
     assertThat(actual.getCategories()).hasSize(expected.getCategories().size());
-    for(int i = 0; i < expectedCategories.size(); i++) {
+    for (int i = 0; i < expectedCategories.size(); i++) {
       assertThat(actualCategories.get(i).getName()).isEqualTo(expectedCategories.get(i).getName());
       assertThat(actualCategories.get(i).getCode()).isEqualTo(expectedCategories.get(i).getCode());
     }
@@ -1275,7 +1249,7 @@ public class HibernateDatasourceTest {
   }
 
   private void assertJpaEntitiesHasSize(@SuppressWarnings("TypeMayBeWeakened") Session session, Class<?> entityClass,
-      int expectedSize) {
+                                        int expectedSize) {
     assertThat((List<?>) session.createCriteria(entityClass).list()).hasSize(expectedSize);
   }
 
@@ -1285,13 +1259,13 @@ public class HibernateDatasourceTest {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         try {
-          if(drop) {
+          if (drop) {
             HibernateDatasource datasource = createDatasource();
             MagmaEngine.get().addDatasource(datasource);
             datasource.drop();
           }
           MagmaEngine.get().removeDatasource(MagmaEngine.get().getDatasource(DATASOURCE));
-        } catch(Throwable e) {
+        } catch (Throwable e) {
           log.warn("Cannot remove datasource", e);
         }
       }
@@ -1306,7 +1280,7 @@ public class HibernateDatasourceTest {
     public void run() {
       try {
         test();
-      } catch(Throwable t) {
+      } catch (Throwable t) {
         threadException = t;
       }
     }

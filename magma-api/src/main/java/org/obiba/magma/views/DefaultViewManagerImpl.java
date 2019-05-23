@@ -30,7 +30,7 @@ import org.obiba.magma.views.support.VariableOperationContext;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 

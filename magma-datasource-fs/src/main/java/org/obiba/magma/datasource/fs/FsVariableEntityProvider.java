@@ -10,18 +10,11 @@
 
 package org.obiba.magma.datasource.fs;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Reader;
-import java.io.Writer;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Map;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.thoughtworks.xstream.XStream;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -31,10 +24,12 @@ import org.obiba.magma.datasource.fs.FsDatasource.OutputCallback;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
-import com.thoughtworks.xstream.XStream;
+import javax.validation.constraints.NotNull;
+import java.io.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Map;
 
 class FsVariableEntityProvider implements VariableEntityProvider, Initialisable, Disposable {
 
@@ -75,10 +70,10 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
           ObjectInputStream ois = xstream.createObjectInputStream(reader);
           entityType = (String) ois.readObject();
           Map<String, String> entries = (Map<String, String>) ois.readObject();
-          for(Map.Entry<String, String> entry : entries.entrySet()) {
+          for (Map.Entry<String, String> entry : entries.entrySet()) {
             entityToFile.put(new VariableEntityBean(entityType, entry.getKey()), entry.getValue());
           }
-        } catch(ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
           throw new MagmaRuntimeException(e);
         }
         return null;
@@ -88,14 +83,14 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
 
   @Override
   public void dispose() {
-    if(entityToFileMapModified || !valueTable.getEntry(ENTITIES_NAME).exists()) {
+    if (entityToFileMapModified || !valueTable.getEntry(ENTITIES_NAME).exists()) {
       valueTable.writeEntry(ENTITIES_NAME, new OutputCallback<Void>() {
         @Override
         public Void writeEntry(Writer writer) throws IOException {
-          try(ObjectOutputStream oos = xstream.createObjectOutputStream(writer, "entities")) {
+          try (ObjectOutputStream oos = xstream.createObjectOutputStream(writer, "entities")) {
             oos.writeObject(entityType);
             Map<String, String> entries = Maps.newHashMap();
-            for(Map.Entry<VariableEntity, String> entry : entityToFile.entrySet()) {
+            for (Map.Entry<VariableEntity, String> entry : entityToFile.entrySet()) {
               entries.put(entry.getKey().getIdentifier(), entry.getValue());
             }
             oos.writeObject(entries);
@@ -114,8 +109,8 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
 
   @NotNull
   @Override
-  public Set<VariableEntity> getVariableEntities() {
-    return entityToFile.keySet();
+  public List<VariableEntity> getVariableEntities() {
+    return ImmutableList.copyOf(entityToFile.keySet());
   }
 
   @Override
@@ -124,7 +119,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
   }
 
   String addEntity(VariableEntity entity) {
-    if(!entityToFile.containsKey(entity)) {
+    if (!entityToFile.containsKey(entity)) {
       entityToFile.put(entity, entryFilenameFormat.format(entityToFile.size() + 1) + ".xml");
       entityToFileMapModified = true;
     }

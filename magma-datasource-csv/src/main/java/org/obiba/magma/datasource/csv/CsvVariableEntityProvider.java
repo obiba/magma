@@ -10,12 +10,11 @@
 
 package org.obiba.magma.datasource.csv;
 
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.VariableEntityProvider;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class CsvVariableEntityProvider implements VariableEntityProvider {
 
@@ -38,7 +37,7 @@ public class CsvVariableEntityProvider implements VariableEntityProvider {
 
   @NotNull
   @Override
-  public Set<VariableEntity> getVariableEntities() {
+  public List<VariableEntity> getVariableEntities() {
     return valueTable.entities;
   }
 

@@ -11,7 +11,6 @@
 package org.obiba.magma.views;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -28,8 +27,6 @@ import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.transform.TransformingValueTable;
-
-import com.google.common.base.Predicate;
 
 public abstract class AbstractTransformingValueTableWrapper extends AbstractValueTableWrapper
     implements TransformingValueTable {
@@ -63,12 +60,12 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
-    ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
+  public List<VariableEntity> getVariableEntities() {
+    ImmutableList.Builder<VariableEntity> builder = ImmutableList.builder();
     for (VariableEntity entity : super.getVariableEntities()) {
       VariableEntity mappedEntity = getVariableEntityMappingFunction().apply(entity);
       // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
-      if (hasValueSet(mappedEntity)) {
+      if (mappedEntity != null && hasValueSet(mappedEntity)) {
         builder.add(mappedEntity);
       }
     }

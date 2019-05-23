@@ -10,27 +10,17 @@
 
 package org.obiba.magma.math;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
-
+import com.google.common.collect.Iterables;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VariableValueSourceWrapper;
-import org.obiba.magma.VectorSource;
+import org.obiba.magma.*;
 import org.obiba.magma.support.Values;
 import org.obiba.magma.type.IntegerType;
 
-import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,7 +36,7 @@ public class OutlierRemovingVariableValueSourceTest {
 
   private final ValueSet mockValueSet = mock(ValueSet.class);
 
-  private final SortedSet<VariableEntity> emptySet = new TreeSet<>();
+  private final List<VariableEntity> emptySet = new ArrayList<>();
 
   private Variable testVariable;
 

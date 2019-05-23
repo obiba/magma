@@ -10,9 +10,7 @@
 
 package org.obiba.magma.math;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
-
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.Test;
 import org.obiba.magma.Value;
@@ -23,7 +21,8 @@ import org.obiba.magma.support.Values;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DecimalType;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest {
 
-  private final SortedSet<VariableEntity> emptySet = new TreeSet<>();
+  private final List<VariableEntity> emptySet = new ArrayList<>();
 
   @Test(expected = IllegalArgumentException.class)
   public void test_compute_nullSource() {

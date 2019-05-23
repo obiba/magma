@@ -10,20 +10,19 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Value;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.support.VariableEntityProvider;
-
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import org.obiba.magma.Value;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.lang.VariableEntityList;
+import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.support.VariableEntityProvider;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
@@ -31,7 +30,7 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
   private final MongoDBValueTable table;
 
-  private Set<VariableEntity> cachedEntities;
+  private List<VariableEntity> cachedEntities;
 
   private Value lastUpdated;
 
@@ -43,7 +42,7 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
   @NotNull
   @Override
   public String getEntityType() {
-    if(entityType == null) {
+    if (entityType == null) {
       entityType = (String) table.asDBObject().get("entityType");
     }
     return entityType;
@@ -56,23 +55,23 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
   @NotNull
   @Override
-  public Set<VariableEntity> getVariableEntities() {
+  public synchronized List<VariableEntity> getVariableEntities() {
     Value tableLastUpdate = table.getTimestamps().getLastUpdate();
-    if(cachedEntities == null || lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
+    if (cachedEntities == null || lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
       lastUpdated = tableLastUpdate;
       cachedEntities = loadEntities();
     }
     return cachedEntities;
   }
 
-  private Set<VariableEntity> loadEntities() {
-    ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
-    try(DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get())) {
-      while(cursor.hasNext()) {
+  private List<VariableEntity> loadEntities() {
+    List<VariableEntity> list = new VariableEntityList();
+    try (DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get())) {
+      while (cursor.hasNext()) {
         DBObject next = cursor.next();
-        builder.add(new VariableEntityBean(getEntityType(), next.get("_id").toString()));
+        list.add(new VariableEntityBean(getEntityType(), next.get("_id").toString()));
       }
     }
-    return builder.build();
+    return list;
   }
 }

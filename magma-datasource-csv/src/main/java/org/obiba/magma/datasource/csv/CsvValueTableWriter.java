@@ -10,27 +10,16 @@
 
 package org.obiba.magma.datasource.csv;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
+import au.com.bytecode.opencsv.CSVWriter;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.*;
 
 public class CsvValueTableWriter implements ValueTableWriter {
 
@@ -64,7 +53,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
       try {
 
         VariableConverter variableConverter = valueTable.getVariableConverter();
-        if(valueTable.isVariablesFileEmpty()) {
+        if (valueTable.isVariablesFileEmpty()) {
           // Write Header
           writeVariableToCsv(variableConverter.getHeader());
           valueTable.setVariablesFileEmpty(false);
@@ -72,7 +61,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
         String[] line = variableConverter.marshal(variable);
         writeVariableToCsv(line);
-      } catch(IOException e) {
+      } catch (IOException e) {
         throw new MagmaRuntimeException(e);
       }
     }
@@ -83,8 +72,8 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     private void writeVariableToCsv(String... strings) throws IOException {
-      try(CSVWriter writer = valueTable.getVariableWriter()) {
-        if(writer == null) {
+      try (CSVWriter writer = valueTable.getVariableWriter()) {
+        if (writer == null) {
           throw new DatasourceParsingException(
               "Cannot create variable writer. Table " + valueTable.getName() + " does not have variable file.",
               "CsvCannotCreateWriter", valueTable.getName());
@@ -95,7 +84,8 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+    }
 
   }
 
@@ -108,16 +98,16 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
     private CsvValueSetWriter(@NotNull VariableEntity entity) {
       this.entity = entity;
-      if(valueTable.getParentFile() == null) {
+      if (valueTable.getParentFile() == null) {
         throw new IllegalArgumentException("valueTable.getParentFile() cannot be null");
       }
       //noinspection ConstantConditions
       csvLine = new CsvLine(entity, valueTable.getParentFile(), valueTable.isMultilines());
 
       // Populate with existing values, if available
-      if(valueTable.hasValueSet(entity)) {
+      if (valueTable.hasValueSet(entity)) {
         ValueSet valueSet = valueTable.getValueSet(entity);
-        for(Variable variable : valueTable.getVariables()) {
+        for (Variable variable : valueTable.getVariables()) {
           writeValue(variable, valueTable.getValue(variable, valueSet));
         }
       }
@@ -137,7 +127,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
     public void close() {
 
       try {
-        if(valueTable.isDataFileEmpty()) {
+        if (valueTable.isDataFileEmpty()) {
           writeTableWithoutData();
         } else {
           writeTableWithData();
@@ -152,17 +142,17 @@ public class CsvValueTableWriter implements ValueTableWriter {
           }
         });
         // Update entities index
-        ((CsvVariableEntityProvider)valueTable.getVariableEntityProvider()).add(entity);
-      } catch(IOException e) {
+        valueTable.getVariableEntityProvider().add(entity);
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
 
     private void writeTableWithoutData() throws IOException {
       // Write Header
-      if(valueTable.getDataHeaderMap().isEmpty()) {
+      if (valueTable.getDataHeaderMap().isEmpty()) {
         Map<String, Integer> generatedHeader = generateDataHeaderMapFromVariables();
-        if(generatedHeader.size() > 0) {
+        if (generatedHeader.size() > 0) {
           valueTable.setDataHeaderMap(generateDataHeaderMapFromVariables());
           csvLine.setHeaderMap(valueTable.getDataHeaderMap());
         } else {
@@ -178,16 +168,16 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
     private void writeTableWithData() throws IOException {// Test header is a subset
       List<String> extraHeaders = getExtraHeadersFromNewValueSet(getExistingHeaderMap(), csvLine.getHeaderMap());
-      if(extraHeaders.size() != 0) {
+      if (extraHeaders.size() != 0) {
         StringBuilder sb = new StringBuilder();
-        for(String header : extraHeaders) {
+        for (String header : extraHeaders) {
           sb.append(header).append(" ");
         }
         throw new MagmaRuntimeException("Cannot update the CSV ValueTable [" + valueTable.getName() +
             "]. The new ValueSet (record) included the following unexpected Variables (fields): " + sb.toString());
       }
 
-      if(valueTable.hasValueSet(entity)) {
+      if (valueTable.hasValueSet(entity)) {
         // Delete existing value set.
         //valueTable.clearEntity(entity);
       }
@@ -196,8 +186,8 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     private void writeValueToCsv(String... strings) throws IOException {
-      try(CSVWriter writer = valueTable.getValueWriter()) {
-        if(writer == null) {
+      try (CSVWriter writer = valueTable.getValueWriter()) {
+        if (writer == null) {
           throw new DatasourceParsingException(
               "Cannot create data writer. Table " + valueTable.getName() + " does not have data file.",
               "CsvCannotCreateWriter", valueTable.getName());
@@ -212,10 +202,10 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     private List<String> getExtraHeadersFromNewValueSet(Map<String, Integer> existingHeaderMap,
-        Map<String, Integer> valueSetHeaderMap) {
+                                                        Map<String, Integer> valueSetHeaderMap) {
       List<String> result = new ArrayList<>();
-      for(Map.Entry<String, Integer> entry : valueSetHeaderMap.entrySet()) {
-        if(!existingHeaderMap.containsKey(entry.getKey())) {
+      for (Map.Entry<String, Integer> entry : valueSetHeaderMap.entrySet()) {
+        if (!existingHeaderMap.containsKey(entry.getKey())) {
           result.add(entry.getKey());
         }
       }
@@ -225,7 +215,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
     public Map<String, Integer> generateDataHeaderMapFromVariables() {
       Map<String, Integer> headerMap = new HashMap<>();
       int count = 1;
-      for(Variable variable : valueTable.getVariables()) {
+      for (Variable variable : valueTable.getVariables()) {
         headerMap.put(variable.getName(), count++);
       }
       return headerMap;

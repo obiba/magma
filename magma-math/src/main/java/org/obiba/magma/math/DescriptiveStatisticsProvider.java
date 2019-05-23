@@ -10,11 +10,11 @@
 
 package org.obiba.magma.math;
 
-import java.util.SortedSet;
-
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+
+import java.util.List;
 
 /**
  * Strategy for computing a statistical summary of a {@code VariableValueSource}. Implementations can choose how to
@@ -30,9 +30,9 @@ public interface DescriptiveStatisticsProvider {
    * Otherwise, an empty summary is returned (actual values of the summary are unspecified).
    *
    * @param valueSource the {@code VariableValueSource} to evaluate
-   * @param entities the set of entities to evaluate over
+   * @param entities    the set of entities to evaluate over
    * @return a statistical summary (min, max, mean, std dev, etc.)
    */
-  DescriptiveStatistics compute(VariableValueSource valueSource, SortedSet<VariableEntity> entities);
+  DescriptiveStatistics compute(VariableValueSource valueSource, List<VariableEntity> entities);
 
 }

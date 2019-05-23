@@ -10,12 +10,9 @@
 
 package org.obiba.magma.views;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.fest.util.Sets;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.obiba.magma.*;
 import org.obiba.magma.support.NullTimestamps;
@@ -23,19 +20,14 @@ import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.TextType;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
-import javax.validation.constraints.NotNull;
+import java.util.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
+@SuppressWarnings({"PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass"})
 public class ViewTest extends MagmaTest {
 
   @Test
@@ -44,7 +36,7 @@ public class ViewTest extends MagmaTest {
     VariableEntity variableEntity = new VariableEntityBean("type", "id1");
 
     when(valueTableMock.hasValueSet(variableEntity)).thenReturn(true);
-    when(valueTableMock.getVariableEntities()).thenReturn(Sets.newLinkedHashSet(variableEntity));
+    when(valueTableMock.getVariableEntities()).thenReturn(Lists.newArrayList(variableEntity));
     when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
 
     View view = View.Builder.newView("view", valueTableMock).build();
@@ -60,7 +52,7 @@ public class ViewTest extends MagmaTest {
 
     when(valueTableMock.hasValueSet(variableEntity)).thenReturn(true);
     when(valueTableMock.getValueSet(variableEntity)).thenReturn(valueSet);
-    when(valueTableMock.getVariableEntities()).thenReturn(Sets.newLinkedHashSet(variableEntity));
+    when(valueTableMock.getVariableEntities()).thenReturn(Lists.newArrayList(variableEntity));
     when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
@@ -205,7 +197,7 @@ public class ViewTest extends MagmaTest {
 
     VariableEntity variableEntityInclude = new VariableEntityBean("type", "include");
     VariableEntity variableEntityExclude = new VariableEntityBean("type", "exclude");
-    Set<VariableEntity> entities = Sets.newLinkedHashSet(variableEntityInclude, variableEntityExclude);
+    List<VariableEntity> entities = Lists.newArrayList(variableEntityInclude, variableEntityExclude);
 
     Collection<ValueSet> valueSets = new ArrayList<>();
     Collection<ValueSet> valueSetsIncluded = new ArrayList<>();

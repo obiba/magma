@@ -10,70 +10,211 @@
 
 package org.obiba.magma;
 
-import java.util.Set;
-import java.util.SortedSet;
+import com.google.common.collect.ImmutableList;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Set;
 
+/**
+ * Represent the dataset and gives access to the variables and the entities.
+ */
 public interface ValueTable extends Timestamped {
 
   int ENTITY_BATCH_SIZE = 100;
 
+  /**
+   * Name of the table.
+   *
+   * @return
+   */
   @NotNull
   String getName();
 
+  /**
+   * Parent datasource.
+   *
+   * @return
+   */
   @NotNull
   Datasource getDatasource();
 
+  /**
+   * What this table is about.
+   *
+   * @return
+   */
   String getEntityType();
 
+  /**
+   * Compare with table's entity type.
+   *
+   * @param entityType
+   * @return
+   */
   boolean isForEntityType(String entityType);
 
-  Set<VariableEntity> getVariableEntities();
+  /**
+   * Get the entities objects in a list (no ordering applied, order must be consistent
+   * so that client can query by offset-limit.
+   *
+   * @return
+   */
+  List<VariableEntity> getVariableEntities();
 
+  /**
+   * Summary of entities.
+   *
+   * @return
+   */
   int getVariableEntityCount();
 
+  /**
+   * Check if this entity exists.
+   *
+   * @param entity
+   * @return
+   */
   boolean hasValueSet(VariableEntity entity);
 
+  /**
+   * Iterate over the value sets.
+   *
+   * @return
+   */
   Iterable<ValueSet> getValueSets();
 
+  /**
+   * Iterate over the values sets for a set of entities.
+   *
+   * @param entities
+   * @return
+   */
   Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities);
 
-  int getValueSetCount();
+  /**
+   * Summary of value sets.
+   *
+   * @return
+   */
+  default int getValueSetCount() {
+    return getVariableEntityCount();
+  }
 
+  /**
+   * Get a specific value set.
+   *
+   * @param entity
+   * @return
+   * @throws NoSuchValueSetException
+   */
   ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
 
+  /**
+   * Whether the table implementation supports value set dropping.
+   *
+   * @return
+   */
   boolean canDropValueSets();
 
+  /**
+   * Drop all value sets, similar to truncate operation in SQL.
+   */
   void dropValueSets();
 
+  /**
+   * Get the timestamps of a value set.
+   *
+   * @param entity
+   * @return
+   * @throws NoSuchValueSetException
+   */
   Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException;
 
-  Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities);
+  /**
+   * Iterate over the timestamps of value set's entities.
+   *
+   * @param entities
+   * @return
+   */
+  Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities);
 
+  /**
+   * Check table has variable (name is unique in a table).
+   *
+   * @param name
+   * @return
+   */
   boolean hasVariable(String name);
 
+  /**
+   * Iterate over all variables.
+   *
+   * @return
+   */
   Iterable<Variable> getVariables();
 
+  /**
+   * Summary about variables.
+   *
+   * @return
+   */
   int getVariableCount();
 
+  /**
+   * Get a specific variable (name is unique in a table).
+   *
+   * @param name
+   * @return
+   * @throws NoSuchVariableException
+   */
   Variable getVariable(String name) throws NoSuchVariableException;
 
+  /**
+   * Get a variable value in a value set.
+   *
+   * @param variable
+   * @param valueSet
+   * @return
+   */
   Value getValue(Variable variable, ValueSet valueSet);
 
+  /**
+   * Get the wrapper object that gives access to values.
+   *
+   * @param variableName
+   * @return
+   * @throws NoSuchVariableException
+   */
   VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException;
 
+  /**
+   * Check it is a logical table.
+   *
+   * @return
+   */
   boolean isView();
 
+  /**
+   * Get the unique name of the table.
+   *
+   * @return
+   */
   String getTableReference();
 
+  /**
+   * Get the preferred size for the batch of entities when reading the value sets by chuncks.
+   *
+   * @return
+   */
   default int getVariableEntityBatchSize() {
     return ENTITY_BATCH_SIZE;
   }
 
   class Reference {
 
-    private Reference() {}
+    private Reference() {
+    }
 
     public static String getReference(String datasource, String table) {
       return datasource + "." + table;

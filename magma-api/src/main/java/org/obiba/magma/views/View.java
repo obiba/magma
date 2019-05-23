@@ -10,34 +10,11 @@
 
 package org.obiba.magma.views;
 
-import java.util.*;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Datasource;
-import org.obiba.magma.Disposable;
-import org.obiba.magma.Initialisable;
-import org.obiba.magma.MagmaCacheExtension;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VariableValueSourceWrapper;
-import org.obiba.magma.VectorSource;
-import org.obiba.magma.support.AbstractValueTableWrapper;
-import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
-import org.obiba.magma.support.Disposables;
-import org.obiba.magma.support.Initialisables;
-import org.obiba.magma.support.VariableEntitiesCache;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.obiba.magma.*;
+import org.obiba.magma.support.*;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.transform.TransformingValueTable;
@@ -48,13 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.util.*;
+import java.util.stream.StreamSupport;
 
 @SuppressWarnings("OverlyCoupledClass")
 public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
@@ -114,7 +88,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
       justification = "Needed by XStream")
   public View(String name, @NotNull SelectClause selectClause, @NotNull WhereClause whereClause, String[] innerFrom,
-      @NotNull ValueTable... from) {
+              @NotNull ValueTable... from) {
     Preconditions.checkArgument(selectClause != null, "null selectClause");
     Preconditions.checkArgument(whereClause != null, "null whereClause");
     Preconditions.checkArgument(from != null && from.length > 0, "null or empty table list");
@@ -137,9 +111,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   public void initialise() {
     getListClause().setValueTable(this);
     Initialisables.initialise(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
-    if(isViewOfDerivedVariables()) {
+    if (isViewOfDerivedVariables()) {
       setSelectClause(new NoneClause());
-    } else if(!(getSelectClause() instanceof NoneClause)) {
+    } else if (!(getSelectClause() instanceof NoneClause)) {
       setListClause(new NoneClause());
     } else {
       setListClause(new NoneClause());
@@ -199,7 +173,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       @NotNull
       @Override
       public Value getLastUpdate() {
-        if(updated == null || updated.isNull()) {
+        if (updated == null || updated.isNull()) {
           return getWrappedValueTable().getTimestamps().getLastUpdate();
         }
         Value fromUpdate = getWrappedValueTable().getTimestamps().getLastUpdate();
@@ -214,17 +188,17 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     };
   }
 
-  @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
+  @SuppressWarnings({"AssignmentToMethodParameter", "PMD.AvoidReassigningParameters"})
   public void setUpdated(@Nullable Value updated) {
-    if(updated == null) updated = DateTimeType.get().nullValue();
-    if(updated.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
+    if (updated == null) updated = DateTimeType.get().nullValue();
+    if (updated.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
     this.updated = updated;
   }
 
-  @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
+  @SuppressWarnings({"AssignmentToMethodParameter", "PMD.AvoidReassigningParameters"})
   public void setCreated(@Nullable Value created) {
-    if(created == null) created = DateTimeType.get().nullValue();
-    if(created.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
+    if (created == null) created = DateTimeType.get().nullValue();
+    if (created.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
     this.created = created;
   }
 
@@ -250,42 +224,42 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public int getVariableEntityCount() {
-    return Iterables.size(getVariableEntities());
+    return Iterables.size(this.getVariableEntities());
   }
 
   @Override
   @SuppressWarnings("ChainOfInstanceofChecks")
   public boolean hasValueSet(@Nullable VariableEntity entity) {
-    if(entity == null) return false;
-    return getVariableEntities().contains(entity);
+    if (entity == null) return false;
+    return this.getVariableEntities().contains(entity);
   }
 
   @Override
   public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
     List<VariableEntity> unmappedEntities = Collections.synchronizedList(Lists.newArrayList());
     StreamSupport.stream(entities.spliterator(), false) //
-    .forEach(entity -> unmappedEntities.add(getVariableEntityMappingFunction().unapply(entity)));
+        .forEach(entity -> unmappedEntities.add(getVariableEntityMappingFunction().unapply(entity)));
     // do not use Guava functional stuff to avoid multiple iterations over valueSets
     List<ValueSet> valueSets = Collections.synchronizedList(Lists.newArrayList());
     StreamSupport.stream(super.getValueSets(unmappedEntities).spliterator(), false) //
-    .forEach(valueSet -> {
-        // replacing each ValueSet with one that points at the current View
-        valueSet = getValueSetMappingFunction().apply(valueSet);
-        // result of transformation might have returned a non-mappable entity
-        if(valueSet != null && valueSet.getVariableEntity() != null) {
-          valueSets.add(valueSet);
-        }
-    });
+        .forEach(valueSet -> {
+          // replacing each ValueSet with one that points at the current View
+          valueSet = getValueSetMappingFunction().apply(valueSet);
+          // result of transformation might have returned a non-mappable entity
+          if (valueSet != null && valueSet.getVariableEntity() != null) {
+            valueSets.add(valueSet);
+          }
+        });
     return valueSets;
   }
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
-    if(unmapped == null) throw new NoSuchValueSetException(this, entity);
+    if (unmapped == null) throw new NoSuchValueSetException(this, entity);
 
     ValueSet valueSet = super.getValueSet(unmapped);
-    if(!getWhereClause().where(valueSet, this)) throw new NoSuchValueSetException(this, entity);
+    if (!getWhereClause().where(valueSet, this)) throw new NoSuchValueSetException(this, entity);
 
     return getValueSetMappingFunction().apply(valueSet);
   }
@@ -293,13 +267,13 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
-    if(unmapped == null) throw new NoSuchValueSetException(this, entity);
+    if (unmapped == null) throw new NoSuchValueSetException(this, entity);
 
     return super.getValueSetTimestamps(unmapped);
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
     List<Timestamps> timestamps = Lists.newArrayList();
     for (VariableEntity entity : entities) {
       timestamps.add(getValueSetTimestamps(entity));
@@ -309,7 +283,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Iterable<Variable> getVariables() {
-    if(from instanceof JoinTable) {
+    if (from instanceof JoinTable) {
       ((JoinTable) from).analyseVariables();
     }
     return isViewOfDerivedVariables() ? getListVariables() : getSelectVariables();
@@ -321,7 +295,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   private Iterable<Variable> getListVariables() {
     Collection<Variable> listVariables = new LinkedHashSet<>();
-    for(VariableValueSource variableValueSource : getListClause().getVariableValueSources()) {
+    for (VariableValueSource variableValueSource : getListClause().getVariableValueSources()) {
       listVariables.add(variableValueSource.getVariable());
     }
     return listVariables;
@@ -332,7 +306,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     try {
       getVariable(name);
       return true;
-    } catch(NoSuchVariableException e) {
+    } catch (NoSuchVariableException e) {
       return false;
     }
   }
@@ -346,7 +320,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   private Variable getSelectVariable(String variableName) throws NoSuchVariableException {
     Variable variable = super.getVariable(variableName);
-    if(getSelectClause().select(variable)) {
+    if (getSelectClause().select(variable)) {
       return variable;
     }
     throw new NoSuchVariableException(variableName);
@@ -358,10 +332,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
-    if(isViewOfDerivedVariables()) {
+    if (isViewOfDerivedVariables()) {
       return getListClauseValue(variable, valueSet);
     }
-    if(!getWhereClause().where(valueSet, this)) {
+    if (!getWhereClause().where(valueSet, this)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
     // let the value get transformed
@@ -379,7 +353,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
-    if(isViewOfDerivedVariables()) {
+    if (isViewOfDerivedVariables()) {
       return getListClauseVariableValueSource(variableName);
     }
 
@@ -392,14 +366,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
-  public synchronized Set<VariableEntity> getVariableEntities() {
+  public synchronized List<VariableEntity> getVariableEntities() {
     Value tableWrapperLastUpdate = getTimestamps().getLastUpdate();
     VariableEntitiesCache eCache = getVariableEntitiesCache();
-    if(eCache == null || !eCache.isUpToDate(tableWrapperLastUpdate)) {
+    if (eCache == null || !eCache.isUpToDate(tableWrapperLastUpdate)) {
       eCache = new VariableEntitiesCache(loadVariableEntities(), tableWrapperLastUpdate);
-      if(MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
+      if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
         MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
-        if(cacheExtension.hasVariableEntitiesCache()) {
+        if (cacheExtension.hasVariableEntitiesCache()) {
           cacheExtension.getVariableEntitiesCache().put(getTableCacheKey(), eCache);
         } else {
           variableEntitiesCache = eCache;
@@ -418,9 +392,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private VariableEntitiesCache getVariableEntitiesCache() {
-    if(MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
+    if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
       MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
-      if(!cacheExtension.hasVariableEntitiesCache()) return variableEntitiesCache;
+      if (!cacheExtension.hasVariableEntitiesCache()) return variableEntitiesCache;
       Cache.ValueWrapper wrapper = cacheExtension.getVariableEntitiesCache().get(getTableCacheKey());
       return wrapper == null ? variableEntitiesCache : (VariableEntitiesCache) wrapper.get();
     } else {
@@ -428,25 +402,25 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     }
   }
 
-  protected Set<VariableEntity> loadVariableEntities() {
+  protected List<VariableEntity> loadVariableEntities() {
     // do not use Guava functional stuff to avoid multiple iterations over entities
-    Set<VariableEntity> entities = Sets.newConcurrentHashSet();
-    if(hasVariables()) {
-      super.getVariableEntities().stream() //
+    List<VariableEntity> entities = Collections.synchronizedList(new ArrayList<>());
+    if (hasVariables()) {
+      super.getVariableEntities() //
           .forEach(entity -> {
             // filter the resulting entities to remove the ones for which hasValueSet() is false
             // (usually due to a where clause)
             boolean hasValueSet;
-            if(getWhereClause() instanceof AllClause) {
+            if (getWhereClause() instanceof AllClause) {
               hasValueSet = true;
-            } else if(getWhereClause() instanceof NoneClause) {
+            } else if (getWhereClause() instanceof NoneClause) {
               hasValueSet = false;
             } else {
               ValueSet valueSet = super.getValueSet(entity);
               hasValueSet = getWhereClause().where(valueSet, this);
             }
 
-            if(hasValueSet) {
+            if (hasValueSet) {
               VariableEntity mappedEntity = getVariableEntityMappingFunction().apply(entity);
               entities.add(mappedEntity);
             }
@@ -548,7 +522,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
       private final VectorSource wrapped;
 
-      private SortedSet<VariableEntity> mappedEntities;
+      private List<VariableEntity> mappedEntities;
 
       private ViewVectorSource(VectorSource wrapped) {
         this.wrapped = wrapped;
@@ -560,15 +534,15 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       }
 
       @Override
-      public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+      public Iterable<Value> getValues(List<VariableEntity> entities) {
         return wrapped.getValues(getMappedEntities(entities));
       }
 
-      private SortedSet<VariableEntity> getMappedEntities(Iterable<VariableEntity> entities) {
-        if(mappedEntities == null) {
-          mappedEntities = Collections.synchronizedSortedSet(Sets.newTreeSet());
+      private List<VariableEntity> getMappedEntities(Iterable<VariableEntity> entities) {
+        if (mappedEntities == null) {
+          mappedEntities = Collections.synchronizedList(new ArrayList<>());
           StreamSupport.stream(entities.spliterator(), false) // not parallel to preserve entities order
-           .forEach(entity -> mappedEntities.add(getVariableEntityMappingFunction().unapply(entity)));
+              .forEach(entity -> mappedEntities.add(getVariableEntityMappingFunction().unapply(entity)));
         }
         return mappedEntities;
       }
@@ -576,8 +550,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       @Override
       @SuppressWarnings("SimplifiableIfStatement")
       public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
         return wrapped.equals(((ViewVectorSource) obj).wrapped);
       }
 
@@ -593,7 +567,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   // Builder
   //
 
-  @SuppressWarnings({ "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass" })
+  @SuppressWarnings({"UnusedDeclaration", "StaticMethodOnlyUsedInOneClass"})
   public static class Builder {
 
     private final String name;
@@ -647,7 +621,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     }
 
     public View build() {
-      View view = new View(name, innerFrom,from);
+      View view = new View(name, innerFrom, from);
       if (selectClause != null) view.setSelectClause(selectClause);
       if (listClause != null) view.setListClause(listClause);
       if (whereClause != null) view.setWhereClause(whereClause);
