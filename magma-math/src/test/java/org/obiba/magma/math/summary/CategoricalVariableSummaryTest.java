@@ -9,17 +9,10 @@
  */
 package org.obiba.magma.math.summary;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
-
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
+import org.obiba.magma.*;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.Values;
 import org.obiba.magma.test.AbstractMagmaTest;
@@ -27,7 +20,7 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -50,9 +43,9 @@ public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
   @Test
   public void test_withIntegerType() {
     Variable variable = Variable.Builder.newVariable("mock", IntegerType.get(), "mock")
-      .addCategories("1", "2", "3", "9").build();
+        .addCategories("1", "2", "3", "9").build();
     CategoricalVariableSummary summary = computeFromTable(variable,
-      Values.asValues(IntegerType.get(), "1", "2", "1", "9", "3"));
+        Values.asValues(IntegerType.get(), "1", "2", "1", "9", "3"));
     assertThat(summary.getMode()).isEqualTo("1");
     for (CategoricalVariableSummary.Frequency frequency : summary.getFrequencies()) {
       switch (frequency.getValue()) {
@@ -75,9 +68,9 @@ public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
   @Test
   public void test_withDecimalType() {
     Variable variable = Variable.Builder.newVariable("mock", IntegerType.get(), "mock")
-      .addCategories("1", "2", "3", "9").build();
+        .addCategories("1", "2", "3", "9").build();
     CategoricalVariableSummary summary = computeFromTable(variable,
-      Values.asValues(DecimalType.get(), "1", "2", "1", "9", "3"));
+        Values.asValues(DecimalType.get(), "1", "2", "1", "9", "3"));
     assertThat(summary.getMode()).isEqualTo("1");
     for (CategoricalVariableSummary.Frequency frequency : summary.getFrequencies()) {
       switch (frequency.getValue()) {
@@ -136,7 +129,7 @@ public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
   private CategoricalVariableSummary computeFromTable(Variable variable, Iterable<Value> values) {
 
     VectorSource vectorSource = mock(VectorSource.class);
-    when(vectorSource.getValues(Mockito.<SortedSet<VariableEntity>>any())).thenReturn(values);
+    when(vectorSource.getValues(Mockito.any())).thenReturn(values);
 
     VariableValueSource valueSource = mock(VariableValueSource.class);
     when(valueSource.supportVectorSource()).thenReturn(true);
@@ -144,7 +137,7 @@ public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
 
     ValueTable table = mock(ValueTable.class);
     when(table.getTimestamps()).thenReturn(NullTimestamps.get());
-    when(table.getVariableEntities()).thenReturn(new TreeSet<VariableEntity>());
+    when(table.getVariableEntities()).thenReturn(new ArrayList<>());
     when(table.getVariableValueSource(variable.getName())).thenReturn(valueSource);
 
     CategoricalVariableSummary summary = new CategoricalVariableSummary.Builder(variable)

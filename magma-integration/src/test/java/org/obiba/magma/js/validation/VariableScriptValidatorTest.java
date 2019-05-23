@@ -10,37 +10,21 @@
 
 package org.obiba.magma.js.validation;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
+import com.thoughtworks.xstream.XStream;
+import org.junit.*;
 import org.obiba.core.util.FileUtil;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.DatasourceFactory;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableValueSourceWrapper;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
-import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.JavascriptVariableValueSource;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.views.DefaultViewManagerImpl;
 import org.obiba.magma.views.MemoryViewPersistenceStrategy;
@@ -50,16 +34,17 @@ import org.obiba.magma.xstream.MagmaXStreamExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
-import com.thoughtworks.xstream.XStream;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
 @Ignore
-@SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
+@SuppressWarnings({"PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass"})
 public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private static final Logger log = LoggerFactory.getLogger(VariableScriptValidatorTest.class);
@@ -110,9 +95,9 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     try {
       mongo = new EmbeddedMongoProcessWrapper();
       mongo.start();
-      mongoDbUrl = "mongodb://" +mongo.getServerSocketAddress() + '/' + MONGO_DB_TEST;
+      mongoDbUrl = "mongodb://" + mongo.getServerSocketAddress() + '/' + MONGO_DB_TEST;
       return true;
-    } catch(Exception e) {
+    } catch (Exception e) {
       return false;
     }
   }
@@ -169,8 +154,8 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
         .newArrayList(weight_in_kg, height_in_cm, height_in_m, bmi_metric, weight_in_lbs, height_in_inches, bmi);
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      for(Variable variable : variables) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for (Variable variable : variables) {
         variableWriter.writeVariable(variable);
       }
     }
@@ -195,7 +180,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     Variable varF = AbstractJsTest.createIntVariable("F", "10");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(varA);
       variableWriter.writeVariable(varB);
       variableWriter.writeVariable(varC);
@@ -209,7 +194,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     try {
       validateJavascriptValueSource(view, "A");
       fail("Should throw CircularVariableDependencyRuntimeException");
-    } catch(CircularVariableDependencyException e) {
+    } catch (CircularVariableDependencyException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:A");
     }
   }
@@ -226,7 +211,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     Variable varE = AbstractJsTest.createIntVariable("E", "$('ds.view:B')");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(varA);
       variableWriter.writeVariable(varB);
       variableWriter.writeVariable(varC);
@@ -246,7 +231,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
     Variable circular = AbstractJsTest.createIntVariable("circular", "$('ds.view:circular')");
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(circular);
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
@@ -255,7 +240,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     try {
       validateJavascriptValueSource(view, "circular");
       fail("Should throw CircularVariableDependencyRuntimeException");
-    } catch(CircularVariableDependencyException e) {
+    } catch (CircularVariableDependencyException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:circular");
     }
   }
@@ -267,7 +252,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
     Variable var = AbstractJsTest.createIntVariable("var", "$('non-existing')");
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+    try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(var);
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
@@ -276,24 +261,24 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     try {
       validateJavascriptValueSource(view, "var");
       fail("Should throw NoSuchVariableException");
-    } catch(NoSuchVariableException e) {
+    } catch (NoSuchVariableException e) {
       assertThat(e.getName()).isEqualTo("non-existing");
     }
 
     try {
-      for(ValueSet valueSet : view.getValueSets()) {
+      for (ValueSet valueSet : view.getValueSets()) {
         view.getValue(var, valueSet).getValue();
       }
-    } catch(NoSuchVariableException e) {
+    } catch (NoSuchVariableException e) {
       assertThat(e.getName()).isEqualTo("non-existing");
     }
 
     try {
-      for(Value value : view.getVariableValueSource("var").asVectorSource()
-          .getValues(new TreeSet<>(view.getVariableEntities()))) {
+      for (Value value : view.getVariableValueSource("var").asVectorSource()
+          .getValues(view.getVariableEntities())) {
         value.getValue();
       }
-    } catch(NoSuchVariableException e) {
+    } catch (NoSuchVariableException e) {
       assertThat(e.getName()).isEqualTo("non-existing");
     }
   }
@@ -319,7 +304,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     View view = viewManager.getView(DATASOURCE, "HOP");
 
     Stopwatch stopwatch = Stopwatch.createUnstarted();
-    for(Variable variable : view.getVariables()) {
+    for (Variable variable : view.getVariables()) {
       stopwatch.reset().start();
       validateJavascriptValueSource(view, variable.getName());
       log.debug("Validate {} script in {}", variable.getName(), stopwatch);

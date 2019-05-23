@@ -10,63 +10,35 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.TreeSet;
-
-import javax.annotation.Nullable;
-
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.obiba.core.util.FileUtil;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.DatasourceFactory;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSequence;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.datasource.fs.FsDatasource;
-import org.obiba.magma.datasource.generated.GeneratedValueTable;
-import org.obiba.magma.support.DatasourceCopier;
-import org.obiba.magma.support.Initialisables;
-import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
-import org.obiba.magma.type.BinaryType;
-import org.obiba.magma.type.BooleanType;
-import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.type.DateType;
-import org.obiba.magma.type.DecimalType;
-import org.obiba.magma.type.IntegerType;
-import org.obiba.magma.type.LineStringType;
-import org.obiba.magma.type.LocaleType;
-import org.obiba.magma.type.PointType;
-import org.obiba.magma.type.PolygonType;
-import org.obiba.magma.type.TextType;
-import org.obiba.magma.xstream.MagmaXStreamExtension;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.*;
+import org.obiba.core.util.FileUtil;
+import org.obiba.magma.*;
+import org.obiba.magma.datasource.fs.FsDatasource;
+import org.obiba.magma.datasource.generated.GeneratedValueTable;
+import org.obiba.magma.support.DatasourceCopier;
+import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
+import org.obiba.magma.type.*;
+import org.obiba.magma.xstream.MagmaXStreamExtension;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeSet;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-@SuppressWarnings({ "UnusedAssignment", "OverlyCoupledClass" })
+@SuppressWarnings({"UnusedAssignment", "OverlyCoupledClass"})
 public class MongoDBDatasourceTest {
   private static final String DB_TEST = "magma-test";
 
@@ -93,7 +65,7 @@ public class MongoDBDatasourceTest {
       dbUrl = "mongodb://" + mongo.getServerSocketAddress() + '/' + DB_TEST;
       new MagmaEngine().extend(new MagmaXStreamExtension());
       return true;
-    } catch(Exception e) {
+    } catch (Exception e) {
       return false;
     }
   }
@@ -254,21 +226,21 @@ public class MongoDBDatasourceTest {
   @Test
   public void test_batch_writer() throws Exception {
     Datasource ds = createDatasource();
-    ((MongoDBDatasource)ds).setBatchSize(1000);
+    ((MongoDBDatasource) ds).setBatchSize(1000);
     Variable variable = Variable.Builder.newVariable("BATCHTEST", TextType.get(), "Participant").repeatable(false)
         .build();
 
-    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
-      try(ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+    try (ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      try (ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
         variableWriter.writeVariable(variable);
       }
     }
 
-    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
-      for(int i = 0; i < 999; i++) {
+    try (ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      for (int i = 0; i < 999; i++) {
         VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(i));
 
-        try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+        try (ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
           valueSetWriter.writeValue(variable, TextType.get().valueOf("test value " + i));
         }
       }
@@ -282,25 +254,25 @@ public class MongoDBDatasourceTest {
     Variable variable = Variable.Builder.newVariable("BATCHTEST", TextType.get(), PARTICIPANT).repeatable(false)
         .build();
 
-    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
-      try(ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+    try (ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      try (ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
         variableWriter.writeVariable(variable);
       }
     }
 
-    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
-      for(int i = 0; i < 999; i++) {
+    try (ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      for (int i = 0; i < 999; i++) {
         VariableEntity entity = new VariableEntityBean(PARTICIPANT, Integer.toString(i));
 
-        try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+        try (ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
           valueSetWriter.writeValue(variable, TextType.get().valueOf("test value " + i));
         }
       }
 
-      for(int i = 0; i < 999; i++) { //replace existing documents
+      for (int i = 0; i < 999; i++) { //replace existing documents
         VariableEntity entity = new VariableEntityBean(PARTICIPANT, Integer.toString(i));
 
-        try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+        try (ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
           valueSetWriter.writeValue(variable, TextType.get().valueOf("new test value " + i));
         }
       }
@@ -313,7 +285,7 @@ public class MongoDBDatasourceTest {
     assertThat(value.getValue()).isEqualTo("new test value 1");
   }
 
-  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+  @SuppressWarnings({"OverlyLongMethod", "PMD.NcssMethodCount"})
   @Test
   public void test_remove_variable() throws Exception {
     Datasource ds = prepareDatasource();
@@ -346,7 +318,7 @@ public class MongoDBDatasourceTest {
     try {
       table.getVariable(textVariable.getName());
       fail("Should throw NoSuchVariableException");
-    } catch(NoSuchVariableException e) {
+    } catch (NoSuchVariableException e) {
     }
 
     //TODO check in mongo that values were removed
@@ -417,7 +389,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+  @SuppressWarnings({"OverlyLongMethod", "PMD.NcssMethodCount"})
   public void test_update_variable() throws IOException {
 
     Variable variable1 = Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
@@ -439,8 +411,8 @@ public class MongoDBDatasourceTest {
         .unit("g").addCategory("1", "One", false) //
         .addCategory("2", "Two", false) //
         .build();
-    try(ValueTableWriter tableWriter = datasource1.createWriter(TABLE_TEST, PARTICIPANT);
-        ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+    try (ValueTableWriter tableWriter = datasource1.createWriter(TABLE_TEST, PARTICIPANT);
+         ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
       variableWriter.writeVariable(newVariable);
     }
 
@@ -462,7 +434,7 @@ public class MongoDBDatasourceTest {
   public void test_count_variables() throws IOException {
 
     List<Variable> variables = new ArrayList<>();
-    for(int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++) {
       variables.add(Variable.Builder.newVariable("Variable " + i, IntegerType.get(), PARTICIPANT).build());
     }
 
@@ -506,9 +478,9 @@ public class MongoDBDatasourceTest {
         .getValueTable(TABLE_TEST).getVariableValueSource("V1");
     assertThat(variableValueSource.getValueType().getName().equals(BinaryType.get().getName()));
 
-    TreeSet<VariableEntity> entities = Sets.newTreeSet(generatedValueTable.getVariableEntities());
+    List<VariableEntity> entities = generatedValueTable.getVariableEntities();
     Iterable<Value> values = variableValueSource.asVectorSource().getValues(entities);
-    for(Value value : values) {
+    for (Value value : values) {
       assertThat(value.getValue()).isNotNull();
       assertThat(value.getValueType().getName()).isEqualTo(BinaryType.get().getName());
     }
@@ -540,7 +512,7 @@ public class MongoDBDatasourceTest {
       }
     });
 
-    for(Value value : values) {
+    for (Value value : values) {
       assertThat(value).isNotNull();
     }
   }
@@ -567,11 +539,11 @@ public class MongoDBDatasourceTest {
   }
 
   private void writeValue(Datasource ds, VariableEntity entity, Variable variable, Value value) {
-    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
-      try(ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+    try (ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      try (ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
         variableWriter.writeVariable(variable);
       }
-      try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+      try (ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
         valueSetWriter.writeValue(variable, value);
       }
     }
@@ -584,12 +556,12 @@ public class MongoDBDatasourceTest {
 
     assertThat(table.getEntityType()).isEqualTo(variable.getEntityType());
     assertThat(table.getVariable(variable.getName()).getValueType()).isEqualTo(variable.getValueType());
-    if(expected.isSequence()) {
+    if (expected.isSequence()) {
       ValueSequence valueSequence = value.asSequence();
       ValueSequence expectedSequence = expected.asSequence();
       int expectedSize = expectedSequence.getSize();
       assertThat(valueSequence.getSize()).isEqualTo(expectedSize);
-      for(int i = 0; i < expectedSize; i++) {
+      for (int i = 0; i < expectedSize; i++) {
         Value valueItem = valueSequence.get(i);
         Value expectedItem = expectedSequence.get(i);
         assertThat(valueItem.isNull()).isEqualTo(expectedItem.isNull());

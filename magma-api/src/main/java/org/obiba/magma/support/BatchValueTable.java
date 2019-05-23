@@ -50,7 +50,7 @@ public class BatchValueTable extends AbstractTransformingValueTableWrapper {
     if (getVariableEntityMappingFunction() instanceof BatchFunction) {
       BatchFunction batchFunction = (BatchFunction) getVariableEntityMappingFunction();
       if (!batchFunction.isApplied()) {
-        getVariableEntities();
+        this.getVariableEntities();
       }
       return batchFunction.getCount();
     }

@@ -10,29 +10,22 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedSet;
-
-import javax.validation.constraints.NotNull;
-
-import org.bson.BSONObject;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
-import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
-import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
-import org.obiba.magma.type.BinaryType;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import org.bson.BSONObject;
+import org.obiba.magma.*;
+import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
+import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
+import org.obiba.magma.type.BinaryType;
+
+import javax.validation.constraints.NotNull;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class MongoDBVariableValueSource implements VariableValueSource, VectorSource {
 
@@ -56,7 +49,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
   @NotNull
   @Override
   public synchronized MongoDBVariable getVariable() {
-    if(variable == null) {
+    if (variable == null) {
       variable = VariableConverter.unmarshall(table.findVariable(name));
     }
     return variable;
@@ -69,8 +62,8 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
   }
 
   @Override
-  public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
-    if(entities.isEmpty()) {
+  public Iterable<Value> getValues(final List<VariableEntity> entities) {
+    if (entities.isEmpty()) {
       return ImmutableList.of();
     }
     return () -> new ValueIterator(getVariable(), entities.iterator());
@@ -132,10 +125,10 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     public Value next() {
       VariableEntity entity = entities.next();
 
-      if(valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
+      if (valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
 
       boolean found = false;
-      while(cursor.hasNext() && !found) {
+      while (cursor.hasNext() && !found) {
         DBObject obj = cursor.next();
         String id = obj.get("_id").toString();
         Value value = variable.getValueType().equals(BinaryType.get())
@@ -145,7 +138,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
         found = id.equals(entity.getIdentifier());
       }
 
-      if(valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
+      if (valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
       return ValueConverter.unmarshall(type, repeatable, field, null);
     }
 
@@ -155,6 +148,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
     /**
      * No duplicate of entities, so remove value from map once get.
+     *
      * @param entity
      * @return
      */

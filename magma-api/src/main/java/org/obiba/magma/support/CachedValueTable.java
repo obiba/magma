@@ -18,7 +18,9 @@ import org.obiba.magma.*;
 import org.springframework.cache.Cache;
 
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -37,7 +39,7 @@ public class CachedValueTable implements ValueTable {
 
     try {
       wrapped = datasource.getWrappedDatasource().getValueTable(tableName);
-    } catch( MagmaRuntimeException ex) {
+    } catch (MagmaRuntimeException ex) {
       //ignore
     }
   }
@@ -81,13 +83,8 @@ public class CachedValueTable implements ValueTable {
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
-    return getCached(getCacheKey("getVariableEntities"), new Supplier<Set<VariableEntity>>() {
-      @Override
-      public Set<VariableEntity> get() {
-        return getWrappedValueTable().getVariableEntities();
-      }
-    });
+  public List<VariableEntity> getVariableEntities() {
+    return getCached(getCacheKey("getVariableEntities"), () -> getWrappedValueTable().getVariableEntities());
   }
 
   @Override
@@ -97,12 +94,7 @@ public class CachedValueTable implements ValueTable {
 
   @Override
   public boolean canDropValueSets() {
-    return getCached(getCacheKey("canDropValueSets"), new Supplier<Boolean>() {
-      @Override
-      public Boolean get() {
-        return getWrappedValueTable().canDropValueSets();
-      }
-    });
+    return getCached(getCacheKey("canDropValueSets"), () -> getWrappedValueTable().canDropValueSets());
   }
 
   @Override
@@ -116,10 +108,10 @@ public class CachedValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(final SortedSet<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(final List<VariableEntity> entities) {
     List<String> ids = new ArrayList<>();
 
-    for(VariableEntity variableEntity : entities) {
+    for (VariableEntity variableEntity : entities) {
       ids.add(variableEntity.getIdentifier());
     }
 
@@ -263,19 +255,19 @@ public class CachedValueTable implements ValueTable {
   public boolean equals(Object other) {
     if (!(other instanceof CachedValueTable)) return false;
 
-    return Objects.equal(name, ((CachedValueTable)other).getName());
+    return Objects.equal(name, ((CachedValueTable) other).getName());
   }
 
   public void evictValues(VariableEntity variableEntity) {
     try {
-      for(Variable va : getVariables()) {
+      for (Variable va : getVariables()) {
         cache.evict(getCacheKey("getValue", va.getName(), name, variableEntity.getIdentifier()));
         cache.evict(getCacheKey("hasValueSet", variableEntity.getIdentifier()));
 
         CachedVariableValueSource vs = (CachedVariableValueSource) getVariableValueSource(va.getName());
         vs.evictValues(variableEntity);
       }
-    } catch(MagmaRuntimeException ex) {
+    } catch (MagmaRuntimeException ex) {
       //ignore
     }
   }

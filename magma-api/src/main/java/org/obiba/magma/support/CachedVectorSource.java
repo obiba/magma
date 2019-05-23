@@ -10,24 +10,17 @@
 
 package org.obiba.magma.support;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.SortedSet;
-
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VectorSource;
-import org.springframework.cache.Cache;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.obiba.magma.*;
+import org.springframework.cache.Cache;
+
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class CachedVectorSource implements VectorSource {
 
@@ -41,7 +34,7 @@ public class CachedVectorSource implements VectorSource {
 
     try {
       this.wrapped = variableValueSource.getWrapped().asVectorSource();
-    } catch(MagmaRuntimeException ex) {
+    } catch (MagmaRuntimeException ex) {
       //ignore
     }
   }
@@ -57,11 +50,11 @@ public class CachedVectorSource implements VectorSource {
   }
 
   @Override
-  public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+  public Iterable<Value> getValues(final List<VariableEntity> entities) {
     boolean missing = true;
     List<Value> res = new ArrayList<>();
 
-    for(VariableEntity variableEntity : entities) {
+    for (VariableEntity variableEntity : entities) {
       Cache.ValueWrapper valueWrapper = cache.get(getCacheKey("getValues", variableEntity.getIdentifier()));
 
       if (valueWrapper == null) {
@@ -69,7 +62,7 @@ public class CachedVectorSource implements VectorSource {
         break;
       }
 
-      res.add((Value)valueWrapper.get());
+      res.add((Value) valueWrapper.get());
     }
 
     if (!missing) return res;
@@ -77,7 +70,7 @@ public class CachedVectorSource implements VectorSource {
     ArrayList<Value> values = Lists.newArrayList(getWrapped().getValues(entities));
     ArrayList<VariableEntity> variableEntities = Lists.newArrayList(entities);
 
-    for(int i = 0; i < variableEntities.size(); i++) {
+    for (int i = 0; i < variableEntities.size(); i++) {
       cache.put(getCacheKey("getValues", variableEntities.get(i).getIdentifier()), values.get(i));
     }
 

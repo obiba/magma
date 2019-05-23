@@ -182,6 +182,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
   private void batchUpdateInternal(List<JdbcOperation> operations) {
     final DefaultLobHandler lobHandler = new DefaultLobHandler();
 
+    List<VariableEntity> entities = operations.stream().map(JdbcOperation::getVariableEntity).collect(Collectors.toList());
+    valueTable.getJdbcVariableEntityProvider().addAll(entities);
+
     List<String> sqls = operations.stream().map(JdbcOperation::getSql).distinct().collect(Collectors.toList());
 
     for (String sql : sqls) {
@@ -242,7 +245,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
       });
 
       log.debug("batchUpdate modified {} rows", res.length);
-      valueTable.clearTimestamps();
     }
   }
 
@@ -539,15 +541,13 @@ class JdbcValueTableWriter implements ValueTableWriter {
         @Override
         protected void doInTransactionWithoutResult(TransactionStatus status) {
           getJdbcTemplate()
-              .execute(getDeleteSql(), new PreparedStatementCallback<Integer>() {
-                @Override
-                public Integer doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-                  ps.setString(1, entity.getIdentifier());
-                  return ps.executeUpdate();
-                }
+              .execute(getDeleteSql(), (PreparedStatementCallback<Integer>) ps -> {
+                ps.setString(1, entity.getIdentifier());
+                return ps.executeUpdate();
               });
         }
       });
+      valueTable.getJdbcVariableEntityProvider().remove(entity);
     }
 
     private void doInsertOrUpdate() {
@@ -558,7 +558,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       synchronized (valueTable) {
         jdbcLine.getLines().forEach(values -> {
           values.add(TextType.get().valueOf(entity.getIdentifier()));
-          batch.add(new JdbcOperation(sql, values));
+          batch.add(new JdbcOperation(entity, sql, values));
         });
 
         if (batch.size() >= batchSize) {
@@ -621,13 +621,20 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private class JdbcOperation {
 
+    private final VariableEntity entity;
+
     private final String sql;
 
     private final List<Value> parameters;
 
-    private JdbcOperation(String sql, List<Value> parameters) {
+    private JdbcOperation(VariableEntity entity, String sql, List<Value> parameters) {
+      this.entity = entity;
       this.sql = sql;
       this.parameters = parameters;
+    }
+
+    public VariableEntity getVariableEntity() {
+      return entity;
     }
 
     public String getSql() {

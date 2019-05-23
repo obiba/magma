@@ -44,6 +44,14 @@ public class MagmaCacheExtension implements MagmaEngineExtension {
     return cacheManager.getCache("magma-table-entities");
   }
 
+  public boolean hasValueSetsCache() {
+    return hasCacheManager() && cacheManager.getCache("magma-table-valuesets") != null;
+  }
+
+  public Cache getValueSetsCache() {
+    return cacheManager.getCache("magma-table-valuesets");
+  }
+
   public boolean hasCacheManager() {
     return cacheManager != null;
   }

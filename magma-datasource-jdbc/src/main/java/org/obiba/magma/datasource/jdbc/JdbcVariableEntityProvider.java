@@ -12,20 +12,19 @@ package org.obiba.magma.datasource.jdbc;
 
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.lang.VariableEntityList;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
   private final JdbcValueTable valueTable;
 
-  private Set<VariableEntity> entities = new LinkedHashSet<>();
+  private final List<VariableEntity> entities = new VariableEntityList();
 
   private boolean multilines = false;
 
@@ -35,27 +34,28 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
   }
 
   @Override
-  public void initialise() {
-    JdbcDatasource datasource = valueTable.getDatasource();
-    String whereStatement = valueTable.getSettings().hasEntityIdentifiersWhere() ? "WHERE " + valueTable.getSettings().getEntityIdentifiersWhere() : "";
-    entities = new LinkedHashSet<>();
+  public synchronized void initialise() {
+    if (entities.isEmpty()) {
+      JdbcDatasource datasource = valueTable.getDatasource();
+      String whereStatement = valueTable.getSettings().hasEntityIdentifiersWhere() ? "WHERE " + valueTable.getSettings().getEntityIdentifiersWhere() : "";
 
-    initialiseMultilines(datasource, whereStatement);
+      // get the (non) distinct list of entity identifiers
+      List<VariableEntity> results = datasource.getJdbcTemplate().query(String
+              .format("SELECT %s FROM %s %s",
+                  valueTable.getEntityIdentifierColumnSql(),
+                  datasource.escapeTableName(valueTable.getSqlName()),
+                  whereStatement),
+          (rs, rowNum) -> new VariableEntityBean(valueTable.getEntityType(), valueTable.extractEntityIdentifier(rs)));
 
-    // get the distinct list of entity identifiers
-    List<VariableEntity> results = datasource.getJdbcTemplate().query(String
-            .format("SELECT DISTINCT %s FROM %s %s",
-                valueTable.getEntityIdentifierColumnSql(),
-                datasource.escapeTableName(valueTable.getSqlName()),
-                whereStatement),
-        (rs, rowNum) -> new VariableEntityBean(valueTable.getEntityType(), valueTable.extractEntityIdentifier(rs)));
-    entities.addAll(results);
+      entities.addAll(results);
+      multilines = entities.size() < results.size();
+    }
   }
 
   @NotNull
   @Override
-  public Set<VariableEntity> getVariableEntities() {
-    return Collections.unmodifiableSet(entities);
+  public List<VariableEntity> getVariableEntities() {
+    return Collections.unmodifiableList(entities);
   }
 
   public boolean isMultilines() {
@@ -66,24 +66,11 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
   // Private methods
   //
 
-  /**
-   * Detect if there are multiple lines per entity.
-   *
-   * @param datasource
-   * @param whereStatement
-   */
-  private void initialiseMultilines(JdbcDatasource datasource, String whereStatement) {
-    long count = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(%s) FROM %s %s",
-        valueTable.getEntityIdentifierColumnSql(),
-        datasource.escapeTableName(valueTable.getSqlName()),
-        whereStatement), Long.class);
-
-    long distinctCount = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(DISTINCT %s) FROM %s %s",
-        valueTable.getEntityIdentifierColumnSql(),
-        datasource.escapeTableName(valueTable.getSqlName()),
-        whereStatement), Long.class);
-
-    multilines = count > distinctCount;
+  public void addAll(List<VariableEntity> entities) {
+    this.entities.addAll(entities);
   }
 
+  public void remove(VariableEntity entity) {
+    entities.remove(entity);
+  }
 }

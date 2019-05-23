@@ -10,16 +10,17 @@
 
 package org.obiba.magma.support;
 
-import java.util.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.obiba.magma.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-
-import com.google.common.collect.*;
-import org.obiba.magma.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
 
 public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
@@ -45,9 +46,9 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @SuppressWarnings("ConstantConditions")
   public AbstractValueTable(@NotNull Datasource datasource, @NotNull String name,
-      @Nullable VariableEntityProvider variableEntityProvider) {
-    if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
-    if(name == null) throw new IllegalArgumentException("name cannot be null");
+                            @Nullable VariableEntityProvider variableEntityProvider) {
+    if (datasource == null) throw new IllegalArgumentException("datasource cannot be null");
+    if (name == null) throw new IllegalArgumentException("name cannot be null");
     this.datasource = datasource;
     this.name = name;
     this.variableEntityProvider = variableEntityProvider;
@@ -74,7 +75,6 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
-  @NotNull
   public Datasource getDatasource() {
     return datasource;
   }
@@ -85,8 +85,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
-    return Collections.unmodifiableSet(variableEntityProvider.getVariableEntities());
+  public List<VariableEntity> getVariableEntities() {
+    return variableEntityProvider.getVariableEntities();
   }
 
   @Override
@@ -144,7 +144,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   @Override
   public Set<Variable> getVariables() {
     List<Variable> variables = Lists.newArrayList();
-    for(VariableValueSource source : getSources()) {
+    for (VariableValueSource source : getSources()) {
       Variable variable = source.getVariable();
       if (variable != null) variables.add(variable);
     }
@@ -154,7 +154,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   @Override
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
     VariableValueSource variableValueSource = sources.get(variableName);
-    if(variableValueSource == null) {
+    if (variableValueSource == null) {
       throw new NoSuchVariableException(getName(), variableName);
     }
 
@@ -167,16 +167,16 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   protected void addVariableValueSources(VariableValueSourceFactory factory) {
-    for(VariableValueSource variableValueSource : factory.createSources()) {
+    for (VariableValueSource variableValueSource : factory.createSources()) {
       sources.put(variableValueSource.getName(), variableValueSource);
     }
   }
 
   protected void addVariableValueSources(Collection<VariableValueSource> sourcesToAdd) {
     List<VariableValueSource> list = Lists.newArrayList(sources.values());
-    for(VariableValueSource variableValueSource : sourcesToAdd) {
+    for (VariableValueSource variableValueSource : sourcesToAdd) {
       int index = list.indexOf(variableValueSource);
-      if(index >= 0) {
+      if (index >= 0) {
         list.remove(index);
         list.add(index, variableValueSource);
       } else {
@@ -184,7 +184,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
       }
     }
     sources.clear();
-    for(VariableValueSource variableValueSource : list) {
+    for (VariableValueSource variableValueSource : list) {
       sources.put(variableValueSource.getName(), variableValueSource);
     }
   }
@@ -198,20 +198,20 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   protected void removeVariableValueSources(Iterable<VariableValueSource> sourcesToRemove) {
-    for(VariableValueSource variableValueSource : sourcesToRemove) {
+    for (VariableValueSource variableValueSource : sourcesToRemove) {
       removeVariableValueSource(variableValueSource.getVariable().getName());
     }
   }
 
   protected void setVariableEntityProvider(@NotNull VariableEntityProvider variableEntityProvider) {
     //noinspection ConstantConditions
-    if(variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
+    if (variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
     this.variableEntityProvider = variableEntityProvider;
   }
 
   @NotNull
   protected VariableEntityProvider getVariableEntityProvider() {
-    if(variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
+    if (variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
     return variableEntityProvider;
   }
 
@@ -234,7 +234,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
     List<Timestamps> timestamps = Lists.newArrayList();
     for (VariableEntity entity : entities) {
       timestamps.add(getValueSetTimestamps(entity));
@@ -253,24 +253,21 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
-  public int getValueSetCount() {
-    return getVariableEntityCount();
-  }
-
-  @Override
   public int getVariableEntityCount() {
     return getVariableEntities().size();
   }
 
   @Override
-  public int hashCode() {return Objects.hash(datasource, name);}
+  public int hashCode() {
+    return Objects.hash(datasource, name);
+  }
 
   @Override
   public boolean equals(Object obj) {
-    if(this == obj) {
+    if (this == obj) {
       return true;
     }
-    if(obj == null || getClass() != obj.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
     AbstractValueTable other = (AbstractValueTable) obj;

@@ -1,11 +1,13 @@
 package org.obiba.magma.support;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,12 +19,12 @@ public class SplitValueTable extends AbstractValueTableWrapper {
 
   private final ValueTable wrapped;
 
-  private final Set<VariableEntity> entities;
+  private final List<VariableEntity> entities;
 
   /**
    * Constructor of a value table with a subset of entities. Make sure this subset applies to the
    * wrapped table.
-   * 
+   *
    * @param wrapped
    * @param entities
    */
@@ -34,14 +36,14 @@ public class SplitValueTable extends AbstractValueTableWrapper {
    * Constructor of a value table with a subset of entities. Make sure this subset applies to the
    * wrapped table.
    *
-   * @param name New name, if null or empty the wrapped name is used.
+   * @param name     New name, if null or empty the wrapped name is used.
    * @param wrapped
    * @param entities
    */
   public SplitValueTable(String name, ValueTable wrapped, Iterable<VariableEntity> entities) {
     this.name = name;
     this.wrapped = wrapped;
-    this.entities = Sets.newLinkedHashSet(entities);
+    this.entities = Lists.newArrayList(entities);
   }
 
   @NotNull
@@ -56,7 +58,7 @@ public class SplitValueTable extends AbstractValueTableWrapper {
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
+  public List<VariableEntity> getVariableEntities() {
     return entities;
   }
 }

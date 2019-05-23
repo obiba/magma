@@ -20,7 +20,6 @@ import org.obiba.magma.support.UnionTimestamps;
 import javax.validation.constraints.NotNull;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 class JoinTimestampsIterator implements Iterator<Timestamps> {
@@ -28,13 +27,13 @@ class JoinTimestampsIterator implements Iterator<Timestamps> {
   private final JoinTable joinTable;
 
   @NotNull
-  private final SortedSet<VariableEntity> entities;
+  private final List<VariableEntity> entities;
 
   private final Iterator<VariableEntity> entitiesIterator;
 
   private List<Iterator<Timestamps>> timestampsIterators = Lists.newArrayList();
 
-  JoinTimestampsIterator(JoinTable joinTable, SortedSet<VariableEntity> entities) {
+  JoinTimestampsIterator(JoinTable joinTable, List<VariableEntity> entities) {
     this.joinTable = joinTable;
     this.entities = entities;
     entitiesIterator = entities.iterator();

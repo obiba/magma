@@ -10,39 +10,20 @@
 
 package org.obiba.magma.math;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.obiba.magma.AbstractVariableValueSource;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.Initialisable;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
-import org.obiba.magma.VectorSourceNotSupportedException;
-import org.obiba.magma.support.AbstractValueTable;
-import org.obiba.magma.support.NullTimestamps;
-import org.obiba.magma.support.ValueSetBean;
-import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.support.VariableEntityProvider;
-import org.obiba.magma.type.DecimalType;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.obiba.magma.*;
+import org.obiba.magma.support.*;
+import org.obiba.magma.type.DecimalType;
+
+import javax.validation.constraints.NotNull;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A {@code ValueTable} implementation that will compute a statistical summary for all numerical variables of another
@@ -58,7 +39,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
 
   public SummaryStatisticsView(Datasource ds, String name, ValueTable valueTable) {
     super(ds, name);
-    if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
+    if (valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.valueTable = valueTable;
   }
 
@@ -98,7 +79,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
     protected AggregateValueSet(VariableEntity entity) {
       super(SummaryStatisticsView.this, entity);
       ds = statsProvider.compute(valueTable.getVariableValueSource(entity.getIdentifier()),
-          Sets.newTreeSet(valueTable.getVariableEntities()));
+          valueTable.getVariableEntities());
     }
 
     DescriptiveStatistics getStats() {
@@ -136,7 +117,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
     public Value getValue(ValueSet valueSet) {
       try {
         return DecimalType.get().valueOf(getter.invoke(((AggregateValueSet) valueSet).getStats()));
-      } catch(Exception e) {
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
     }
@@ -169,8 +150,8 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
 
     @NotNull
     @Override
-    public Set<VariableEntity> getVariableEntities() {
-      return ImmutableSet.copyOf(Iterables
+    public List<VariableEntity> getVariableEntities() {
+      return ImmutableList.copyOf(Iterables
           .transform(Iterables.filter(valueTable.getVariables(), new UnivariateFilter()), new VariableToEntity()));
     }
 

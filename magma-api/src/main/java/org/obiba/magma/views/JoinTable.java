@@ -192,17 +192,17 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(final SortedSet<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(final List<VariableEntity> entities) {
     return () -> new JoinTimestampsIterator(JoinTable.this, entities);
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
+  public List<VariableEntity> getVariableEntities() {
     if (!variableAnalysed) analyseVariables();
 
     // Set the initial capacity to the number of entities we saw in the previous call to this method
-    Set<VariableEntity> entities = Collections.synchronizedSet(Sets.newLinkedHashSetWithExpectedSize(lastEntityCount));
-    getOuterTables().forEach(table -> entities.addAll(table.getVariableEntities()));
+    List<VariableEntity> entities = Collections.synchronizedList(Lists.newArrayListWithExpectedSize(lastEntityCount));
+    getOuterTables().forEach(table -> table.getVariableEntities().stream().filter(e -> !entities.contains(e)).forEach(entities::add));
     // Remember this value so that next time around, the set is initialised with a capacity closer to the actual value.
     lastEntityCount = entities.size();
     return entities;
@@ -391,6 +391,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   /**
    * Get the list of tables that contribute to the entity list.
+   *
    * @return
    */
   private List<ValueTable> getOuterTables() {

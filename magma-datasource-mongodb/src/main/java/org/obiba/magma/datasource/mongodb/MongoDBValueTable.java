@@ -10,11 +10,10 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.*;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.mongodb.*;
+import com.mongodb.gridfs.GridFS;
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
 import org.obiba.magma.*;
@@ -23,16 +22,12 @@ import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.WriteConcern;
-import com.mongodb.gridfs.GridFS;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class MongoDBValueTable extends AbstractValueTable {
 
@@ -82,13 +77,13 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   DBObject asDBObject() {
-    if(dbObject == null) {
+    if (dbObject == null) {
       dbObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start() //
           .add("datasource", getMongoDBDatasource().asDBObject().get("_id")) //
           .add("name", getName()) //
           .get());
       // create DBObject if not found
-      if(dbObject == null) {
+      if (dbObject == null) {
         dbObject = BasicDBObjectBuilder.start() //
             .add("datasource", getMongoDBDatasource().asDBObject().get("_id")) //
             .add("name", getName()) //
@@ -132,29 +127,23 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
-    if(!hasValueSet(entity)) {
+    if (!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
     return super.getValueSetTimestamps(entity);
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(final SortedSet<VariableEntity> entities) {
-
-    if(entities.isEmpty()) {
+  public Iterable<Timestamps> getValueSetTimestamps(final List<VariableEntity> entities) {
+    if (entities.isEmpty()) {
       return ImmutableList.of();
     }
-    return new Iterable<Timestamps>() {
-      @Override
-      public Iterator<Timestamps> iterator() {
-        return new TimestampsIterator(entities.iterator());
-      }
-    };
+    return () -> new TimestampsIterator(entities.iterator());
   }
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    if(!hasValueSet(entity)) {
+    if (!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
     return new MongoDBValueSet(this, entity);
@@ -265,10 +254,10 @@ public class MongoDBValueTable extends AbstractValueTable {
     public Timestamps next() {
       VariableEntity entity = entities.next();
 
-      if(timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
+      if (timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
 
       boolean found = false;
-      while(cursor.hasNext() && !found) {
+      while (cursor.hasNext() && !found) {
         DBObject obj = cursor.next();
         String id = obj.get("_id").toString();
         BSONObject timestamps = (BSONObject) obj.get(MongoDBDatasource.TIMESTAMPS_FIELD);
@@ -279,7 +268,7 @@ public class MongoDBValueTable extends AbstractValueTable {
         found = id.equals(entity.getIdentifier());
       }
 
-      if(timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
+      if (timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
       return NullTimestamps.get();
     }
 

@@ -10,23 +10,15 @@
 
 package org.obiba.magma.math;
 
-import java.util.SortedSet;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.apache.commons.math3.stat.descriptive.StatisticalSummaryValues;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
-import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummaryValues;
+import org.obiba.magma.*;
+import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Detects and removes outliers from a {@code VariableValueSource}. Outliers are "removed" by assigning them another
@@ -54,16 +46,16 @@ public class OutlierRemovingVariableValueSource extends AbstractVariableValueSou
   private transient StatisticalSummary variableStatistics;
 
   public OutlierRemovingVariableValueSource(@NotNull ValueTable valueTable,
-      @NotNull VariableValueSource wrappedSource) {
+                                            @NotNull VariableValueSource wrappedSource) {
     this(valueTable, wrappedSource, new ExcludeMissingDescriptiveStatisticsProvider());
   }
 
   @SuppressWarnings("ConstantConditions")
   public OutlierRemovingVariableValueSource(@NotNull ValueTable valueTable, @NotNull VariableValueSource wrappedSource,
-      @NotNull DescriptiveStatisticsProvider statisticsProvider) {
+                                            @NotNull DescriptiveStatisticsProvider statisticsProvider) {
     super(wrappedSource);
-    if(statisticsProvider == null) throw new IllegalArgumentException("statisticsProvider cannot be null");
-    if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
+    if (statisticsProvider == null) throw new IllegalArgumentException("statisticsProvider cannot be null");
+    if (valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.statisticsProvider = statisticsProvider;
     this.valueTable = valueTable;
   }
@@ -82,7 +74,7 @@ public class OutlierRemovingVariableValueSource extends AbstractVariableValueSou
   }
 
   @Override
-  public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+  public Iterable<Value> getValues(List<VariableEntity> entities) {
     return Iterables.transform(getWrapped().asVectorSource().getValues(entities), new Function<Value, Value>() {
 
       @Override
@@ -100,7 +92,7 @@ public class OutlierRemovingVariableValueSource extends AbstractVariableValueSou
    * @return
    */
   protected boolean isOutlier(Value value) {
-    if(value.isNull()) {
+    if (value.isNull()) {
       return false;
     }
     Number number = (Number) value.getValue();
@@ -132,9 +124,9 @@ public class OutlierRemovingVariableValueSource extends AbstractVariableValueSou
   }
 
   private synchronized StatisticalSummary calculateStats() {
-    if(variableStatistics == null) {
+    if (variableStatistics == null) {
       StatisticalSummary summary = statisticsProvider
-          .compute(getWrapped(), Sets.newTreeSet(valueTable.getVariableEntities()));
+          .compute(getWrapped(), valueTable.getVariableEntities());
       // Copy into value-object so we don't keep a reference to the actual values (DescriptiveStatistics keeps all
       // values)
       variableStatistics = new StatisticalSummaryValues(summary.getMean(), summary.getVariance(), summary.getN(),

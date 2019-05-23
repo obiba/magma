@@ -10,27 +10,15 @@
 
 package org.obiba.magma.js.methods;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.hibernate.HibernateDatasource;
 import org.obiba.magma.js.AbstractJsTest;
@@ -52,15 +40,17 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/test-context.xml")
-@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+@SuppressWarnings({"OverlyLongMethod", "PMD.NcssMethodCount"})
 public class GlobalMethodsHibernateTest extends AbstractJsTest {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalMethodsHibernateTest.class);
@@ -125,14 +115,14 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         try {
-          if(drop) {
+          if (drop) {
             Datasource datasource = new HibernateDatasource(DATASOURCE, sessionFactory);
             Initialisables.initialise(datasource);
             MagmaEngine.get().addDatasource(datasource);
             datasource.drop();
           }
           MagmaEngine.get().removeDatasource(MagmaEngine.get().getDatasource(DATASOURCE));
-        } catch(Throwable e) {
+        } catch (Throwable e) {
           log.warn("Cannot remove datasource", e);
         }
       }
@@ -153,7 +143,7 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
 
     try {
       DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, datasource);
-    } catch(IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
@@ -161,8 +151,8 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_$this_vector_performance() throws Exception {
-
+  @Ignore
+  public void test_$this_vector_performance() {
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -175,8 +165,8 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
             AbstractJsTest.createIntVariable("C", "$this('B')"));
 
         View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-        try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-          for(Variable variable : variables) {
+        try (ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+          for (Variable variable : variables) {
             variableWriter.writeVariable(variable);
           }
         }
@@ -184,13 +174,13 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
 
         View view = viewManager.getView(DATASOURCE, "view");
         Stopwatch stopwatch = Stopwatch.createStarted();
-        SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
+        List<VariableEntity> entities = view.getVariableEntities();
         log.info("Load {} entities in {}", entities.size(), stopwatch);
         stopwatch.reset().start();
         VariableValueSource variableValueSource = view.getVariableValueSource("C");
         VectorSource vectorSource = variableValueSource.asVectorSource();
         Iterable<Value> values = vectorSource.getValues(entities);
-        for(Value viewValue : values) {
+        for (Value viewValue : values) {
           viewValue.getValue();
         }
         log.info("Load vector in {}", stopwatch.stop());

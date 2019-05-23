@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -284,17 +283,12 @@ public class ValueSequenceMethods {
     if (sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
 
-      ValueSequence sortedValueSequence = null;
+      ValueSequence sortedValueSequence;
       if (args != null && args.length > 0 && args[0] instanceof Function) {
         // Sort using a custom Comparator (javascript function)
         final Callable func = (Callable) args[0];
-        sortedValueSequence = valueSequence.sort(new Comparator<Value>() {
-          @Override
-          public int compare(Value o1, Value o2) {
-            return ((Number) func.call(ctx, sv.getParentScope(), sv,
-                new ScriptableValue[]{new ScriptableValue(sv, o1), new ScriptableValue(sv, o2)})).intValue();
-          }
-        });
+        sortedValueSequence = valueSequence.sort((o1, o2) -> ((Number) func.call(ctx, sv.getParentScope(), sv,
+            new ScriptableValue[]{new ScriptableValue(sv, o1), new ScriptableValue(sv, o2)})).intValue());
       } else {
         // Sort based on natural order
         sortedValueSequence = valueSequence.sort();
@@ -439,9 +433,9 @@ public class ValueSequenceMethods {
       return new ScriptableValue(thisObj, result);
     final Callable reduceFunc = (Callable) args[0];
     Value accInit = null;
-    if (args.length>1) {
+    if (args.length > 1) {
       if (args[1] instanceof ScriptableValue)
-        accInit = ((ScriptableValue)args[1]).getValue();
+        accInit = ((ScriptableValue) args[1]).getValue();
       else accInit = sv.getValueType().valueOf(args[1]);
     }
 
@@ -463,7 +457,7 @@ public class ValueSequenceMethods {
             new Object[]{new ScriptableValue(sv, result), new ScriptableValue(sv, value), idx});
         Value reductionValue;
         if (reduction instanceof ScriptableValue)
-          reductionValue = ((ScriptableValue)reduction).getValue();
+          reductionValue = ((ScriptableValue) reduction).getValue();
         else
           reductionValue = sv.getValueType().valueOf(result);
         if (!reductionValue.isNull()) result = reductionValue;

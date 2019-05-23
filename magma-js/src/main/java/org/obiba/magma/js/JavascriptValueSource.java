@@ -10,42 +10,20 @@
 
 package org.obiba.magma.js;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Undefined;
-import org.obiba.magma.Initialisable;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VectorSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import org.mozilla.javascript.*;
+import org.obiba.magma.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
@@ -75,8 +53,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   @SuppressWarnings("ConstantConditions")
   public JavascriptValueSource(@NotNull ValueType type, @NotNull String script) {
-    if(type == null) throw new IllegalArgumentException("type cannot be null");
-    if(script == null) throw new IllegalArgumentException("script cannot be null");
+    if (type == null) throw new IllegalArgumentException("type cannot be null");
+    if (script == null) throw new IllegalArgumentException("script cannot be null");
     this.type = type;
     this.script = script;
   }
@@ -117,7 +95,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   @Override
   @SuppressWarnings("unchecked")
-  public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+  public Iterable<Value> getValues(List<VariableEntity> entities) {
     initialiseIfNot();
     Stopwatch stopwatch = Stopwatch.createStarted();
     Iterable<Value> values = (Iterable<Value>) ContextFactory.getGlobal()
@@ -137,7 +115,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   }
 
   protected void initialiseIfNot() {
-    if(compiledScript == null) {
+    if (compiledScript == null) {
       try {
         compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
           @Override
@@ -146,12 +124,13 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
             if (optLevel != null) {
               try {
                 context.setOptimizationLevel(Integer.parseInt(optLevel));
-              } catch(Exception e) {}
+              } catch (Exception e) {
+              }
             }
             return context.compileString(getScript(), getScriptName(), 1, null);
           }
         });
-      } catch(Exception e) {
+      } catch (Exception e) {
         log.error("Script compilation failed: {}", getScript(), e);
         throw new MagmaJsRuntimeException("Script compilation failed: " + e.getMessage(), e);
       }
@@ -170,7 +149,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
    * <p/>
    * Classes overriding this method must call their super class' method
    *
-   * @param ctx the current context
+   * @param ctx   the current context
    * @param scope the scope of execution of this script
    */
   protected void enterContext(MagmaContext ctx, Scriptable scope) {
@@ -207,13 +186,13 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     Value asValue(Object value) {
       Value result;
-      if(value == null || value instanceof Undefined) {
+      if (value == null || value instanceof Undefined) {
         result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
-      } else if(value instanceof ScriptableValue) {
+      } else if (value instanceof ScriptableValue) {
         ScriptableValue scriptableValue = (ScriptableValue) value;
         result = scriptableValue.getValue();
-        if(!result.isSequence() && isSequence()) {
-           result = asValueSequence(result);
+        if (!result.isSequence() && isSequence()) {
+          result = asValueSequence(result);
         } else if (result.isSequence() && !isSequence()) {
           result = result.asSequence().getValues().stream().filter(input -> !input.isNull()) //
               .findFirst().orElseGet(() -> getValueType().nullValue());
@@ -222,11 +201,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         result = isSequence() ? asValueSequence(value) : getValueType().valueOf(Rhino.fixRhinoNumber(value));
       }
 
-      if(result.getValueType() != getValueType()) {
+      if (result.getValueType() != getValueType()) {
         // Convert types
         try {
           result = getValueType().convert(result);
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
           throw new MagmaJsRuntimeException(
               "Cannot convert value '" + result + "' to type '" + getValueType().getName() + "'", e);
         }
@@ -236,10 +215,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     Value asValueSequence(Object value) {
       Value result = null;
-      if(value.getClass().isArray()) {
+      if (value.getClass().isArray()) {
         int length = Array.getLength(value);
         Collection<Value> values = new ArrayList<>(length);
-        for(int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++) {
           Object v = Rhino.fixRhinoNumber(Array.get(value, i));
           values.add(getValueType().valueOf(v));
         }
@@ -286,29 +265,29 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   private final class ValueVectorEvaluationContextAction extends AbstractEvaluationContextAction {
 
     @Nullable
-    private final SortedSet<VariableEntity> entities;
+    private final List<VariableEntity> entities;
 
     private final VectorCache vectorCache = new VectorCache();
 
-    ValueVectorEvaluationContextAction(@Nullable SortedSet<VariableEntity> entities) {
+    ValueVectorEvaluationContextAction(@Nullable List<VariableEntity> entities) {
       this.entities = entities;
     }
 
-    SortedSet<VariableEntity> getEntities(MagmaContext context) {
-      return entities == null ? new TreeSet<>(context.peek(ValueTable.class).getVariableEntities()) : entities;
+    List<VariableEntity> getEntities(MagmaContext context) {
+      return entities == null ? new ArrayList<>(context.peek(ValueTable.class).getVariableEntities()) : entities;
     }
 
     @Override
     void enterContext(MagmaContext context, Scriptable scope) {
       super.enterContext(context, scope);
-      context.push(SortedSet.class, getEntities(context));
+      context.push(List.class, getEntities(context));
       context.push(VectorCache.class, vectorCache);
     }
 
     @Override
     void exitContext(MagmaContext context) {
       super.exitContext(context);
-      context.pop(SortedSet.class);
+      context.pop(List.class);
       context.pop(VectorCache.class);
     }
 
@@ -347,14 +326,14 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         ContextFactory.getGlobal().enterContext(context);
         JavascriptValueSource.this.enterContext(context, scope);
         context.push(VectorCache.class, vectorCache);
-        context.push(SortedSet.class, entities);
+        context.push(List.class, entities);
         context.push(VariableEntity.class, variableEntity);
       }
 
       private void cleanContext() {
         JavascriptValueSource.this.exitContext(context);
         context.pop(VectorCache.class).next();
-        context.pop(SortedSet.class);
+        context.pop(List.class);
         context.pop(VariableEntity.class);
         Context.exit();
       }
@@ -379,8 +358,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     @SuppressWarnings("unchecked")
     public Value get(MagmaContext context, VectorSource source) {
       VectorHolder<Value> holder = vectors.get(source);
-      if(holder == null) {
-        holder = new VectorHolder<>(source.getValues(context.peek(SortedSet.class)).iterator());
+      if (holder == null) {
+        holder = new VectorHolder<>(source.getValues(context.peek(List.class)).iterator());
         vectors.put(source, holder);
       }
       return holder.get(index);
@@ -388,7 +367,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     public Timestamps get(MagmaContext context, ValueTable table) {
       if (timestampsVector == null) {
-        timestampsVector = new VectorHolder<>(table.getValueSetTimestamps(context.peek(SortedSet.class)).iterator());
+        timestampsVector = new VectorHolder<>(table.getValueSetTimestamps(context.peek(List.class)).iterator());
       }
       return timestampsVector.get(index);
     }
@@ -422,9 +401,9 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
      * vectors for VAR2 and VAR3 are not incremented at the same "rate" as VAR1.
      */
     T get(int index) {
-      if(index < 0) throw new IllegalArgumentException("index must be >= 0");
+      if (index < 0) throw new IllegalArgumentException("index must be >= 0");
       // Increment the iterator until we reach the requested row
-      while(nextIndex <= index) {
+      while (nextIndex <= index) {
         currentValue = values.next();
         nextIndex++;
       }

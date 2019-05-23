@@ -10,34 +10,20 @@
 
 package org.obiba.magma.support;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.obiba.magma.*;
 
 import javax.validation.constraints.NotNull;
-
-import com.google.common.collect.*;
-import org.obiba.magma.AbstractVariableValueSource;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VectorSource;
-import org.obiba.magma.VectorSourceNotSupportedException;
-
-import com.google.common.base.Function;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("UnusedDeclaration")
 public class StaticValueTable extends AbstractValueTable {
 
   private final String entityType;
 
-  private final Set<VariableEntity> entities;
+  private final List<VariableEntity> entities;
 
   private final Map<String, Map<String, Object>> table = Maps.newHashMap();
 
@@ -48,7 +34,7 @@ public class StaticValueTable extends AbstractValueTable {
 
     this.entityType = entityType == null ? "" : entityType;
 
-    this.entities = Sets.newLinkedHashSet(asVariableEntities(entities));
+    this.entities = Lists.newArrayList(asVariableEntities(entities));
 
     setVariableEntityProvider(new VariableEntityProvider() {
 
@@ -59,7 +45,7 @@ public class StaticValueTable extends AbstractValueTable {
 
       @NotNull
       @Override
-      public Set<VariableEntity> getVariableEntities() {
+      public List<VariableEntity> getVariableEntities() {
         return StaticValueTable.this.entities;
       }
 
@@ -135,7 +121,7 @@ public class StaticValueTable extends AbstractValueTable {
   }
 
   public void addVariables(final ValueType type, String... variables) {
-    for(final String variable : variables) {
+    for (final String variable : variables) {
       addVariableValueSource(new AbstractVariableValueSource() {
 
         @NotNull
@@ -172,11 +158,11 @@ public class StaticValueTable extends AbstractValueTable {
   }
 
   public StaticValueTable addValues(String entity, Object... variableAndValues) {
-    for(int i = 0; i < variableAndValues.length; i += 2) {
+    for (int i = 0; i < variableAndValues.length; i += 2) {
       Object variable = variableAndValues[i];
-      if(variable instanceof Variable) {
+      if (variable instanceof Variable) {
         Variable var = (Variable) variable;
-        if(!hasVariable(var.getName())) {
+        if (!hasVariable(var.getName())) {
           addVariable(var);
         }
         variable = var.getName();
@@ -227,7 +213,7 @@ public class StaticValueTable extends AbstractValueTable {
 
   private Map<String, Object> getEntityValues(String entity) {
     Map<String, Object> entityValues = table.get(entity);
-    if(entityValues == null) {
+    if (entityValues == null) {
       table.put(entity, entityValues = Maps.newHashMap());
     }
     return entityValues;

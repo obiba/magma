@@ -24,8 +24,8 @@ import org.obiba.magma.type.BinaryType;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
 /**
  * Gives access to the persisted {@link Variable} and its {@link Value}s.
@@ -92,7 +92,7 @@ class HibernateVariableValueSource extends AbstractVariableValueSource implement
   }
 
   @Override
-  public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+  public Iterable<Value> getValues(final List<VariableEntity> entities) {
     if (entities.isEmpty()) {
       return ImmutableList.of();
     }

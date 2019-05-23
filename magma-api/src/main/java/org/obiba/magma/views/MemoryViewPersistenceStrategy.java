@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.views.support.VariableOperationContext;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * Simple Map storage. Not for production!

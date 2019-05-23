@@ -9,7 +9,7 @@
  */
 package org.obiba.magma;
 
-import java.util.SortedSet;
+import java.util.List;
 
 /**
  */
@@ -17,6 +17,6 @@ public interface VectorSource {
 
   ValueType getValueType();
 
-  Iterable<Value> getValues(SortedSet<VariableEntity> entities);
+  Iterable<Value> getValues(List<VariableEntity> entities);
 
 }
