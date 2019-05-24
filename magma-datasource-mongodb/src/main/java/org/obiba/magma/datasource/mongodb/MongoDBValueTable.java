@@ -201,7 +201,12 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   @Override
   public int getVariableEntityCount() {
-    return (int) getValueSetCollection().count();
+    return getValueSetCount();
+  }
+
+  @Override
+  public List<VariableEntity> getVariableEntities(int offset, int limit) {
+    return ((MongoDBVariableEntityProvider) getVariableEntityProvider()).getVariableEntities(offset, limit);
   }
 
   @Override

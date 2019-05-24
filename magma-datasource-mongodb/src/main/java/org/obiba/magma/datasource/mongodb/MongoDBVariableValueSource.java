@@ -11,11 +11,9 @@
 package org.obiba.magma.datasource.mongodb;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.*;
 import org.bson.BSONObject;
 import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
@@ -26,6 +24,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MongoDBVariableValueSource implements VariableValueSource, VectorSource {
 
@@ -66,7 +65,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     if (entities.isEmpty()) {
       return ImmutableList.of();
     }
-    return () -> new ValueIterator(getVariable(), entities.iterator());
+    return () -> new ValueIterator(getVariable(), entities);
   }
 
   @NotNull
@@ -103,17 +102,23 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
     private final Iterator<VariableEntity> entities;
 
-    private final DBCursor cursor;
+    private final List<List<String>> identifiersPartitions;
+
+    private int partitionIndex = 0;
 
     private final Map<String, Value> valueMap = Maps.newHashMap();
 
-    private ValueIterator(MongoDBVariable variable, Iterator<VariableEntity> entities) {
+    private DBCursor cursor;
+
+    private ValueIterator(MongoDBVariable variable, List<VariableEntity> entities) {
       field = variable.getId();
       type = variable.getValueType();
       repeatable = variable.isRepeatable();
       fields = BasicDBObjectBuilder.start(field, 1).get();
-      this.entities = entities;
-      cursor = table.getValueSetCollection().find(new BasicDBObject(), fields);
+      this.entities = entities.iterator();
+      this.identifiersPartitions = Lists.partition(entities.stream()
+              .map(VariableEntity::getIdentifier).collect(Collectors.toList()),
+          table.getVariableEntityBatchSize());
     }
 
     @Override
@@ -126,6 +131,10 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
       VariableEntity entity = entities.next();
 
       if (valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
+
+      if (cursor == null || !cursor.hasNext()) {
+        cursor = newCursor();
+      }
 
       boolean found = false;
       while (cursor.hasNext() && !found) {
@@ -140,6 +149,13 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
       if (valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
       return ValueConverter.unmarshall(type, repeatable, field, null);
+    }
+
+    private DBCursor newCursor() {
+      List<String> identifiers = identifiersPartitions.get(partitionIndex);
+      partitionIndex++;
+      DBObject query = QueryBuilder.start("_id").in(identifiers).get();
+      return table.getValueSetCollection().find(query, fields);
     }
 
     private Value getBinaryValue(BSONObject valueObject) {

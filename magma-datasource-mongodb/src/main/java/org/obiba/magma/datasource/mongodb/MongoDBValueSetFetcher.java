@@ -38,7 +38,7 @@ class MongoDBValueSetFetcher {
   }
 
   DBCursor getDBObjects(List<VariableEntity> entities) {
-    DBObject query = QueryBuilder.start("_id").in(entities.stream().map(e -> e.getIdentifier()).collect(Collectors.toList())).get();
+    DBObject query = QueryBuilder.start("_id").in(entities.stream().map(VariableEntity::getIdentifier).collect(Collectors.toList())).get();
     return table.getValueSetCollection().find(query);
   }
 }

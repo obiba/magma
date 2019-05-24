@@ -270,9 +270,7 @@ public class MultithreadedDatasourceCopier {
         List<VariableEntity> entities = Lists.newArrayList();
         VariableEntity entity;
         while(entities.size() < sourceTable.getVariableEntityBatchSize() && (entity = readQueue.poll()) != null) {
-          if (sourceTable.hasValueSet(entity)) {
-            entities.add(entity);
-          }
+          entities.add(entity);
           if (entities.size() == sourceTable.getVariableEntityBatchSize()) {
             for (ValueSet valueSet : sourceTable.getValueSets(entities)) {
               copyValueSet(valueSet);
@@ -287,11 +285,6 @@ public class MultithreadedDatasourceCopier {
         }
       } catch(InterruptedException ignored) {
       }
-    }
-
-    private void copyEntity(VariableEntity entity) throws InterruptedException {
-      if (!sourceTable.hasValueSet(entity)) return;
-       copyValueSet(sourceTable.getValueSet(entity));
     }
 
     private void copyValueSet(ValueSet valueSet) throws InterruptedException {

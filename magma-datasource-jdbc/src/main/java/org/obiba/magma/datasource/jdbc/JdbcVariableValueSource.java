@@ -10,6 +10,8 @@
 
 package org.obiba.magma.datasource.jdbc;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import liquibase.structure.core.Column;
 import org.obiba.magma.*;
@@ -19,6 +21,7 @@ import java.sql.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 class JdbcVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
   //
@@ -90,8 +93,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
   public Iterable<Value> getValues(final List<VariableEntity> entities) {
     return () -> {
       try {
-        return new ValueIterator(valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection(),
-            entities);
+        return new ValueIterator(entities);
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }
@@ -104,39 +106,35 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
   private class ValueIterator implements Iterator<Value> {
 
-    private final Connection connection;
+    private final String query;
 
-    private final PreparedStatement statement;
+    private Connection connection;
 
-    private final ResultSet rs;
+    private PreparedStatement statement;
+
+    private ResultSet cursor;
 
     private final Iterator<VariableEntity> entities;
 
-    private boolean hasNextResults;
+    private final List<List<String>> identifiersPartitions;
 
-    private boolean closed = false;
+    private int partitionIndex = 0;
+
+    private boolean hasNextResults;
 
     private final Map<String, Value> valueMap = Maps.newHashMap();
 
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
-    private ValueIterator(Connection connection, Iterable<VariableEntity> entities) throws SQLException {
-      this.connection = connection;
+    private ValueIterator(List<VariableEntity> entities) throws SQLException {
       JdbcDatasource datasource = valueTable.getDatasource();
       String escapedIdentifierColumn = valueTable.getEntityIdentifierColumnSql();
 
-      statement = connection.prepareStatement(
-          String.format("SELECT %s, %s FROM %s %s ORDER BY %s", escapedIdentifierColumn,
-              datasource.escapeColumnName(columnName), datasource.escapeTableName(valueTable.getSqlName()),
-              getWhereClause(), escapedIdentifierColumn));
-      rs = statement.executeQuery();
-      hasNextResults = rs.next();
+      this.query = String.format("SELECT %s, %s FROM %s %s ORDER BY %s", escapedIdentifierColumn,
+          datasource.escapeColumnName(columnName), datasource.escapeTableName(valueTable.getSqlName()),
+          getWhereClause(), escapedIdentifierColumn);
       this.entities = entities.iterator();
-      closeCursorIfNecessary();
-    }
-
-    private String getWhereClause() {
-      if (!valueTable.getSettings().hasEntityIdentifiersWhere()) return "";
-      else return String.format("WHERE %s", valueTable.getSettings().getEntityIdentifiersWhere());
+      this.identifiersPartitions = Lists.partition(entities.stream()
+              .map(VariableEntity::getIdentifier).collect(Collectors.toList()),
+          valueTable.getVariableEntityBatchSize());
     }
 
     @Override
@@ -151,13 +149,18 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
       if (valueMap.containsKey(nextId)) return getValueFromMap(entity);
 
+
       try {
+        if (cursor == null) {
+          cursor = newCursor();
+        }
+
         // Scroll until we find the required entity or reach the end of the results
         boolean found = false;
         while (hasNextResults && !found) {
-          String id = valueTable.extractEntityIdentifier(rs);
+          String id = valueTable.extractEntityIdentifier(cursor);
           valueMap.put(id, getValueFromResult());
-          hasNextResults = rs.next();
+          hasNextResults = cursor.next();
           found = nextId.equals(id);
         }
 
@@ -170,13 +173,30 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
       }
     }
 
+    private String getWhereClause() {
+      String whereIds = String.format("%s IN (':ids')", valueTable.getEntityIdentifierColumnSql());
+      if (!valueTable.getSettings().hasEntityIdentifiersWhere()) return "WHERE " + whereIds;
+      else return String.format("WHERE %s AND %s", valueTable.getSettings().getEntityIdentifiersWhere(), whereIds);
+    }
+
+    private ResultSet newCursor() throws SQLException {
+      List<String> identifiers = identifiersPartitions.get(partitionIndex);
+      partitionIndex++;
+      String q = query.replace(":ids", Joiner.on("','").join(identifiers));
+      connection = valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection();
+      statement = connection.prepareStatement(q);
+      cursor = statement.executeQuery();
+      hasNextResults = cursor.next();
+      return cursor;
+    }
+
     @Override
     public void remove() {
       throw new UnsupportedOperationException();
     }
 
     private Value getValueFromResult() throws SQLException {
-      Object resObj = rs.getObject(columnName);
+      Object resObj = cursor.getObject(columnName);
       if (resObj == null) {
         return variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
       }
@@ -184,16 +204,15 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
         return getValueType().sequenceOf(resObj.toString());
       }
       return getValueType().valueOf(resObj);
-
     }
 
     private void closeCursorIfNecessary() {
-      if (!closed) {
-        // Close the cursor if we don't have any more results or no more entities to return
-        if (!hasNextResults || !hasNext()) {
-          closed = true;
-          closeQuietly(rs, statement, connection);
-        }
+      // Close the cursor if we don't have any more results or no more entities to return
+      if (!hasNextResults || !hasNext()) {
+        closeQuietly(cursor, statement, connection);
+        cursor = null;
+        connection = null;
+        statement = null;
       }
     }
 

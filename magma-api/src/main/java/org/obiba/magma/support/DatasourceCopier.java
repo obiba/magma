@@ -242,10 +242,17 @@ public class DatasourceCopier {
     if(!copyValues) return;
 
     log.debug("Copy values from {} {}", sourceTable.getClass(), sourceTable.getName());
-    for(ValueSet valueSet : sourceTable.getValueSets()) {
-      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity())) {
-        copyValues(sourceTable, valueSet, destinationTableName, valueSetWriter);
+    int total = sourceTable.getValueSetCount();
+    int pageSize = 1000;
+    int from = 0;
+    while(from < total) {
+      Iterable<ValueSet> valueSets = sourceTable.getValueSets(sourceTable.getVariableEntities(from, from + pageSize));
+      for (ValueSet valueSet : valueSets) {
+        try (ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity())) {
+          copyValues(sourceTable, valueSet, destinationTableName, valueSetWriter);
+        }
       }
+      from = from + pageSize;
     }
   }
 
