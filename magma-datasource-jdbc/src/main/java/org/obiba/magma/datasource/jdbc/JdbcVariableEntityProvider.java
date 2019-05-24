@@ -58,7 +58,7 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
   @NotNull
   @Override
   public List<VariableEntity> getVariableEntities() {
-    log.warn("Querying all entities from Tabular SQL table {}!", valueTable.getName());
+    log.debug("Querying all entities from Tabular SQL table {}!", valueTable.getName());
     return getVariableEntities(0, -1);
   }
 

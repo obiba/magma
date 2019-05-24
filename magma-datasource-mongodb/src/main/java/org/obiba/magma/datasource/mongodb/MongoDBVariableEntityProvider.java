@@ -51,7 +51,7 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
   @NotNull
   @Override
   public synchronized List<VariableEntity> getVariableEntities() {
-    log.warn("Querying all entities from MongoDB table {}!", table.getName());
+    log.debug("Querying all entities from MongoDB table {}!", table.getName());
     return getVariableEntities(0, -1);
   }
 

@@ -136,15 +136,17 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
         cursor = newCursor();
       }
 
-      boolean found = false;
-      while (cursor.hasNext() && !found) {
-        DBObject obj = cursor.next();
-        String id = obj.get("_id").toString();
-        Value value = variable.getValueType().equals(BinaryType.get())
-            ? getBinaryValue(obj)
-            : ValueConverter.unmarshall(type, repeatable, field, obj);
-        valueMap.put(id, value);
-        found = id.equals(entity.getIdentifier());
+      if (cursor != null) {
+        boolean found = false;
+        while (cursor.hasNext() && !found) {
+          DBObject obj = cursor.next();
+          String id = obj.get("_id").toString();
+          Value value = variable.getValueType().equals(BinaryType.get())
+              ? getBinaryValue(obj)
+              : ValueConverter.unmarshall(type, repeatable, field, obj);
+          valueMap.put(id, value);
+          found = id.equals(entity.getIdentifier());
+        }
       }
 
       if (valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
@@ -152,10 +154,13 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     }
 
     private DBCursor newCursor() {
-      List<String> identifiers = identifiersPartitions.get(partitionIndex);
-      partitionIndex++;
-      DBObject query = QueryBuilder.start("_id").in(identifiers).get();
-      return table.getValueSetCollection().find(query, fields);
+      if (partitionIndex<identifiersPartitions.size()) {
+        List<String> identifiers = identifiersPartitions.get(partitionIndex);
+        partitionIndex++;
+        DBObject query = QueryBuilder.start("_id").in(identifiers).get();
+        return table.getValueSetCollection().find(query, fields);
+      }
+      return null;
     }
 
     private Value getBinaryValue(BSONObject valueObject) {

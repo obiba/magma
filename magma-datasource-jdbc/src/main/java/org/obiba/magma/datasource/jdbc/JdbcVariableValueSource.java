@@ -154,17 +154,18 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
         if (cursor == null) {
           cursor = newCursor();
         }
-
-        // Scroll until we find the required entity or reach the end of the results
-        boolean found = false;
-        while (hasNextResults && !found) {
-          String id = valueTable.extractEntityIdentifier(cursor);
-          valueMap.put(id, getValueFromResult());
-          hasNextResults = cursor.next();
-          found = nextId.equals(id);
+        
+        if (cursor != null) {
+          // Scroll until we find the required entity or reach the end of the results
+          boolean found = false;
+          while (hasNextResults && !found) {
+            String id = valueTable.extractEntityIdentifier(cursor);
+            valueMap.put(id, getValueFromResult());
+            hasNextResults = cursor.next();
+            found = nextId.equals(id);
+          }
+          closeCursorIfNecessary();
         }
-
-        closeCursorIfNecessary();
 
         if (valueMap.containsKey(nextId)) return getValueFromMap(entity);
         return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
@@ -180,14 +181,17 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     }
 
     private ResultSet newCursor() throws SQLException {
-      List<String> identifiers = identifiersPartitions.get(partitionIndex);
-      partitionIndex++;
-      String q = query.replace(":ids", Joiner.on("','").join(identifiers));
-      connection = valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection();
-      statement = connection.prepareStatement(q);
-      cursor = statement.executeQuery();
-      hasNextResults = cursor.next();
-      return cursor;
+      if (partitionIndex<identifiersPartitions.size()) {
+        List<String> identifiers = identifiersPartitions.get(partitionIndex);
+        partitionIndex++;
+        String q = query.replace(":ids", Joiner.on("','").join(identifiers));
+        connection = valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection();
+        statement = connection.prepareStatement(q);
+        cursor = statement.executeQuery();
+        hasNextResults = cursor.next();
+        return cursor;
+      }
+      return null;
     }
 
     @Override
