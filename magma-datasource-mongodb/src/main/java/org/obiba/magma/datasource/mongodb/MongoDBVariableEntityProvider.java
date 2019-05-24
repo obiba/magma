@@ -13,21 +13,23 @@ package org.obiba.magma.datasource.mongodb;
 import com.mongodb.*;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.lang.VariableEntityList;
+import org.obiba.magma.support.PagingVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.support.VariableEntityProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-class MongoDBVariableEntityProvider implements VariableEntityProvider {
+class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
 
   private static final Logger log = LoggerFactory.getLogger(MongoDBVariableEntityProvider.class);
 
   private String entityType;
 
   private final MongoDBValueTable table;
+
+  private final DBObject idProjection = BasicDBObjectBuilder.start("_id", 1).get();
 
   MongoDBVariableEntityProvider(MongoDBValueTable table, String entityType) {
     this.table = table;
@@ -55,6 +57,7 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
     return getVariableEntities(0, -1);
   }
 
+  @Override
   public List<VariableEntity> getVariableEntities(int offset, int limit) {
     DBCollection collection = table.getValueSetCollection();
     int total = (int) collection.count();
@@ -63,12 +66,18 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
     int pageSize = limit < 0 ? total : limit;
 
     List<VariableEntity> list = new VariableEntityList();
-    try (DBCursor cursor = collection.find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get()).skip(from).limit(pageSize)) {
+    try (DBCursor cursor = collection.find(new BasicDBObject(), idProjection).skip(from).limit(pageSize)) {
       while (cursor.hasNext()) {
         DBObject next = cursor.next();
         list.add(new VariableEntityBean(getEntityType(), next.get("_id").toString()));
       }
     }
     return list;
+  }
+
+  @Override
+  public boolean hasVariableEntity(VariableEntity entity) {
+    DBObject doc = table.getValueSetCollection().findOne(entity.getIdentifier(), idProjection);
+    return doc != null;
   }
 }

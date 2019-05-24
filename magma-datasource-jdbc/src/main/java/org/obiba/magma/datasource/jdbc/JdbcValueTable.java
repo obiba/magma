@@ -145,6 +145,11 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   @Override
+  public boolean hasValueSet(VariableEntity entity) {
+    return getJdbcVariableEntityProvider().hasVariableEntity(entity);
+  }
+
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return new JdbcValueSet(this, entity);
   }

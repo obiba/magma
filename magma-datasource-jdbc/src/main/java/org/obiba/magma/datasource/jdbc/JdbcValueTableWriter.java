@@ -182,7 +182,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
   private void batchUpdateInternal(List<JdbcOperation> operations) {
     final DefaultLobHandler lobHandler = new DefaultLobHandler();
 
-    List<VariableEntity> entities = operations.stream().map(JdbcOperation::getVariableEntity).collect(Collectors.toList());
+    List<VariableEntity> entities = operations.stream()
+        .filter(op -> op.getSql().startsWith("INSERT "))
+        .map(JdbcOperation::getVariableEntity).collect(Collectors.toList());
     valueTable.getJdbcVariableEntityProvider().addAll(entities);
 
     List<String> sqls = operations.stream().map(JdbcOperation::getSql).distinct().collect(Collectors.toList());
