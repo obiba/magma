@@ -246,7 +246,7 @@ public class DatasourceCopier {
     int pageSize = 1000;
     int from = 0;
     while(from < total) {
-      Iterable<ValueSet> valueSets = sourceTable.getValueSets(sourceTable.getVariableEntities(from, from + pageSize));
+      Iterable<ValueSet> valueSets = sourceTable.getValueSets(sourceTable.getVariableEntities(from, pageSize));
       for (ValueSet valueSet : valueSets) {
         try (ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity())) {
           copyValues(sourceTable, valueSet, destinationTableName, valueSetWriter);

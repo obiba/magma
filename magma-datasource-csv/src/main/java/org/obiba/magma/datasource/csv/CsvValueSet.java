@@ -27,6 +27,7 @@ import org.obiba.magma.support.BinaryValueStreamLoaderFactory;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.type.BinaryType;
+import org.springframework.util.Assert;
 
 public class CsvValueSet extends ValueSetBean {
 
@@ -39,6 +40,7 @@ public class CsvValueSet extends ValueSetBean {
   //
   public CsvValueSet(CsvValueTable table, VariableEntity entity, Map<String, Integer> headerMap, List<String[]> lines) {
     super(table, entity);
+    Assert.notNull(lines, "CSV lines(s) must not be null");
     this.headerMap = headerMap;
     this.lines = lines;
   }
