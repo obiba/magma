@@ -11,10 +11,7 @@
 package org.obiba.magma.datasource.jdbc;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import liquibase.change.Change;
 import liquibase.change.ColumnConfig;
 import liquibase.change.core.AddColumnChange;
@@ -27,7 +24,6 @@ import org.obiba.magma.*;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.AddColumnChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
-import org.obiba.magma.datasource.jdbc.support.TableUtils;
 import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
@@ -35,7 +31,6 @@ import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.support.AbstractInterruptibleBatchPreparedStatementSetter;
@@ -55,11 +50,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class JdbcValueTableWriter implements ValueTableWriter {
 
-  @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(JdbcValueTableWriter.class);
 
   private final SimpleDateFormat timestampDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -104,6 +99,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private final JdbcValueTable valueTable;
 
+  private final Set<String> identifiersAtInit;
+
   private final List<JdbcOperation> batch = Lists.newArrayList();
 
   private final String ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN, ESC_VALUE_TABLE_COLUMN, ESC_VARIABLE_COLUMN, ESC_NAME_COLUMN,
@@ -115,6 +112,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
     if (valueTable.isSQLView()) throw new MagmaRuntimeException("A SQL view cannot be written");
 
     this.valueTable = valueTable;
+    // might be a costly call but (1) most likely this will be empty and (2) will spare hasValueSet() calls
+    this.identifiersAtInit = valueTable.getVariableEntities().stream()
+        .map(VariableEntity::getIdentifier).collect(Collectors.toSet());
     ESC_CATEGORY_ATTRIBUTES_TABLE = valueTable.getDatasource().escapeTableName(CATEGORY_ATTRIBUTES_TABLE);
     ESC_CATEGORIES_TABLE = valueTable.getDatasource().escapeTableName(CATEGORIES_TABLE);
     ESC_VARIABLES_TABLE = valueTable.getDatasource().escapeTableName(VARIABLES_TABLE);
@@ -217,14 +217,14 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
         private Object toColumnValue(Value value) {
           Object columnValue = null;
-          if(!value.isNull()) {
-            if(value.isSequence()) {
+          if (!value.isNull()) {
+            if (value.isSequence()) {
               columnValue = value.toString();
             } else {
               columnValue = value.getValue();
 
               // Persist some objects as strings.
-              if(value.getValueType() == LocaleType.get() || value.getValueType().isGeo()) {
+              if (value.getValueType() == LocaleType.get() || value.getValueType().isGeo()) {
                 columnValue = value.toString();
               } else if (value.getValueType() == DateType.get()) {
                 if (columnValue instanceof java.util.Date) {
@@ -553,7 +553,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private void doInsertOrUpdate() {
-      final String sql = valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql();
+      final String sql = identifiersAtInit.contains(entity.getIdentifier()) ? getUpdateSql() : getInsertSql();
 
       List<JdbcOperation> toSave = null;
 

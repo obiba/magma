@@ -237,10 +237,8 @@ public class DatasourceCopier {
     copyValues(sourceTable, destinationTableName, tableWriter);
   }
 
-  private void copyValues(ValueTable sourceTable, String destinationTableName, ValueTableWriter tableWriter)
-      throws IOException {
+  private void copyValues(ValueTable sourceTable, String destinationTableName, ValueTableWriter tableWriter) {
     if(!copyValues) return;
-
     log.debug("Copy values from {} {}", sourceTable.getClass(), sourceTable.getName());
     int total = sourceTable.getValueSetCount();
     int pageSize = 1000;
