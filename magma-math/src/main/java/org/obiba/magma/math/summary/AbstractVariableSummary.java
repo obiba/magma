@@ -11,8 +11,6 @@
 package org.obiba.magma.math.summary;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.obiba.magma.*;
 
 import javax.validation.constraints.NotNull;
@@ -40,17 +38,7 @@ public abstract class AbstractVariableSummary implements VariableSummary {
   }
 
   protected List<VariableEntity> getFilteredVariableEntities(@NotNull ValueTable table) {
-    if (offset == null && limit == null) return table.getVariableEntities();
-
-    Iterable<VariableEntity> entities = table.getVariableEntities();
-    // Apply offset then limit (in that order)
-    if (offset != null) {
-      entities = Iterables.skip(entities, offset);
-    }
-    if (limit != null && limit >= 0) {
-      entities = Iterables.limit(entities, limit);
-    }
-    return ImmutableList.copyOf(entities);
+    return table.getVariableEntities(offset == null ? 0 : offset, limit == null ? -1 : limit);
   }
 
   @NotNull

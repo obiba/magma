@@ -10,67 +10,117 @@
 
 package org.obiba.magma.datasource.jdbc;
 
+import com.google.common.base.Strings;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.lang.VariableEntityList;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
+import org.obiba.magma.support.PagingVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.List;
 
-class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
+class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements PagingVariableEntityProvider, Initialisable {
+
+  private static final Logger log = LoggerFactory.getLogger(JdbcVariableEntityProvider.class);
 
   private final JdbcValueTable valueTable;
 
-  private final List<VariableEntity> entities = new VariableEntityList();
+  private final String idColumn;
+
+  private final String whereStatement;
+
+  private final String tableName;
+
+  private int entitiesCount = -1;
 
   private boolean multilines = false;
 
   JdbcVariableEntityProvider(JdbcValueTable valueTable) {
     super(valueTable.getEntityType());
     this.valueTable = valueTable;
+    this.whereStatement = valueTable.getSettings().hasEntityIdentifiersWhere() ? "WHERE " + valueTable.getSettings().getEntityIdentifiersWhere() : "";
+    this.idColumn = valueTable.getEntityIdentifierColumnSql();
+    this.tableName = valueTable.getDatasource().escapeTableName(valueTable.getSqlName());
   }
 
   @Override
   public synchronized void initialise() {
-    if (entities.isEmpty()) {
+    if (entitiesCount == -1) {
       JdbcDatasource datasource = valueTable.getDatasource();
-      String whereStatement = valueTable.getSettings().hasEntityIdentifiersWhere() ? "WHERE " + valueTable.getSettings().getEntityIdentifiersWhere() : "";
+      int count = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(*) FROM %s %s",
+          tableName,
+          whereStatement), Integer.class);
 
-      // get the (non) distinct list of entity identifiers
-      List<VariableEntity> results = datasource.getJdbcTemplate().query(String
-              .format("SELECT %s FROM %s %s",
-                  valueTable.getEntityIdentifierColumnSql(),
-                  datasource.escapeTableName(valueTable.getSqlName()),
-                  whereStatement),
-          (rs, rowNum) -> new VariableEntityBean(valueTable.getEntityType(), valueTable.extractEntityIdentifier(rs)));
+      entitiesCount = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(DISTINCT %s) FROM %s %s",
+          idColumn,
+          tableName,
+          whereStatement), Integer.class);
 
-      entities.addAll(results);
-      multilines = entities.size() < results.size();
+      multilines = count > entitiesCount;
     }
   }
 
   @NotNull
   @Override
   public List<VariableEntity> getVariableEntities() {
-    return Collections.unmodifiableList(entities);
+    log.debug("Querying all entities from Tabular SQL table {}!", valueTable.getName());
+    return getVariableEntities(0, -1);
+  }
+
+  @Override
+  public List<VariableEntity> getVariableEntities(int offset, int limit) {
+    initialise();
+    int from = Math.max(offset, 0);
+    from = Math.min(from, entitiesCount);
+    int pageSize = limit < 0 ? entitiesCount : limit;
+
+    List<VariableEntity> entities = new VariableEntityList();
+    JdbcDatasource datasource = valueTable.getDatasource();
+    String query = String
+        .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC LIMIT %s OFFSET %s", // works for mysql, maria, posgre, hsql databases
+            idColumn,
+            tableName,
+            whereStatement,
+            idColumn, pageSize, from);
+    // get the distinct list of entity identifiers
+    List<VariableEntity> results = datasource.getJdbcTemplate().query(query,
+        (rs, rowNum) -> new VariableEntityBean(valueTable.getEntityType(), valueTable.extractEntityIdentifier(rs)));
+
+    entities.addAll(results);
+    return entities;
+  }
+
+  @Override
+  public boolean hasVariableEntity(VariableEntity entity) {
+    String where = Strings.isNullOrEmpty(whereStatement) ? "WHERE " : whereStatement + " AND ";
+    String q = String.format("SELECT COUNT(*) FROM %s %s %s = '%s'",
+        tableName,
+        where,
+        idColumn, entity.getIdentifier());
+    Integer found = valueTable.getDatasource().getJdbcTemplate().queryForObject(q, Integer.class);
+    return found != null && found != 0;
+  }
+
+  public int getVariableEntityCount() {
+    if (entitiesCount == -1) initialise();
+    return entitiesCount;
   }
 
   public boolean isMultilines() {
     return multilines;
   }
 
-  //
-  // Private methods
-  //
-
   public void addAll(List<VariableEntity> entities) {
-    this.entities.addAll(entities);
+    // no verification made here, make sure it was an INSERT statement
+    entitiesCount = entitiesCount + entities.size();
   }
 
   public void remove(VariableEntity entity) {
-    entities.remove(entity);
+    entitiesCount = entitiesCount - 1;
   }
+
 }

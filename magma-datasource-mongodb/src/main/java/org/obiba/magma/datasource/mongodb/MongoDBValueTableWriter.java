@@ -29,6 +29,8 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 class MongoDBValueTableWriter implements ValueTableWriter {
 
@@ -40,10 +42,15 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   private final MongoDBValueTable table;
 
+  private final Set<String> identifiersAtInit;
+
   private final List<DBObject> batch = Lists.newArrayList();
 
   MongoDBValueTableWriter(@NotNull MongoDBValueTable table) {
     this.table = table;
+    // might be a costly call but (1) most likely this will be empty and (2) will spare hasValueSet() calls
+    this.identifiersAtInit = table.getVariableEntities().stream()
+        .map(VariableEntity::getIdentifier).collect(Collectors.toSet());
   }
 
   @Override
@@ -104,7 +111,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     private DBObject getValueSetObject() {
       if(valueSetObject == null) {
-        if (table.hasValueSet(entity)) {
+        if (identifiersAtInit.contains(entity.getIdentifier())) {
           DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
           valueSetObject = table.getValueSetCollection().findOne(template);
         }

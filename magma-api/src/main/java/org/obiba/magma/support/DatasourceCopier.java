@@ -237,15 +237,20 @@ public class DatasourceCopier {
     copyValues(sourceTable, destinationTableName, tableWriter);
   }
 
-  private void copyValues(ValueTable sourceTable, String destinationTableName, ValueTableWriter tableWriter)
-      throws IOException {
+  private void copyValues(ValueTable sourceTable, String destinationTableName, ValueTableWriter tableWriter) {
     if(!copyValues) return;
-
     log.debug("Copy values from {} {}", sourceTable.getClass(), sourceTable.getName());
-    for(ValueSet valueSet : sourceTable.getValueSets()) {
-      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity())) {
-        copyValues(sourceTable, valueSet, destinationTableName, valueSetWriter);
+    int total = sourceTable.getValueSetCount();
+    int pageSize = 1000;
+    int from = 0;
+    while(from < total) {
+      Iterable<ValueSet> valueSets = sourceTable.getValueSets(sourceTable.getVariableEntities(from, pageSize));
+      for (ValueSet valueSet : valueSets) {
+        try (ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity())) {
+          copyValues(sourceTable, valueSet, destinationTableName, valueSetWriter);
+        }
       }
+      from = from + pageSize;
     }
   }
 

@@ -157,7 +157,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    * @param entity
    * @return
    */
-  private synchronized ValueSet readValueSet(VariableEntity entity) {
+  private ValueSet readValueSet(VariableEntity entity) {
     // read more
     try {
       boolean found = false;

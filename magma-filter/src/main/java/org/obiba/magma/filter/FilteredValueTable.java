@@ -20,6 +20,9 @@ import org.obiba.magma.support.AbstractValueTableWrapper;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 public class FilteredValueTable extends AbstractValueTableWrapper {
 
   private final FilterChain<ValueSet> entityFilterChain;
@@ -56,22 +59,14 @@ public class FilteredValueTable extends AbstractValueTableWrapper {
 
   @Override
   public Iterable<ValueSet> getValueSets() {
-    return Iterables.filter(getWrappedValueTable().getValueSets(), new Predicate<ValueSet>() {
-      @Override
-      public boolean apply(ValueSet input) {
-        return entityFilterChain.filter(input) != null;
-      }
-    });
+    return StreamSupport.stream(getWrappedValueTable().getValueSets().spliterator(), false)
+        .filter(input -> entityFilterChain.filter(input) != null).collect(Collectors.toList());
   }
 
   @Override
   public Iterable<Variable> getVariables() {
-    return Iterables.filter(getWrappedValueTable().getVariables(), new Predicate<Variable>() {
-      @Override
-      public boolean apply(Variable input) {
-        return variableFilterChain.filter(input) != null;
-      }
-    });
+    return StreamSupport.stream(getWrappedValueTable().getVariables().spliterator(), false)
+        .filter(input -> variableFilterChain.filter(input) != null).collect(Collectors.toList());
   }
 
 }

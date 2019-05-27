@@ -48,6 +48,11 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   }
 
   @Override
+  public List<VariableEntity> getVariableEntities(int offset, int limit) {
+    return getWrappedValueTable().getVariableEntities(offset, limit);
+  }
+
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return getWrappedValueTable().getValueSet(entity);
   }

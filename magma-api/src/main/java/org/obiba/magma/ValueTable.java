@@ -10,11 +10,8 @@
 
 package org.obiba.magma;
 
-import com.google.common.collect.ImmutableList;
-
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Represent the dataset and gives access to the variables and the entities.
@@ -61,6 +58,23 @@ public interface ValueTable extends Timestamped {
    * @return
    */
   List<VariableEntity> getVariableEntities();
+
+  /**
+   * Get the a variable entities page. Default implementation makes a sublist of the entity list, a specific implementation
+   * would query the entities from the storage.
+   *
+   * @param offset from the start if < 0
+   * @param limit  until the end if < 0
+   * @return
+   */
+  default List<VariableEntity> getVariableEntities(int offset, int limit) {
+    int total = getVariableEntityCount();
+    int from = Math.max(offset, 0);
+    from = Math.min(from, total);
+    int to = limit >= 0 ? from + limit : total;
+    to = Math.min(to, total);
+    return getVariableEntities().subList(from, to);
+  }
 
   /**
    * Summary of entities.

@@ -57,23 +57,15 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   DBCollection getVariablesCollection() {
-    return getMongoDBFactory().execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
-      @Override
-      public DBCollection doWithDB(DB db) {
-        DBCollection collection = db.getCollection(getId() + VARIABLE_SUFFIX);
-        collection.createIndex("name");
-        return collection;
-      }
+    return getMongoDBFactory().execute(db -> {
+      DBCollection collection = db.getCollection(getId() + VARIABLE_SUFFIX);
+      collection.createIndex("name");
+      return collection;
     });
   }
 
   DBCollection getValueSetCollection() {
-    return getMongoDBFactory().execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
-      @Override
-      public DBCollection doWithDB(DB db) {
-        return db.getCollection(getId() + VALUE_SET_SUFFIX);
-      }
-    });
+    return getMongoDBFactory().execute(db -> db.getCollection(getId() + VALUE_SET_SUFFIX));
   }
 
   DBObject asDBObject() {
@@ -142,6 +134,11 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   @Override
+  public boolean hasValueSet(VariableEntity entity) {
+    return getMongoDBVariableEntityProvider().hasVariableEntity(entity);
+  }
+
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     if (!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
@@ -201,7 +198,12 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   @Override
   public int getVariableEntityCount() {
-    return (int) getValueSetCollection().count();
+    return getValueSetCount();
+  }
+
+  @Override
+  public List<VariableEntity> getVariableEntities(int offset, int limit) {
+    return getMongoDBVariableEntityProvider().getVariableEntities(offset, limit);
   }
 
   @Override
@@ -218,6 +220,10 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   private MongoDBDatasource getMongoDBDatasource() {
     return ((MongoDBDatasource) getDatasource());
+  }
+
+  private MongoDBVariableEntityProvider getMongoDBVariableEntityProvider() {
+    return (MongoDBVariableEntityProvider) getVariableEntityProvider();
   }
 
   /**

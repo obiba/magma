@@ -10,29 +10,26 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import com.google.common.collect.ImmutableList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import org.obiba.magma.Value;
+import com.mongodb.*;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.lang.VariableEntityList;
+import org.obiba.magma.support.PagingVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.support.VariableEntityProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-class MongoDBVariableEntityProvider implements VariableEntityProvider {
+class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
+
+  private static final Logger log = LoggerFactory.getLogger(MongoDBVariableEntityProvider.class);
 
   private String entityType;
 
   private final MongoDBValueTable table;
 
-  private List<VariableEntity> cachedEntities;
-
-  private Value lastUpdated;
+  private final DBObject idProjection = BasicDBObjectBuilder.start("_id", 1).get();
 
   MongoDBVariableEntityProvider(MongoDBValueTable table, String entityType) {
     this.table = table;
@@ -56,22 +53,31 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
   @NotNull
   @Override
   public synchronized List<VariableEntity> getVariableEntities() {
-    Value tableLastUpdate = table.getTimestamps().getLastUpdate();
-    if (cachedEntities == null || lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
-      lastUpdated = tableLastUpdate;
-      cachedEntities = loadEntities();
-    }
-    return cachedEntities;
+    log.debug("Querying all entities from MongoDB table {}!", table.getName());
+    return getVariableEntities(0, -1);
   }
 
-  private List<VariableEntity> loadEntities() {
+  @Override
+  public List<VariableEntity> getVariableEntities(int offset, int limit) {
+    DBCollection collection = table.getValueSetCollection();
+    int total = (int) collection.count();
+    int from = Math.max(offset, 0);
+    from = Math.min(from, total);
+    int pageSize = limit < 0 ? total : limit;
+
     List<VariableEntity> list = new VariableEntityList();
-    try (DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get())) {
+    try (DBCursor cursor = collection.find(new BasicDBObject(), idProjection).skip(from).limit(pageSize)) {
       while (cursor.hasNext()) {
         DBObject next = cursor.next();
         list.add(new VariableEntityBean(getEntityType(), next.get("_id").toString()));
       }
     }
     return list;
+  }
+
+  @Override
+  public boolean hasVariableEntity(VariableEntity entity) {
+    DBObject doc = table.getValueSetCollection().findOne(entity.getIdentifier(), idProjection);
+    return doc != null;
   }
 }
