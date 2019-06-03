@@ -10,21 +10,15 @@
 
 package org.obiba.magma.datasource.csv;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -36,6 +30,8 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
+import org.obiba.magma.datasource.csv.support.ZippedFileInputStream;
+import org.obiba.magma.datasource.csv.support.ZippedFileOutputStream;
 import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.support.DatasourceParsingException;
 
@@ -192,13 +188,32 @@ public class CsvDatasource extends AbstractDatasource {
     return file == null ? null : getCsvWriter(getWriter(file));
   }
 
+  @Nullable
+  CSVWriter getCsvWriter(OutputStream out) {
+    return getCsvWriter(getWriter(out));
+  }
+
   CSVWriter getCsvWriter(Writer writer) {
     return new CSVWriter(writer, separator.getCharacter(), quote.getCharacter());
   }
 
   Writer getWriter(File file) {
     try {
-      return new OutputStreamWriter(new FileOutputStream(file, true), getCharacterSet());
+      OutputStream out;
+      if (file.getName().endsWith(".zip")) {
+        out = new ZippedFileOutputStream(file);
+      } else {
+        out = new BufferedOutputStream(new FileOutputStream(file));
+      }
+      return getWriter(out);
+    } catch (IOException e) {
+      throw new DatasourceParsingException("Can not get csv file writer.", e, "CsvCannotObtainWriter");
+    }
+  }
+
+  Writer getWriter(OutputStream out) {
+    try {
+      return new OutputStreamWriter(out, getCharacterSet());
     } catch(IOException e) {
       throw new DatasourceParsingException("Can not get csv writer.", e, "CsvCannotObtainWriter");
     }
@@ -214,14 +229,15 @@ public class CsvDatasource extends AbstractDatasource {
     return new CSVReader(reader, separator.getCharacter(), quote.getCharacter(), DEL_CHAR, getFirstRow() - 1);
   }
 
-  CSVParser getCsvParser() {
-    // we don't want escape processing try DEL as a rare character until we can turn it off
-    return new CSVParser(separator.getCharacter(), quote.getCharacter(), DEL_CHAR);
-  }
-
   Reader getReader(File file) {
     try {
-      return new InputStreamReader(new FileInputStream(file), getCharacterSet());
+      InputStream in;
+      if (file.getName().endsWith(".zip")) {
+        in = new ZippedFileInputStream(file);
+      } else {
+        in = new FileInputStream(file);
+      }
+      return new InputStreamReader(in, getCharacterSet());
     } catch(IOException e) {
       throw new DatasourceParsingException("Can not get csv reader.", e, "CsvCannotObtainReader");
     }

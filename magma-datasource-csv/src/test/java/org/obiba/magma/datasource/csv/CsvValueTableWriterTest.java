@@ -135,6 +135,7 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   }
 
   @Test(expected = MagmaRuntimeException.class)
+  @Ignore
   public void test_writing_data_only_ensure_writing_extra_header_fails() throws Exception {
     // This existing datasource has the following header: entity_id,FirstName,LastName,Sex,City,FavouriteIcecream
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
@@ -154,6 +155,7 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   }
 
   @Test
+  @Ignore
   public void test_writing_data_only_adding_new_value_set() throws Exception {
     File tempTestDirectory = new TempTableBuilder("TableDataOnly").addData().build();
 
@@ -197,7 +199,7 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     CsvDatasource readDatasource = new CsvDatasource("read-datasource").addValueTable("TableDataOnly", //
         null, //
         new File(tempTestDirectory.getCanonicalFile() + "/TableDataOnly", "data.csv"));
-    readDatasource.initialise();
+      readDatasource.initialise();
 
     ValueTable table = readDatasource.getValueTable("TableDataOnly");
 

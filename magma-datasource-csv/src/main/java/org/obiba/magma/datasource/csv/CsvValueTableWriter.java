@@ -27,21 +27,26 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
   private final CsvValueTable valueTable;
 
-  private final CSVWriter csvValueWriter;
+  private CSVWriter csvValueWriter;
+
+  private CSVWriter csvVariableWriter;
 
   public CsvValueTableWriter(CsvValueTable valueTable) {
     this.valueTable = valueTable;
-    this.csvValueWriter = valueTable.getValueWriter();
   }
 
   @NotNull
   @Override
   public ValueSetWriter writeValueSet(@NotNull VariableEntity entity) {
+    if (csvValueWriter == null) {
+      this.csvValueWriter = valueTable.getValueWriter();
+    }
     return new CsvValueSetWriter(entity);
   }
 
   @Override
   public VariableWriter writeVariables() {
+    this.csvVariableWriter = valueTable.getVariableWriter();
     return new CsvVariableWriter();
   }
 
@@ -49,9 +54,18 @@ public class CsvValueTableWriter implements ValueTableWriter {
   public void close() {
     if (csvValueWriter != null) {
       try {
+        csvValueWriter.flush();
         csvValueWriter.close();
       } catch (IOException e) {
-        log.error("Error while closing CSV writer", e);
+        log.error("Error while closing CSV values writer", e);
+      }
+    }
+    if (csvVariableWriter != null) {
+      try {
+        csvVariableWriter.flush();
+        csvVariableWriter.close();
+      } catch (IOException e) {
+        log.error("Error while closing CSV variable writer", e);
       }
     }
   }
@@ -60,6 +74,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(@NotNull Variable variable) {
+      if (csvVariableWriter == null) return;
       try {
 
         VariableConverter variableConverter = valueTable.getVariableConverter();
@@ -82,14 +97,10 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     private void writeVariableToCsv(String... strings) throws IOException {
-      try (CSVWriter writer = valueTable.getVariableWriter()) {
-        if (writer == null) {
-          throw new DatasourceParsingException(
-              "Cannot create variable writer. Table " + valueTable.getName() + " does not have variable file.",
-              "CsvCannotCreateWriter", valueTable.getName());
-        }
-        log.trace("write '{}'", Arrays.toString(strings));
-        writer.writeNext(strings);
+      if (csvVariableWriter != null) {
+        if (log.isTraceEnabled())
+          log.trace("write '{}'", Arrays.toString(strings));
+        csvVariableWriter.writeNext(strings);
       }
     }
 

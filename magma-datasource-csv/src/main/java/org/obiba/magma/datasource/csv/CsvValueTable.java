@@ -219,7 +219,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   @SuppressWarnings("OverlyNestedMethod")
   private void initialiseVariablesFromDataFile() throws IOException {
-    if (dataFile == null) return;
+    if (dataFile == null || !dataFile.exists() || dataFile.length() == 0) return;
 
     // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
     try (CSVReader dataHeaderReader = getCsvDataReader()) {
@@ -426,7 +426,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    */
   private void initialiseEntities() throws IOException {
     isDataFileEmpty = true;
-    if (dataFile == null || !dataFile.exists()) {
+    if (dataFile == null || !dataFile.exists() || dataFile.length() == 0) {
       return;
     }
 

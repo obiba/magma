@@ -28,6 +28,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
+import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.EntitiesPredicate;
 import org.obiba.magma.support.VariableEntityBean;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
@@ -614,6 +616,34 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     assertEolValue(table, "5", "Nero", "NERO CLAVDIVS CAESAR AVGVSTVS GERMANICVS");
   }
 
+  @Test
+  public void test_compressed_csv() throws IOException {
+    CsvDatasource source = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
+        null, //
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/study3.csv"));
+    source.initialise();
+
+    File dataFile = File.createTempFile("zcsv-", ".zip");
+    dataFile.deleteOnExit();
+    CsvDatasource destination = new CsvDatasource("zcsv-datasource").addValueTable("TableDataOnly",
+        null,
+        dataFile);
+    destination.initialise();
+    DatasourceCopier.Builder.newCopier().build().copy(source, destination);
+
+    CsvDatasource source2 = new CsvDatasource("csv-datasource2").addValueTable("TableDataOnly", //
+        null, //
+        dataFile);
+    source2.initialise();
+
+    int count = source.getValueTable("TableDataOnly").getVariableEntityCount();
+    int count2 = source2.getValueTable("TableDataOnly").getVariableEntityCount();
+    assertEquals(count, count2);
+    count = source.getValueTable("TableDataOnly").getVariableCount();
+    count2 = source2.getValueTable("TableDataOnly").getVariableCount();
+    assertEquals(count, count2);
+  }
+
   private void assertEolVariable(ValueTable table, String name) {
     Variable variable = table.getVariable(name);
     assertThat(variable).isNotNull();
@@ -662,16 +692,10 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_OPAL_1811() throws Exception {
+  public void test_OPAL_1811() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
         getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/study3.csv"));
-    datasource.initialise();
-  }
-
-  @Test(expected = DatasourceParsingException.class)
-  public void test_fail_getting_reader() {
-    CsvDatasource datasource = new CsvDatasource("bozo").addValueTable(new File("tata"));
     datasource.initialise();
   }
 
