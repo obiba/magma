@@ -49,9 +49,6 @@ public class CsvLine {
     this.entity = entity;
     this.parent = parent;
     this.multilines = multilines;
-    if(!parent.exists() && !parent.mkdirs()) {
-      throw new MagmaRuntimeException("Impossible to create " + parent.getPath() + " directory");
-    }
     headerMap = new HashMap<>();
     valueMap = new HashMap<>();
   }

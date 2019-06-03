@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
 
@@ -67,10 +68,12 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
 
     List<VariableEntity> list = new VariableEntityList();
     try (DBCursor cursor = collection.find(new BasicDBObject(), idProjection).skip(from).limit(pageSize)) {
-      while (cursor.hasNext()) {
+      while (true) {
         DBObject next = cursor.next();
         list.add(new VariableEntityBean(getEntityType(), next.get("_id").toString()));
       }
+    } catch (NoSuchElementException e) {
+      // ignored, reading cursor is finished
     }
     return list;
   }

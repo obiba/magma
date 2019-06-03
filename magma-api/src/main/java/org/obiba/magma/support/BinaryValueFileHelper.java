@@ -151,6 +151,9 @@ public class BinaryValueFileHelper {
   @SuppressWarnings({ "ResultOfMethodCallIgnored", "PMD.NcssMethodCount" })
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   private static Value writeFileValue(File parent, String name, String extension, Value value) {
+    if (parent == null) {
+      throw new IllegalArgumentException("Destination folder cannot be null");
+    }
     if(value.isSequence()) return writeFileValueSequence(parent, name, extension, value);
 
     if(value.isNull()) {
@@ -161,7 +164,9 @@ public class BinaryValueFileHelper {
     File file = new File(parent, name + "." + extension);
     File tmpFile = new File(parent, file.getName() + ".tmp");
     try {
-      if(!parent.exists()) parent.mkdirs();
+      if(!parent.exists() && !parent.mkdirs()) {
+        throw new MagmaRuntimeException("Impossible to create " + parent.getPath() + " directory");
+      }
 
       tmpFile.createNewFile();
       try(FileOutputStream out = new FileOutputStream(tmpFile)) {

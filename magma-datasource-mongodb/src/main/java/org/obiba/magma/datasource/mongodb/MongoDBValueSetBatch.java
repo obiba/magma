@@ -20,6 +20,7 @@ import org.obiba.magma.VariableEntity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,12 +45,16 @@ public class MongoDBValueSetBatch implements ValueSetBatch {
   public List<ValueSet> getValueSets() {
     DBCursor cursor = fetcher.getDBObjects(Lists.newArrayList(entitiesMap.values()));
     ImmutableList.Builder<ValueSet> builder = ImmutableList.builder();
-    while (cursor.hasNext()) {
-      DBObject object = cursor.next();
-      String identifier = object.get("_id").toString();
-      MongoDBValueSet vs = new MongoDBValueSet(table, entitiesMap.get(identifier));
-      vs.setDBObject(object);
-      builder.add(vs);
+    try {
+      while (true) {
+        DBObject object = cursor.next();
+        String identifier = object.get("_id").toString();
+        MongoDBValueSet vs = new MongoDBValueSet(table, entitiesMap.get(identifier));
+        vs.setDBObject(object);
+        builder.add(vs);
+      }
+    } catch(NoSuchElementException e) {
+      // ignored, reading is finished
     }
     return builder.build();
   }

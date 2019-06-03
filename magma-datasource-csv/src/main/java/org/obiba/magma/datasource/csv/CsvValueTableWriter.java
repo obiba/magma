@@ -27,8 +27,11 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
   private final CsvValueTable valueTable;
 
+  private final CSVWriter csvValueWriter;
+
   public CsvValueTableWriter(CsvValueTable valueTable) {
     this.valueTable = valueTable;
+    this.csvValueWriter = valueTable.getValueWriter();
   }
 
   @NotNull
@@ -44,6 +47,13 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() {
+    if (csvValueWriter != null) {
+      try {
+        csvValueWriter.close();
+      } catch (IOException e) {
+        log.error("Error while closing CSV writer", e);
+      }
+    }
   }
 
   private class CsvVariableWriter implements VariableWriter {
@@ -98,9 +108,6 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
     private CsvValueSetWriter(@NotNull VariableEntity entity) {
       this.entity = entity;
-      if (valueTable.getParentFile() == null) {
-        throw new IllegalArgumentException("valueTable.getParentFile() cannot be null");
-      }
       //noinspection ConstantConditions
       csvLine = new CsvLine(entity, valueTable.getParentFile(), valueTable.isMultilines());
 
@@ -186,15 +193,13 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     private void writeValueToCsv(String... strings) throws IOException {
-      try (CSVWriter writer = valueTable.getValueWriter()) {
-        if (writer == null) {
-          throw new DatasourceParsingException(
-              "Cannot create data writer. Table " + valueTable.getName() + " does not have data file.",
-              "CsvCannotCreateWriter", valueTable.getName());
-        }
-        log.trace("write '{}'", Arrays.toString(strings));
-        writer.writeNext(strings);
+      if (csvValueWriter == null) {
+        throw new DatasourceParsingException(
+            "Cannot create data writer. Table " + valueTable.getName() + " does not have data file.",
+            "CsvCannotCreateWriter", valueTable.getName());
       }
+      log.trace("write '{}'", Arrays.toString(strings));
+      csvValueWriter.writeNext(strings);
     }
 
     private Map<String, Integer> getExistingHeaderMap() {

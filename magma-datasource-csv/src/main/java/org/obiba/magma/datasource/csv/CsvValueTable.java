@@ -304,12 +304,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   @Nullable
-  CSVWriter getVariableWriter() {
+  protected CSVWriter getVariableWriter() {
     return getCsvDatasource().getCsvWriter(variableFile);
   }
 
   @Nullable
-  CSVWriter getValueWriter() {
+  protected CSVWriter getValueWriter() {
     return getCsvDatasource().getCsvWriter(dataFile);
   }
 
