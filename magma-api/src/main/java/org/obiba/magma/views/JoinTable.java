@@ -15,6 +15,7 @@ package org.obiba.magma.views;
 
 import com.google.common.collect.*;
 import org.obiba.magma.*;
+import org.obiba.magma.lang.VariableEntityList;
 import org.obiba.magma.support.UnionTimestamps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +29,6 @@ import java.util.stream.Collectors;
 public class JoinTable implements ValueTable, Initialisable {
 
   private static final Logger log = LoggerFactory.getLogger(JoinTable.class);
-
-  private static final int DEFAULT_ENTITY_COUNT = 5000;
 
   @NotNull
   private final List<ValueTable> tables;
@@ -59,9 +58,7 @@ public class JoinTable implements ValueTable, Initialisable {
   @NotNull
   private transient final Map<String, Variable> joinableVariablesByName = Maps.newHashMap();
 
-  // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value
-  // See getVariableEntities()
-  private transient int lastEntityCount = DEFAULT_ENTITY_COUNT;
+  private transient int lastEntityCount = -1;
 
   private transient boolean variableAnalysed = false;
 
@@ -200,10 +197,15 @@ public class JoinTable implements ValueTable, Initialisable {
   public List<VariableEntity> getVariableEntities() {
     if (!variableAnalysed) analyseVariables();
 
-    // Set the initial capacity to the number of entities we saw in the previous call to this method
-    List<VariableEntity> entities = Collections.synchronizedList(Lists.newArrayListWithExpectedSize(lastEntityCount));
-    getOuterTables().forEach(table -> table.getVariableEntities().stream().filter(e -> !entities.contains(e)).forEach(entities::add));
-    // Remember this value so that next time around, the set is initialised with a capacity closer to the actual value.
+
+    // make the union of unique entities
+    List<VariableEntity> entities;
+    if (getOuterTables().size() == 1)
+      entities = getOuterTables().get(0).getVariableEntities();
+    else {
+      entities = new VariableEntityList();
+      getOuterTables().forEach(table -> entities.addAll(table.getVariableEntities()));
+    }
     lastEntityCount = entities.size();
     return entities;
   }
@@ -311,12 +313,15 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public int getValueSetCount() {
-    return Iterables.size(getValueSets());
+    return getVariableEntityCount();
   }
 
   @Override
   public int getVariableEntityCount() {
-    return Iterables.size(getVariableEntities());
+    if (lastEntityCount == -1) {
+      getVariableEntities();
+    }
+    return lastEntityCount;
   }
 
   @Override

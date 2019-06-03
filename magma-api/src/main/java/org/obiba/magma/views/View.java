@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.obiba.magma.*;
+import org.obiba.magma.lang.VariableEntityList;
 import org.obiba.magma.support.*;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.transform.BijectiveFunctions;
@@ -28,6 +29,7 @@ import org.springframework.cache.Cache;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @SuppressWarnings("OverlyCoupledClass")
@@ -224,7 +226,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public int getVariableEntityCount() {
-    return Iterables.size(this.getVariableEntities());
+    return getVariableEntities().size();
   }
 
   @Override
@@ -385,6 +387,17 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return eCache.getEntities();
   }
 
+  @Override
+  public List<VariableEntity> getVariableEntities(int offset, int limit) {
+    List<VariableEntity> entities = getVariableEntities();
+    int total = entities.size();
+    int from = Math.max(offset, 0);
+    from = Math.min(from, total);
+    int to = limit >= 0 ? from + limit : total;
+    to = Math.min(to, total);
+    return entities.subList(from, to);
+  }
+
   protected String getTableCacheKey() {
     String key = getTableReference() + ";class=" + getClass().getName();
     log.debug("tableCacheKey={}", key);
@@ -404,27 +417,17 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   protected List<VariableEntity> loadVariableEntities() {
     // do not use Guava functional stuff to avoid multiple iterations over entities
-    List<VariableEntity> entities = Collections.synchronizedList(new ArrayList<>());
-    if (hasVariables()) {
-      super.getVariableEntities() //
-          .forEach(entity -> {
-            // filter the resulting entities to remove the ones for which hasValueSet() is false
-            // (usually due to a where clause)
-            boolean hasValueSet;
-            if (getWhereClause() instanceof AllClause) {
-              hasValueSet = true;
-            } else if (getWhereClause() instanceof NoneClause) {
-              hasValueSet = false;
-            } else {
-              ValueSet valueSet = super.getValueSet(entity);
-              hasValueSet = getWhereClause().where(valueSet, this);
-            }
-
-            if (hasValueSet) {
-              VariableEntity mappedEntity = getVariableEntityMappingFunction().apply(entity);
-              entities.add(mappedEntity);
-            }
-          });
+    List<VariableEntity> entities = new VariableEntityList();
+    if (hasVariables() && !(getWhereClause() instanceof NoneClause)) {
+      entities = super.getVariableEntities().stream()
+          .filter(entity -> {
+            if (getWhereClause() instanceof AllClause)
+              return true;
+            ValueSet valueSet = super.getValueSet(entity);
+            return getWhereClause().where(valueSet, this);
+          })
+          .map(e -> getVariableEntityMappingFunction().apply(e))
+          .collect(Collectors.toList());
     }
     return entities;
   }
