@@ -173,7 +173,7 @@ public class MultithreadedDatasourceCopier {
 
       // A queue containing all entities to read the values for.
       // Once this is empty, and all readers are done, then reading is over.
-      BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<>(sourceTable.getVariableEntities());
+      BlockingQueue<VariableEntity> readQueue = new VariableEntityBlockingQueue(sourceTable);
       entitiesToCopy = readQueue.size();
       for(int i = 0; i < concurrentReaders; i++) {
         readers.add(
