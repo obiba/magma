@@ -15,7 +15,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.obiba.magma.*;
 import org.obiba.magma.lang.VariableEntityList;
-import org.obiba.magma.support.*;
+import org.obiba.magma.support.AbstractValueTableWrapper;
+import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
+import org.obiba.magma.support.Disposables;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.transform.TransformingValueTable;
@@ -24,7 +27,6 @@ import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.Cache;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -63,9 +65,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient ViewAwareDatasource viewDatasource;
 
-  @Nullable
-  @SuppressWarnings("TransientFieldInNonSerializableClass")
-  private transient VariableEntitiesCache variableEntitiesCache;
+  private transient ViewVariableEntityProvider variableEntityProvider;
 
   /**
    * No-arg constructor for XStream.
@@ -107,6 +107,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     created = DateTimeType.get().now();
     updated = DateTimeType.get().now();
+    variableEntityProvider = new ViewVariableEntityProvider(this);
   }
 
   @Override
@@ -226,14 +227,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public int getVariableEntityCount() {
-    return getVariableEntities().size();
+    return getViewVariableEntityProvider().getVariableEntityCount();
   }
 
   @Override
   @SuppressWarnings("ChainOfInstanceofChecks")
   public boolean hasValueSet(@Nullable VariableEntity entity) {
     if (entity == null) return false;
-    return this.getVariableEntities().contains(entity);
+    return getViewVariableEntityProvider().hasVariableEntity(entity);
   }
 
   @Override
@@ -292,7 +293,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private Iterable<Variable> getSelectVariables() {
-    return Iterables.filter(super.getVariables(), input -> getSelectClause().select(input));
+    return StreamSupport.stream(super.getVariables().spliterator(), false)
+        .filter(input -> getSelectClause().select(input))
+        .collect(Collectors.toList());
   }
 
   private Iterable<Variable> getListVariables() {
@@ -369,67 +372,19 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public synchronized List<VariableEntity> getVariableEntities() {
-    Value tableWrapperLastUpdate = getTimestamps().getLastUpdate();
-    VariableEntitiesCache eCache = getVariableEntitiesCache();
-    if (eCache == null || !eCache.isUpToDate(tableWrapperLastUpdate)) {
-      eCache = new VariableEntitiesCache(loadVariableEntities(), tableWrapperLastUpdate);
-      if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
-        MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
-        if (cacheExtension.hasVariableEntitiesCache()) {
-          cacheExtension.getVariableEntitiesCache().put(getTableCacheKey(), eCache);
-        } else {
-          variableEntitiesCache = eCache;
-        }
-      } else {
-        variableEntitiesCache = eCache;
-      }
-    }
-    return eCache.getEntities();
+    //Value tableWrapperLastUpdate = getTimestamps().getLastUpdate();
+    return getViewVariableEntityProvider().getVariableEntities();
   }
 
   @Override
   public List<VariableEntity> getVariableEntities(int offset, int limit) {
-    List<VariableEntity> entities = getVariableEntities();
-    int total = entities.size();
-    int from = Math.max(offset, 0);
-    from = Math.min(from, total);
-    int to = limit >= 0 ? from + limit : total;
-    to = Math.min(to, total);
-    return entities.subList(from, to);
+    return getViewVariableEntityProvider().getVariableEntities(offset, limit);
   }
 
-  protected String getTableCacheKey() {
-    String key = getTableReference() + ";class=" + getClass().getName();
-    log.debug("tableCacheKey={}", key);
-    return key;
-  }
-
-  private VariableEntitiesCache getVariableEntitiesCache() {
-    if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
-      MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
-      if (!cacheExtension.hasVariableEntitiesCache()) return variableEntitiesCache;
-      Cache.ValueWrapper wrapper = cacheExtension.getVariableEntitiesCache().get(getTableCacheKey());
-      return wrapper == null ? variableEntitiesCache : (VariableEntitiesCache) wrapper.get();
-    } else {
-      return variableEntitiesCache;
-    }
-  }
-
-  protected List<VariableEntity> loadVariableEntities() {
-    // do not use Guava functional stuff to avoid multiple iterations over entities
-    List<VariableEntity> entities = new VariableEntityList();
-    if (hasVariables() && !(getWhereClause() instanceof NoneClause)) {
-      entities = super.getVariableEntities().stream()
-          .filter(entity -> {
-            if (getWhereClause() instanceof AllClause)
-              return true;
-            ValueSet valueSet = super.getValueSet(entity);
-            return getWhereClause().where(valueSet, this);
-          })
-          .map(e -> getVariableEntityMappingFunction().apply(e))
-          .collect(Collectors.toList());
-    }
-    return entities;
+  private ViewVariableEntityProvider getViewVariableEntityProvider() {
+    if (variableEntityProvider == null)
+      variableEntityProvider = new ViewVariableEntityProvider(this);
+    return variableEntityProvider;
   }
 
   public void setDatasource(ViewAwareDatasource datasource) {
@@ -499,7 +454,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     };
   }
 
-  private boolean hasVariables() {
+  boolean hasVariables() {
     return !(select instanceof NoneClause) || variables.getVariableValueSources().iterator().hasNext();
   }
 

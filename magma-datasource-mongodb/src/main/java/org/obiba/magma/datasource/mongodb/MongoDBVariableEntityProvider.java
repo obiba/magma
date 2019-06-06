@@ -83,4 +83,9 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
     DBObject doc = table.getValueSetCollection().findOne(entity.getIdentifier(), idProjection);
     return doc != null;
   }
+
+  @Override
+  public int getVariableEntityCount() {
+    return (int) table.getValueSetCollection().count();
+  }
 }

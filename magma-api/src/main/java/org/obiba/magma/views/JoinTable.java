@@ -100,13 +100,7 @@ public class JoinTable implements ValueTable, Initialisable {
     this.innerTableReferences = innerTableReferences == null ? Lists.newArrayList() : innerTableReferences;
   }
 
-  @NotNull
-  public Map<String, Variable> getJoinableVariablesByName() {
-    if (!variableAnalysed) analyseVariables();
-    return joinableVariablesByName;
-  }
-
-  public synchronized void analyseVariables() {
+  synchronized void analyseVariables() {
     if (variableAnalysed) return;
     tables.forEach(table ->
         table.getVariables().forEach(variable -> {
@@ -195,7 +189,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public List<VariableEntity> getVariableEntities() {
-    if (!variableAnalysed) analyseVariables();
+    analyseVariables();
 
 
     // make the union of unique entities
@@ -237,7 +231,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
-    if (!variableAnalysed) analyseVariables();
+    analyseVariables();
 
     if (!variableValueSourceMap.containsKey(variableName)) {
       // find first variable with this name
@@ -259,13 +253,13 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public Iterable<Variable> getVariables() {
-    if (!variableAnalysed) analyseVariables();
+    analyseVariables();
     return unionOfVariables();
   }
 
   @Override
   public boolean hasValueSet(VariableEntity entity) {
-    if (!variableAnalysed) analyseVariables();
+    analyseVariables();
 
     for (ValueTable table : getOuterTables()) {
       if (table.hasValueSet(entity)) {
@@ -345,6 +339,12 @@ public class JoinTable implements ValueTable, Initialisable {
   // Private methods
   //
 
+  @NotNull
+  private Map<String, Variable> getJoinableVariablesByName() {
+    analyseVariables();
+    return joinableVariablesByName;
+  }
+
   private String buildJoinTableName() {
     StringBuilder sb = new StringBuilder();
     for (Iterator<ValueTable> it = getTables().iterator(); it.hasNext(); ) {
@@ -358,7 +358,7 @@ public class JoinTable implements ValueTable, Initialisable {
     if (unionOfVariables == null) {
       unionOfVariables = new LinkedHashSet<>();
 
-      if (!variableAnalysed) analyseVariables();
+      analyseVariables();
 
       Collection<String> unionOfVariableNames = new LinkedHashSet<>();
       for (ValueTable table : getTables()) {
@@ -376,7 +376,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @NotNull
   private Multimap<Variable, ValueTable> getVariableTables() {
-    if (!variableAnalysed) analyseVariables();
+    analyseVariables();
     return variableTables;
   }
 
@@ -399,7 +399,7 @@ public class JoinTable implements ValueTable, Initialisable {
    *
    * @return
    */
-  private List<ValueTable> getOuterTables() {
+  List<ValueTable> getOuterTables() {
     return tables.stream().filter(table -> !innerTableReferences.contains(table.getTableReference())).collect(Collectors.toList());
   }
 
