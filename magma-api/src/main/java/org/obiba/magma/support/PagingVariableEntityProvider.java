@@ -25,4 +25,11 @@ public interface PagingVariableEntityProvider extends VariableEntityProvider {
    * @return
    */
   boolean hasVariableEntity(VariableEntity entity);
+
+  /**
+   * Get the count of entities.
+   *
+   * @return
+   */
+  int getVariableEntityCount();
 }

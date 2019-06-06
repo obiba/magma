@@ -18,6 +18,14 @@ public class VariableEntityList extends ArrayList<VariableEntity> {
 
   private Set<String> ids = Sets.newHashSet();
 
+  public VariableEntityList() {
+  }
+
+  public VariableEntityList(Collection<? extends VariableEntity> collection) {
+    super();
+    addAll(collection);
+  }
+
   @Override
   public boolean add(VariableEntity entity) {
     if (contains(entity))

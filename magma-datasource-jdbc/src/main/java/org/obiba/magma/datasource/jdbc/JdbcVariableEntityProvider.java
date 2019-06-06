@@ -105,6 +105,7 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
     return found != null && found != 0;
   }
 
+  @Override
   public int getVariableEntityCount() {
     if (entitiesCount == -1) initialise();
     return entitiesCount;
