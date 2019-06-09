@@ -80,10 +80,10 @@ public class BooleanType extends AbstractValueType {
     if("true".equalsIgnoreCase(string) || "false".equalsIgnoreCase(string)) {
       return valueOf(Boolean.valueOf(string.toLowerCase()).booleanValue());
     }
-    if("T".equalsIgnoreCase(string)) {
+    if("T".equalsIgnoreCase(string) || "1".equals(string)) {
       return valueOf(true);
     }
-    if("F".equalsIgnoreCase(string)) {
+    if("F".equalsIgnoreCase(string) || "0".equals(string)) {
       return valueOf(false);
     }
     throw new IllegalArgumentException(
