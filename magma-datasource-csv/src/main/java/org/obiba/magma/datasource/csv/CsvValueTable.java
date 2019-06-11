@@ -209,9 +209,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   private void initialiseVariables() throws IOException {
     initialiseVariablesFromDataFile();
     if (refTable == null) {
-      if (variableFile != null && variableFile.exists()) {
-        updateDataVariablesFromVariablesFile();
-      }
+      updateDataVariablesFromVariablesFile();
     } else {
       updateDataVariablesFromRefTable();
     }
@@ -245,9 +243,13 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private void updateDataVariablesFromVariablesFile() throws IOException {
-    try (CSVReader variableReader = getCsvDatasource().getCsvReader(variableFile)) {
-      if (variableReader == null) return;
-      initialiseVariablesFromVariablesFile(variableReader);
+    if (variableFile != null && variableFile.exists()) {
+      try (CSVReader variableReader = getCsvDatasource().getCsvReader(variableFile)) {
+        if (variableReader == null) return;
+        initialiseVariablesFromVariablesFile(variableReader);
+      }
+    } else {
+      initialiseVariablesFromEmptyVariablesFile();
     }
   }
 

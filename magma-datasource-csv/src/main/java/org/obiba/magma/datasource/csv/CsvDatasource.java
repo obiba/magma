@@ -305,7 +305,7 @@ public class CsvDatasource extends AbstractDatasource {
     this.entityIdName = entityIdName;
   }
 
-  private String getEntityIdName() {
+  protected String getEntityIdName() {
     return Strings.isNullOrEmpty(entityIdName) ? DEFAULT_ENTITY_ID_NAME : entityIdName;
   }
 
@@ -322,7 +322,7 @@ public class CsvDatasource extends AbstractDatasource {
     return entityIdNames == null ? Maps.newHashMap() : entityIdNames;
   }
 
-  String getEntityIdName(String entityType) {
+  protected String getEntityIdName(String entityType) {
     return getEntityIdNames().getOrDefault(entityType, getEntityIdName());
   }
 }

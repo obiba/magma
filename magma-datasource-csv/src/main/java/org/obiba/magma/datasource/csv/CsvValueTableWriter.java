@@ -201,6 +201,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
       }
       // Set existing header
       csvLine.setHeaderMap(getExistingHeaderMap());
+      valueTable.setDataFileEmpty(false);
     }
 
     private void writeValueToCsv(String... strings) throws IOException {
