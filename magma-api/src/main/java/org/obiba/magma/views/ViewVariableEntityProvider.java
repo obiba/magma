@@ -12,6 +12,7 @@ import org.springframework.cache.Cache;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 class ViewVariableEntityProvider implements PagingVariableEntityProvider {
@@ -162,6 +163,7 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
             return view.getWhereClause().where(valueSet, view);
           })
           .map(e -> view.getVariableEntityMappingFunction().apply(e))
+          .filter(Objects::nonNull) // can happen depending of mapping strategy
           .collect(Collectors.toList());
     }
     return entities;
