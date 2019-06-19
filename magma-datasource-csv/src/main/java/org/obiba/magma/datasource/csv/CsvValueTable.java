@@ -58,6 +58,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   final List<VariableEntity> entities = new VariableEntityList();
 
+  private boolean initialised = false;
+
   private final Cache<String, List<String[]>> entityLinesBuffer = CacheBuilder.newBuilder()
       .maximumSize(1000)
       .expireAfterWrite(60, TimeUnit.SECONDS)
@@ -127,12 +129,15 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   @Override
   public void initialise() {
+    if (initialised) return;
     try {
       initialiseEntities();
       initialiseVariables();
       setVariableEntityProvider(new CsvVariableEntityProvider(this, entityType));
     } catch (IOException e) {
       throw new DatasourceParsingException("Error occurred initialising csv datasource.", e, "CsvInitialisationError");
+    } finally {
+      initialised = true;
     }
   }
 
@@ -190,7 +195,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private String getIdentifierFromCurrentLine() {
-    return currentLine.length > 0 ? currentLine[0] : "";
+    return currentLine != null && currentLine.length > 0 ? currentLine[0] : "";
   }
 
   private void putValueSetLine(String id, String[] current) {
@@ -444,7 +449,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   /**
-   * Read the entity indetifiers from the non-empty CSV data lines (first field).
+   * Read the entity identifiers from the non-empty CSV data lines (first field).
    *
    * @param dataHeaderReader
    * @throws IOException
