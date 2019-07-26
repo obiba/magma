@@ -61,15 +61,25 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
   @Override
   public List<VariableEntity> getVariableEntities() {
-    ImmutableList.Builder<VariableEntity> builder = ImmutableList.builder();
-    for (VariableEntity entity : super.getVariableEntities()) {
+    return getVariableEntities(0, -1);
+  }
+
+  @Override
+  public List<VariableEntity> getVariableEntities(int offset, int limit) {
+    List<VariableEntity> mappedEntities = Lists.newArrayList();
+    for (VariableEntity entity : super.getVariableEntities(offset, -1)) {
       VariableEntity mappedEntity = getVariableEntityMappingFunction().apply(entity);
       // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
       if (mappedEntity != null && hasValueSet(mappedEntity)) {
-        builder.add(mappedEntity);
+        mappedEntities.add(mappedEntity);
+      }
+      if (mappedEntities.size()>offset) {
+        if (limit>0 && mappedEntities.size()>offset+limit) {
+          break;
+        }
       }
     }
-    return builder.build();
+    return mappedEntities.subList(offset, limit>0 && limit<mappedEntities.size() ? limit : mappedEntities.size());
   }
 
   @Override
