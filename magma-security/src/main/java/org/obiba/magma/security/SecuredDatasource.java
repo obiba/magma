@@ -10,19 +10,15 @@
 
 package org.obiba.magma.security;
 
-import java.util.Set;
-
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.security.permissions.Permissions;
 import org.obiba.magma.security.permissions.Permissions.DatasourcePermissionBuilder;
 import org.obiba.magma.support.AbstractDatasourceWrapper;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SecuredDatasource extends AbstractDatasourceWrapper {
 
@@ -30,28 +26,23 @@ public class SecuredDatasource extends AbstractDatasourceWrapper {
 
   public SecuredDatasource(Authorizer authorizer, Datasource datasource) {
     super(datasource);
-    if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
+    if (authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
     authz = authorizer;
   }
 
   @Override
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
     ValueTable table = getWrappedDatasource().getValueTable(name);
-    if(table != null && !authzReadTable(name)) throw new NoSuchValueTableException(getName(), name);
+    if (table != null && !authzReadTable(name)) throw new NoSuchValueTableException(getName(), name);
     return new SecuredValueTable(authz, this, table);
   }
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return ImmutableSet.copyOf(Iterables.transform(
-        Iterables.filter(getWrappedDatasource().getValueTables(), builder().tables().read().asPredicate(authz)),
-        new Function<ValueTable, ValueTable>() {
-
-          @Override
-          public ValueTable apply(ValueTable from) {
-            return new SecuredValueTable(authz, SecuredDatasource.this, from);
-          }
-        }));
+    return getWrappedDatasource().getValueTables().stream()
+        .filter(builder().tables().read().asPredicate(authz))
+        .map(table -> new SecuredValueTable(authz, SecuredDatasource.this, table))
+        .collect(Collectors.toSet());
   }
 
   @Override
@@ -66,8 +57,8 @@ public class SecuredDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public void dropTable(String name) {
-    if(hasValueTable(name)) {
-      if(!authzDropTable(name)) {
+    if (hasValueTable(name)) {
+      if (!authzDropTable(name)) {
         throw new MagmaRuntimeException("not authorized to drop table " + getName() + "." + name);
       }
       getWrappedDatasource().dropTable(name);
@@ -83,6 +74,6 @@ public class SecuredDatasource extends AbstractDatasourceWrapper {
   }
 
   private DatasourcePermissionBuilder builder() {
-    return Permissions.DatasourcePermissionBuilder.forDatasource(getWrappedDatasource());
+    return DatasourcePermissionBuilder.forDatasource(getWrappedDatasource());
   }
 }

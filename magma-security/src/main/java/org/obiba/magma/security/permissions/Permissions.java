@@ -15,13 +15,14 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.security.Authorizer;
 
-import com.google.common.base.Predicate;
+import java.util.function.Predicate;
 
 public class Permissions {
 
   public static final String WILDCARD = "*";
 
-  private Permissions() {}
+  private Permissions() {
+  }
 
   public static final class Actions {
 
@@ -31,10 +32,10 @@ public class Permissions {
 
     public static final String DELETE = "DELETE";
 
-    private Actions() {}
+    private Actions() {
+    }
   }
 
-  @SuppressWarnings({ "ParameterHidesMemberVariable", "UnusedDeclaration" })
   public static class Builder<T extends Builder<?>> {
 
     protected String domain;
@@ -82,13 +83,13 @@ public class Permissions {
       return asT();
     }
 
-    public T instance(String instance) {
+    T instance(String instance) {
       path.append('/').append(instance);
       return asT();
     }
 
     public T instances(String... instances) {
-      for(String i : instances) {
+      for (String i : instances) {
         instance(i);
       }
       return asT();
@@ -112,14 +113,13 @@ public class Permissions {
 
     private String appendNonNull(String permission, String... segments) {
       String newPermission = permission;
-      for(String segment : segments) {
+      for (String segment : segments) {
         newPermission = appendNonNull(newPermission, segment);
       }
       return newPermission;
     }
   }
 
-  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static class DatasourcePermissionBuilder extends Builder<DatasourcePermissionBuilder> {
 
     private static final String DOMAIN = "magma";
@@ -147,7 +147,7 @@ public class Permissions {
       return db;
     }
 
-    protected DatasourcePermissionBuilder newCopy() {
+    DatasourcePermissionBuilder newCopy() {
       return new DatasourcePermissionBuilder(this);
     }
 
@@ -165,17 +165,10 @@ public class Permissions {
     }
 
     public Predicate<Datasource> asPredicate(final Authorizer authorizer) {
-      return new Predicate<Datasource>() {
-
-        @Override
-        public boolean apply(Datasource input) {
-          return authorizer.isPermitted(newCopy().instance("datasource").instance(input.getName()).build());
-        }
-      };
+      return input -> authorizer.isPermitted(newCopy().instance("datasource").instance(input.getName()).build());
     }
   }
 
-  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static class ValueTablePermissionBuilder extends Builder<ValueTablePermissionBuilder> {
 
     ValueTablePermissionBuilder(DatasourcePermissionBuilder builder) {
@@ -186,7 +179,7 @@ public class Permissions {
       super(builder);
     }
 
-    protected ValueTablePermissionBuilder newCopy() {
+    ValueTablePermissionBuilder newCopy() {
       return new ValueTablePermissionBuilder(this);
     }
 
@@ -194,30 +187,19 @@ public class Permissions {
       return DatasourcePermissionBuilder.forDatasource(table.getDatasource()).table(table);
     }
 
-    public VariablePermissionBuilder variable(Variable variable) {
-      return new VariablePermissionBuilder(this).instance("variable").instance(variable.getName());
-    }
-
     public VariablePermissionBuilder variable(String variable) {
       return new VariablePermissionBuilder(this).instance("variable").instance(variable);
     }
 
     public Predicate<ValueTable> asPredicate(final Authorizer authorizer) {
-      return new Predicate<ValueTable>() {
-
-        @Override
-        public boolean apply(ValueTable input) {
-          return authorizer.isPermitted(newCopy().instance("table").instance(input.getName()).build());
-        }
-      };
+      return input -> authorizer.isPermitted(newCopy().instance("table").instance(input.getName()).build());
     }
 
   }
 
-  @SuppressWarnings("UnusedDeclaration")
   public static class VariablePermissionBuilder extends Builder<VariablePermissionBuilder> {
 
-    public VariablePermissionBuilder(ValueTablePermissionBuilder builder) {
+    VariablePermissionBuilder(ValueTablePermissionBuilder builder) {
       super(builder);
     }
 
@@ -225,18 +207,12 @@ public class Permissions {
       super(builder);
     }
 
-    protected VariablePermissionBuilder newCopy() {
+    VariablePermissionBuilder newCopy() {
       return new VariablePermissionBuilder(this);
     }
 
     public Predicate<Variable> asPredicate(final Authorizer authorizer) {
-      return new Predicate<Variable>() {
-
-        @Override
-        public boolean apply(Variable input) {
-          return authorizer.isPermitted(newCopy().instance("variable").instance(input.getName()).build());
-        }
-      };
+      return input -> authorizer.isPermitted(newCopy().instance("variable").instance(input.getName()).build());
     }
   }
 }

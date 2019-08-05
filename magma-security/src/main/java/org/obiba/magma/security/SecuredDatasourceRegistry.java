@@ -10,22 +10,13 @@
 
 package org.obiba.magma.security;
 
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import org.obiba.magma.Datasource;
-import org.obiba.magma.DatasourceFactory;
-import org.obiba.magma.DatasourceRegistry;
-import org.obiba.magma.Decorator;
-import org.obiba.magma.NoSuchDatasourceException;
+import org.obiba.magma.*;
 import org.obiba.magma.security.permissions.Permissions;
-import org.obiba.magma.support.Decorators;
 import org.obiba.magma.support.ValueTableReference;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import javax.annotation.Nullable;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SecuredDatasourceRegistry implements DatasourceRegistry {
 
@@ -36,8 +27,8 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   private final SecuredDatasourceDecorator securedDatasourceDecorator;
 
   public SecuredDatasourceRegistry(Authorizer authorizer, DatasourceRegistry datasourceRegistry) {
-    if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
-    if(datasourceRegistry == null) throw new IllegalArgumentException("datasourceRegistry cannot be null");
+    if (authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
+    if (datasourceRegistry == null) throw new IllegalArgumentException("datasourceRegistry cannot be null");
     this.authorizer = authorizer;
     delegate = datasourceRegistry;
     securedDatasourceDecorator = new SecuredDatasourceDecorator(authorizer);
@@ -71,16 +62,17 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   @Override
   public Datasource getDatasource(String name) throws NoSuchDatasourceException {
     Datasource ds = delegate.getDatasource(name);
-    if(ds != null && !isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build()))
+    if (ds != null && !isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build()))
       throw new NoSuchDatasourceException(name);
     return securedDatasourceDecorator.decorate(ds);
   }
 
   @Override
   public Set<Datasource> getDatasources() {
-    return ImmutableSet.copyOf(Iterables.transform(Sets.filter(delegate.getDatasources(),
-        Permissions.DatasourcePermissionBuilder.forDatasource().read().asPredicate(authorizer)),
-        Decorators.decoratingFunction(securedDatasourceDecorator)));
+    return delegate.getDatasources().stream()
+        .filter(Permissions.DatasourcePermissionBuilder.forDatasource().read().asPredicate(authorizer))
+        .map(securedDatasourceDecorator::decorate)
+        .collect(Collectors.toSet());
   }
 
   @Override
