@@ -50,8 +50,6 @@ public class VariableBean extends AbstractAttributeAware implements Variable, Se
   /**
    * Use a linked hash set to keep insertion order
    */
-  @SuppressWarnings({ "CollectionDeclaredAsConcreteClass", "TypeMayBeWeakened" })
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("SE_BAD_FIELD")
   final LinkedHashSet<Category> categories = new LinkedHashSet<>();
 
   String occurrenceGroup;
