@@ -9,18 +9,18 @@
  */
 package org.obiba.magma;
 
-import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.lang.reflect.Constructor;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * The meta-data of a {@code Value}. {@code Value} instances can be obtained for {@code ValueSet} instances. When this
@@ -147,12 +147,12 @@ public interface Variable extends AttributeAware {
 
     @SuppressWarnings("ConstantConditions")
     public Builder(@NotNull String name, @NotNull ValueType type, @NotNull String entityType) {
-      if(name == null) throw new IllegalArgumentException("name cannot be null");
-      if(type == null) throw new IllegalArgumentException("type cannot be null");
-      if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
+      if (name == null) throw new IllegalArgumentException("name cannot be null");
+      if (type == null) throw new IllegalArgumentException("type cannot be null");
+      if (entityType == null) throw new IllegalArgumentException("entityType cannot be null");
 
-      if(name.contains(":")) throw new IllegalArgumentException("variable name cannot contain ':'");
-      if(name.isEmpty()) throw new IllegalArgumentException("variable name cannot be empty");
+      if (name.contains(":")) throw new IllegalArgumentException("variable name cannot contain ':'");
+      if (name.isEmpty()) throw new IllegalArgumentException("variable name cannot be empty");
 
       variable.name = name;
       variable.valueType = type;
@@ -181,7 +181,7 @@ public interface Variable extends AttributeAware {
       Builder builder = newVariable(variable.getName(), variable.getValueType(), variable.getEntityType())
           .unit(variable.getUnit()).mimeType(variable.getMimeType())
           .referencedEntityType(variable.getReferencedEntityType()).index(variable.getIndex());
-      if(variable.isRepeatable()) {
+      if (variable.isRepeatable()) {
         builder.repeatable().occurrenceGroup(variable.getOccurrenceGroup());
       }
       if (variable.hasAttributes()) {
@@ -189,8 +189,8 @@ public interface Variable extends AttributeAware {
           builder.addAttribute(a);
         }
       }
-      if(sameCategories && variable.hasCategories()) {
-        for(Category c : variable.getCategories()) {
+      if (sameCategories && variable.hasCategories()) {
+        for (Category c : variable.getCategories()) {
           builder.addCategory(c);
         }
       }
@@ -206,48 +206,50 @@ public interface Variable extends AttributeAware {
      * built.
      *
      * @param override The {@code Variable} contains values that will override values in the {@code Variable} currently
-     * being built.
+     *                 being built.
      */
     public Builder overrideWith(Variable override) {
       variable.name = override.getName();
-      if(override.getValueType() != null) variable.valueType = override.getValueType();
-      if(override.getEntityType() != null) variable.entityType = override.getEntityType();
-      if(override.getMimeType() != null) variable.mimeType = override.getMimeType();
-      if(override.getOccurrenceGroup() != null) variable.occurrenceGroup = override.getOccurrenceGroup();
-      if(override.getUnit() != null) variable.unit = override.getUnit();
+      if (override.getValueType() != null) variable.valueType = override.getValueType();
+      if (override.getEntityType() != null) variable.entityType = override.getEntityType();
+      if (override.getMimeType() != null) variable.mimeType = override.getMimeType();
+      if (override.getOccurrenceGroup() != null) variable.occurrenceGroup = override.getOccurrenceGroup();
+      if (override.getUnit() != null) variable.unit = override.getUnit();
       variable.repeatable = override.isRepeatable();
       variable.index = override.getIndex();
       variable.attributes = (LinkedListMultimap<String, Attribute>) overrideAttributes(getAttributes(),
           override.getAttributes());
-      for(Category category : override.getCategories()) {
+      for (Category category : override.getCategories()) {
         overrideCategories(variable.categories, category);
       }
       return this;
     }
 
-    private void overrideCategories(Collection<Category> categories, Category overrideCategory) {
-      if(categoryWithNameExists(categories, overrideCategory.getName())) {
+    private void overrideCategories(Set<Category> categories, Category overrideCategory) {
+      List<Category> orderedCategories = Lists.newArrayList(categories);
+      if (categoryWithNameExists(categories, overrideCategory.getName())) {
         Category existingCategory = getCategoryWithName(categories, overrideCategory.getName());
         Category.Builder builder = Category.Builder.sameAs(existingCategory);
-        if(overrideCategory.getCode() != null) builder.withCode(overrideCategory.getCode());
+        if (overrideCategory.getCode() != null) builder.withCode(overrideCategory.getCode());
         builder.missing(overrideCategory.isMissing());
         builder.clearAttributes();
-        for(Attribute a : overrideAttributes(existingCategory.getAttributes(), overrideCategory.getAttributes())
+        for (Attribute a : overrideAttributes(existingCategory.getAttributes(), overrideCategory.getAttributes())
             .values()) {
           builder.addAttribute(a);
         }
-        categories.remove(existingCategory);
-        categories.add(builder.build());
+        orderedCategories.set(orderedCategories.indexOf(existingCategory), builder.build());
       } else {
-        categories.add(overrideCategory);
+        orderedCategories.add(overrideCategory);
       }
+      categories.clear();
+      categories.addAll(orderedCategories);
     }
 
     private static boolean categoryWithNameExists(Iterable<Category> categories, String name) {
       try {
         getCategoryWithName(categories, name);
         return true;
-      } catch(NoSuchElementException e) {
+      } catch (NoSuchElementException e) {
         return false;
       }
     }
@@ -281,8 +283,8 @@ public interface Variable extends AttributeAware {
      * @return true if any of the specified names is equal to the variable's name
      */
     public boolean isName(String... name) {
-      for(String aName : name) {
-        if(variable.name.equals(aName)) {
+      for (String aName : name) {
+        if (variable.name.equals(aName)) {
           return true;
         }
       }
@@ -291,14 +293,14 @@ public interface Variable extends AttributeAware {
 
     @SuppressWarnings("ConstantConditions")
     public Builder name(@NotNull String name) {
-      if(name == null) throw new IllegalArgumentException("name cannot be null");
+      if (name == null) throw new IllegalArgumentException("name cannot be null");
       variable.name = name;
       return this;
     }
 
     @SuppressWarnings("ConstantConditions")
     public Builder type(@NotNull ValueType type) {
-      if(type == null) throw new IllegalArgumentException("type cannot be null");
+      if (type == null) throw new IllegalArgumentException("type cannot be null");
       variable.valueType = type;
       return this;
     }
@@ -350,7 +352,7 @@ public interface Variable extends AttributeAware {
     public Builder index(String index) {
       try {
         index(Integer.valueOf(index));
-      } catch(NumberFormatException e) {
+      } catch (NumberFormatException e) {
         // ignored
       }
       return this;
@@ -362,8 +364,8 @@ public interface Variable extends AttributeAware {
 
     public Builder addCategory(String name, String code, @Nullable Iterable<Category.BuilderVisitor> visitors) {
       Category.Builder categoryBuilder = Category.Builder.newCategory(name).withCode(code);
-      if(visitors != null) {
-        for(Category.BuilderVisitor categoryVisitor : visitors) {
+      if (visitors != null) {
+        for (Category.BuilderVisitor categoryVisitor : visitors) {
           categoryBuilder.accept(categoryVisitor);
         }
       }
@@ -389,14 +391,14 @@ public interface Variable extends AttributeAware {
      * @return this
      */
     public Builder addCategories(String... names) {
-      for(String name : names) {
+      for (String name : names) {
         variable.categories.add(Category.Builder.newCategory(name).build());
       }
       return this;
     }
 
     public Builder addCategories(Iterable<Category> categories) {
-      for(Category category : categories) {
+      for (Category category : categories) {
         variable.categories.add(category);
       }
       return this;
@@ -420,7 +422,7 @@ public interface Variable extends AttributeAware {
      * @return this
      */
     public Builder accept(Iterable<? extends BuilderVisitor> visitors) {
-      for(BuilderVisitor visitor : visitors) {
+      for (BuilderVisitor visitor : visitors) {
         accept(visitor);
       }
       return this;
@@ -455,11 +457,11 @@ public interface Variable extends AttributeAware {
       try {
         Constructor<T> ctor = type.getConstructor(Builder.class);
         return ctor.newInstance(this);
-      } catch(NoSuchMethodException e) {
+      } catch (NoSuchMethodException e) {
         throw new IllegalArgumentException("Builder extension type '" + type.getName() +
             "' must expose a public constructor that takes a single argument of type '" + Builder.class.getName() +
             "'.");
-      } catch(Exception e) {
+      } catch (Exception e) {
         throw new IllegalArgumentException("Cannot instantiate builder extension type '" + type.getName() + "'", e);
       }
     }
@@ -481,7 +483,8 @@ public interface Variable extends AttributeAware {
 
   class Reference {
 
-    private Reference() {}
+    private Reference() {
+    }
 
     public static String getReference(@NotNull ValueTable table, Variable variable) {
       return table.getTableReference() + ":" + variable.getName();
