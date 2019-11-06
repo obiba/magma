@@ -41,7 +41,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
-import java.security.InvalidParameterException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -99,6 +98,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private final JdbcValueTable valueTable;
 
+  private boolean hasValueSets;
+
   private final Set<String> identifiersAtInit;
 
   private final List<JdbcOperation> batch = Lists.newArrayList();
@@ -112,6 +113,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     if (valueTable.isSQLView()) throw new MagmaRuntimeException("A SQL view cannot be written");
 
     this.valueTable = valueTable;
+    this.hasValueSets = valueTable.getValueSetCount() > 0;
     // might be a costly call but (1) most likely this will be empty and (2) will spare hasValueSet() calls
     this.identifiersAtInit = valueTable.getVariableEntities().stream()
         .map(VariableEntity::getIdentifier).collect(Collectors.toSet());
@@ -265,9 +267,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     @Override
     public void writeVariable(@NotNull Variable variable) {
       if (!valueTable.isForEntityType(variable.getEntityType())) {
-        throw new InvalidParameterException(
-            "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
-                " expected, " + variable.getEntityType() + " received.");
+        throw new IncompatibleEntityTypeException(variable.getName(), valueTable.getEntityType(), variable.getEntityType());
       }
 
       doWriteVariable(variable);
@@ -311,9 +311,26 @@ class JdbcValueTableWriter implements ValueTableWriter {
           variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null);
 
       if (variableExists(variable)) {
+        if (hasValueSets)
+          ensureVariableUpdateCompatibility(variable);
         modifyColumn(columnName, dataType);
       } else {
         addNewColumn(variable.getName(), dataType);
+      }
+    }
+
+    private void ensureVariableUpdateCompatibility(Variable variable) {
+      // some properties cannot be modified if there are already data stored, this affects the data schema of the SQL table
+      try {
+        Variable existingVariable = valueTable.getVariableValueSource(variable.getName()).getVariable();
+        if (!existingVariable.getValueType().equals(variable.getValueType())) {
+          throw new IncompatibleValueTypeException(variable.getName(), existingVariable.getValueType(), variable.getValueType());
+        }
+        if (existingVariable.isRepeatable() != variable.isRepeatable()) {
+          throw new IncompatibleRepeatabilityException(variable.getName(), existingVariable.isRepeatable(), variable.isRepeatable());
+        }
+      } catch (NoSuchVariableException e) {
+        // ignore
       }
     }
 
@@ -522,6 +539,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(@NotNull Variable variable, Value value) {
+      hasValueSets = true;
       jdbcLine.setValue(variable, value);
     }
 

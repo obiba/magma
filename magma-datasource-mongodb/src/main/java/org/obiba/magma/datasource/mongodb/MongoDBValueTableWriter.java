@@ -17,12 +17,10 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile;
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.type.BinaryType;
 
 import javax.annotation.Nullable;
@@ -42,12 +40,15 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   private final MongoDBValueTable table;
 
+  private boolean hasValueSets;
+
   private final Set<String> identifiersAtInit;
 
   private final List<DBObject> batch = Lists.newArrayList();
 
   MongoDBValueTableWriter(@NotNull MongoDBValueTable table) {
     this.table = table;
+    this.hasValueSets = table.getValueSetCount()>0;
     // might be a costly call but (1) most likely this will be empty and (2) will spare hasValueSet() calls
     this.identifiersAtInit = table.getVariableEntities().stream()
         .map(VariableEntity::getIdentifier).collect(Collectors.toSet());
@@ -125,6 +126,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(@NotNull Variable variable, Value value) {
+      hasValueSets = true;
       removed = false;
       MongoDBVariable varObj = (MongoDBVariable) table.getVariable(variable.getName());
       String field = varObj.getId();
@@ -249,6 +251,9 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(@NotNull Variable variable) {
+      if (!table.getEntityType().equals(variable.getEntityType())) {
+        throw new IncompatibleEntityTypeException(variable.getName(), table.getEntityType(), variable.getEntityType());
+      }
       DBObject existingDbObject = table.findVariable(variable.getName());
       if(existingDbObject == null) {
         table.addVariableValueSource(new MongoDBVariableValueSource(table, variable.getName()));
@@ -260,6 +265,16 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       // insert or update
       DBObject varObject = VariableConverter.marshall(variable);
       if(existingDbObject != null) {
+        if (hasValueSets) {
+          // some properties cannot be modified if there are already data stored, this affects the data schema of the collection
+          Variable existingVariable = VariableConverter.unmarshall(existingDbObject);
+          if (!existingVariable.getValueType().equals(variable.getValueType())) {
+            throw new IncompatibleValueTypeException(variable.getName(), existingVariable.getValueType(), variable.getValueType());
+          }
+          if (existingVariable.isRepeatable() != variable.isRepeatable()) {
+            throw new IncompatibleRepeatabilityException(variable.getName(), existingVariable.isRepeatable(), variable.isRepeatable());
+          }
+        }
         varObject.put("_id", existingDbObject.get("_id"));
       }
       table.getVariablesCollection().save(varObject);
