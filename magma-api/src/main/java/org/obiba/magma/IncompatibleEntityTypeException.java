@@ -14,18 +14,30 @@ public class IncompatibleEntityTypeException extends MagmaRuntimeException {
 
   private static final long serialVersionUID = 5887330656285998606L;
 
-  private final String viewEntityType;
+  private final String tableEntityType;
 
   private final String variableEntityType;
 
-  public IncompatibleEntityTypeException(String viewEntityType, String variableEntityType) {
-    super("Incompatible entity types: '" + viewEntityType + "' / '" + variableEntityType + "'");
-    this.viewEntityType = viewEntityType;
+  private final String variableName;
+
+  public IncompatibleEntityTypeException(String variableName, String tableEntityType, String variableEntityType) {
+    super("Incompatible entity types for variable [" + variableName + "]: '" + tableEntityType + "' / '" + variableEntityType + "'");
+    this.tableEntityType = tableEntityType;
     this.variableEntityType = variableEntityType;
+    this.variableName = variableName;
   }
 
+  public String getVariableName() {
+    return variableName;
+  }
+
+  @Deprecated
   public String getViewEntityType() {
-    return viewEntityType;
+    return getTableEntityType();
+  }
+
+  public String getTableEntityType() {
+    return tableEntityType;
   }
 
   public String getVariableEntityType() {

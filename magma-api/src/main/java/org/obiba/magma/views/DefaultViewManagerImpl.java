@@ -97,7 +97,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   private void validateVariablesEntityType(ValueTable view) {
     for(Variable variable : view.getVariables()) {
       if(!view.getEntityType().equals(variable.getEntityType())) {
-        throw new IncompatibleEntityTypeException(view.getEntityType(), variable.getEntityType());
+        throw new IncompatibleEntityTypeException(variable.getName(), view.getEntityType(), variable.getEntityType());
       }
     }
   }
