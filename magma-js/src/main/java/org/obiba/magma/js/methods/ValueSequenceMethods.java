@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * JavaScript methods that operate on {@link ValueSequence} objects wrapped in {@link ScriptableValue} objects.
@@ -296,6 +297,33 @@ public class ValueSequenceMethods {
       return new ScriptableValue(thisObj, sortedValueSequence);
     } else {
       // Sorting a single value produces that value.
+      return sv;
+    }
+  }
+
+  /**
+   * Returns the {@link ValueSequence} filtered by unique values in their original order.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').unique()
+   * </pre>
+   *
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
+   */
+  public static ScriptableValue unique(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
+                                       @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+
+    final ScriptableValue sv = (ScriptableValue) thisObj;
+    if (sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, sv.getValue());
+    }
+    if (sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      ValueSequence uniqueValueSequence = valueSequence.getValueType().sequenceOf(valueSequence.getValues().stream()
+          .distinct().collect(Collectors.toList()));
+      return new ScriptableValue(thisObj, uniqueValueSequence);
+    } else {
+      // a single value produces that value.
       return sv;
     }
   }
