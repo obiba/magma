@@ -526,6 +526,37 @@ public class ValueSequenceMethods {
   }
 
   /**
+   * Returns the median of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is
+   * null or the ValueSequence is empty or contains at least one null value or a non-numeric value.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').avg()
+   * </pre>
+   *
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
+   */
+  public static ScriptableValue median(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if (sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, DecimalType.get().nullValue());
+    }
+    if (!sv.getValueType().isNumeric()) {
+      throw new MagmaJsEvaluationRuntimeException(
+          "Operand to median() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
+    }
+    if (sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      // remove null values
+      return new ScriptableValue(thisObj, DecimalType.get().valueOf(NumericMethods.median(valueSequence)),
+          sv.getUnit());
+    } else {
+      // Average of a single value is the value itself.
+      return sv;
+    }
+  }
+
+  /**
    * Returns the standard deviation of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the
    * operand is null or the ValueSequence is empty or a non-numeric value.
    * <p/>
