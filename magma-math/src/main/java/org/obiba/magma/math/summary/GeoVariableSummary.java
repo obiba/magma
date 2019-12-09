@@ -9,26 +9,6 @@
  */
 package org.obiba.magma.math.summary;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Coordinate;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.type.LineStringType;
-import org.obiba.magma.type.PointType;
-import org.obiba.magma.type.PolygonType;
-import org.opensphere.geometry.algorithm.ConcaveHull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -36,6 +16,21 @@ import com.google.common.collect.Iterators;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import org.obiba.magma.*;
+import org.obiba.magma.type.LineStringType;
+import org.obiba.magma.type.PointType;
+import org.obiba.magma.type.PolygonType;
+import org.opensphere.geometry.algorithm.ConcaveHull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -132,18 +127,24 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
     @NotNull
     private final Variable variable;
 
+    private final List<String> missings;
+
     private boolean addedTable;
 
     private boolean addedValue;
 
     public Builder(@NotNull Variable variable) {
       this.variable = variable;
+      this.missings = variable.getCategories().stream()
+          .filter(Category::isMissing)
+          .map(Category::getName)
+          .collect(Collectors.toList());
       summary = new GeoVariableSummary(variable);
     }
 
     @Override
     public Builder addValue(@NotNull Value value) {
-      if(addedTable) {
+      if (addedTable) {
         throw new IllegalStateException("Cannot add value for variable " + summary.variable.getName() +
             " because values where previously added from the whole table with addTable().");
       }
@@ -154,7 +155,7 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
 
     @Override
     public Builder addTable(@NotNull ValueTable table, @NotNull ValueSource valueSource) {
-      if(addedValue) {
+      if (addedValue) {
         throw new IllegalStateException("Cannot add table for variable " + summary.variable.getName() +
             " because values where previously added with addValue().");
       }
@@ -170,8 +171,8 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
       //noinspection ConstantConditions
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
-      if(!variableValueSource.supportVectorSource()) return;
-      for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
+      if (!variableValueSource.supportVectorSource()) return;
+      for (Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
         add(value);
       }
     }
@@ -180,32 +181,41 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
 
-      if(summary.empty) summary.empty = false;
-      if(value.isSequence()) {
-        if(value.isNull()) {
+      if (summary.empty) summary.empty = false;
+      if (value.isSequence()) {
+        if (value.isNull()) {
           summary.frequencyDist.addValue(NULL_NAME);
         } else {
-          for(Value v : value.asSequence().getValue()) {
+          for (Value v : value.asSequence().getValue()) {
             add(v);
           }
         }
+      } else if (value.isNull()) {
+        summary.frequencyDist.addValue(NULL_NAME);
       } else {
-        summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : NOT_NULL_NAME);
-
-        if(!value.isNull()) {
+        boolean added = false;
+        if (!missings.isEmpty()) {
+          String valueStr = value.toString();
+          if (missings.contains(valueStr)) {
+            summary.frequencyDist.addValue(valueStr);
+            added = true;
+          }
+        }
+        if (!added) {
+          summary.frequencyDist.addValue(NOT_NULL_NAME);
           getCoordinates(value);
         }
       }
     }
 
     private void getCoordinates(Value value) {
-      if(value.getValueType() == PointType.get()) {
+      if (value.getValueType() == PointType.get()) {
         coords.add((Coordinate) value.getValue());
-      } else if(value.getValueType() == LineStringType.get()) {
+      } else if (value.getValueType() == LineStringType.get()) {
         coords.addAll((Collection<Coordinate>) value.getValue());
-      } else if(value.getValueType() == PolygonType.get()) {
+      } else if (value.getValueType() == PolygonType.get()) {
         Collection<List<Coordinate>> coordinateList = (Collection<List<Coordinate>>) value.getValue();
-        for(List<Coordinate> coordinate : coordinateList) {
+        for (List<Coordinate> coordinate : coordinateList) {
           coords.addAll(coordinate);
         }
       }
@@ -231,15 +241,15 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
 
       // Iterate over all values.
       // The loop will also determine the mode of the distribution (most frequent value)
-      while(concat.hasNext()) {
+      while (concat.hasNext()) {
         String value = concat.next();
         long count = summary.frequencyDist.getCount(value);
-        if(count > max) {
+        if (count > max) {
           max = count;
         }
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
             Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
-            value.equals(NULL_NAME)));
+            missings.contains(value) || value.equals(NULL_NAME)));
       }
       summary.n = summary.frequencyDist.getSumFreq();
       summary.coordinates.addAll(getConcaveHull(coords));
@@ -273,7 +283,7 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
 
       // From JTS Coordinate to Magma Coordinate
       Collection<Coordinate> result = new ArrayList<>();
-      for(com.vividsolutions.jts.geom.Coordinate aCoordinatesConvex : coordinatesConcave) {
+      for (com.vividsolutions.jts.geom.Coordinate aCoordinatesConvex : coordinatesConcave) {
         result.add(new Coordinate(aCoordinatesConvex.x, aCoordinatesConvex.y));
       }
 
@@ -286,7 +296,7 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
 
       // From Magma Coordinate to JTS coordinate
       GeometryFactory factory = new GeometryFactory();
-      for(int i = 0; i < coordinates.size(); i++) {
+      for (int i = 0; i < coordinates.size(); i++) {
         Coordinate coordinate = coordinates.get(i);
         coordinatesArray[i] = factory.createPoint(
             new com.vividsolutions.jts.geom.Coordinate(coordinate.getLongitude(), coordinate.getLatitude()));

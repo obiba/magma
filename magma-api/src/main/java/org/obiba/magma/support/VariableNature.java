@@ -12,6 +12,7 @@ package org.obiba.magma.support;
 
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.TextType;
 
 /**
  * Determines the nature of a variable by inspecting its {@code ValueType} and any associated {@code Category} instance.
@@ -49,10 +50,26 @@ public enum VariableNature {
    */
   UNDETERMINED;
 
+  /**
+   * Nature, considering the categories or the value type.
+   *
+   * @param variable
+   * @return
+   */
   public static VariableNature getNature(Variable variable) {
-    if(variable.hasCategories()) {
-      return variable.areAllCategoriesMissing() ? CONTINUOUS : CATEGORICAL;
+    if(variable.hasCategories() && !variable.areAllCategoriesMissing()) {
+      return CATEGORICAL;
     }
+    return getNatureFromValueType(variable);
+  }
+
+  /**
+   * Nature without considering the categories.
+   *
+   * @param variable
+   * @return
+   */
+  private static VariableNature getNatureFromValueType(Variable variable) {
     if(variable.getValueType().isNumeric()) {
       return CONTINUOUS;
     }

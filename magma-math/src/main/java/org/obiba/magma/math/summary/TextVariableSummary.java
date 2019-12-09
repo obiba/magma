@@ -9,26 +9,18 @@
  */
 package org.obiba.magma.math.summary;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
+import org.obiba.magma.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -128,7 +120,7 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
 
     @Override
     public Builder addValue(@NotNull Value value) {
-      if(addedTable) {
+      if (addedTable) {
         throw new IllegalStateException("Cannot add value for variable " + summary.variable.getName() +
             " because values where previously added from the whole table with addTable().");
       }
@@ -139,7 +131,7 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
 
     @Override
     public Builder addTable(@NotNull ValueTable table, @NotNull ValueSource valueSource) {
-      if(addedValue) {
+      if (addedValue) {
         throw new IllegalStateException("Cannot add table for variable " + summary.variable.getName() +
             " because values where previously added with addValue().");
       }
@@ -155,8 +147,8 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
       //noinspection ConstantConditions
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
-      if(!variableValueSource.supportVectorSource()) return;
-      for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
+      if (!variableValueSource.supportVectorSource()) return;
+      for (Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
         add(value);
       }
     }
@@ -165,12 +157,12 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
 
-      if(summary.empty) summary.empty = false;
-      if(value.isSequence()) {
-        if(value.isNull()) {
+      if (summary.empty) summary.empty = false;
+      if (value.isSequence()) {
+        if (value.isNull()) {
           summary.frequencyDist.addValue(NULL_NAME);
         } else {
-          for(Value v : value.asSequence().getValue()) {
+          for (Value v : value.asSequence().getValue()) {
             add(v);
           }
         }
@@ -196,13 +188,18 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
       log.trace("Start compute default summary {}", summary.variable);
       Iterator<String> concat = freqNames(summary.frequencyDist);
 
+      List<String> missings = variable.getCategories().stream()
+          .filter(Category::isMissing)
+          .map(Category::getName)
+          .collect(Collectors.toList());
+
       // Iterate over all category names including or not distinct values.
       // The loop will also determine the mode of the distribution (most frequent value)
-      while(concat.hasNext()) {
+      while (concat.hasNext()) {
         String value = concat.next();
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
             Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
-            value.equals(NULL_NAME)));
+            missings.contains(value) || value.equals(NULL_NAME)));
       }
 
       Collections.sort(summary.frequencies, new Comparator<Frequency>() {
