@@ -526,11 +526,11 @@ public class ValueSequenceMethods {
   }
 
   /**
-   * Returns the median of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is
+   * Returns the median of the non-null {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is
    * null or the ValueSequence is empty or contains at least one null value or a non-numeric value.
    * <p/>
    * <pre>
-   *   $('SequenceVar').avg()
+   *   $('SequenceVar').median()
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
@@ -551,7 +551,7 @@ public class ValueSequenceMethods {
       return new ScriptableValue(thisObj, DecimalType.get().valueOf(NumericMethods.median(valueSequence)),
           sv.getUnit());
     } else {
-      // Average of a single value is the value itself.
+      // Median of a single value is the value itself.
       return sv;
     }
   }
