@@ -10,15 +10,6 @@
 
 package org.obiba.magma.js.methods;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
 import org.jscience.physics.unit.system.SI;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -35,7 +26,16 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.unitsofmeasurement.unit.Unit;
 
-@SuppressWarnings({ "UnusedParameters", "UnusedDeclaration" })
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
 public class NumericMethods {
 
   private NumericMethods() {
@@ -138,7 +138,7 @@ public class NumericMethods {
       @Override
       public BigDecimal operate(BigDecimal value, Object... args) {
         int scale = 2;
-        if (args !=null && args.length>0) {
+        if (args != null && args.length > 0) {
           scale = (Integer) args[0];
         }
         return value.setScale(scale, BigDecimal.ROUND_HALF_UP);
@@ -151,7 +151,7 @@ public class NumericMethods {
         try {
           int intPower = power.intValueExact();
           return value.pow(intPower);
-        } catch(ArithmeticException e) {
+        } catch (ArithmeticException e) {
           return BigDecimal.valueOf(Math.pow(value.doubleValue(), power.doubleValue()));
         }
       }
@@ -162,7 +162,7 @@ public class NumericMethods {
         try {
           int intPower = power.intValueExact();
           return unit.pow(intPower);
-        } catch(ArithmeticException e) {
+        } catch (ArithmeticException e) {
           return SI.ONE;
         }
       }
@@ -170,9 +170,9 @@ public class NumericMethods {
     ROOT() {
       @Override
       public BigDecimal operate(BigDecimal value, Object... args) {
-        if(args[0] instanceof Integer) {
+        if (args[0] instanceof Integer) {
           int intRoot = (Integer) args[0];
-          switch(intRoot) {
+          switch (intRoot) {
             case 2:
               return BigDecimal.valueOf(Math.sqrt(value.doubleValue()));
             case 3:
@@ -189,7 +189,7 @@ public class NumericMethods {
         try {
           int intRoot = root.intValueExact();
           return unit.root(intRoot);
-        } catch(ArithmeticException e) {
+        } catch (ArithmeticException e) {
           return SI.ONE;
         }
       }
@@ -198,7 +198,7 @@ public class NumericMethods {
       @Override
       public BigDecimal operate(BigDecimal value, Object... args) {
         double log = Math.log10(value.doubleValue());
-        if(args.length > 0) {
+        if (args.length > 0) {
           double base = asBigDecimal(args[0]).doubleValue();
           log = log / Math.log10(base);
         }
@@ -235,7 +235,7 @@ public class NumericMethods {
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
-   * DecimalType.
+   *                                           DecimalType.
    */
   public static ScriptableValue plus(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
@@ -252,7 +252,7 @@ public class NumericMethods {
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
-   * DecimalType.
+   *                                           DecimalType.
    */
   public static ScriptableValue minus(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
@@ -269,7 +269,7 @@ public class NumericMethods {
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
-   * DecimalType.
+   *                                           DecimalType.
    */
   public static ScriptableValue multiply(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
@@ -285,7 +285,7 @@ public class NumericMethods {
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
-   * DecimalType.
+   *                                           DecimalType.
    */
   public static ScriptableValue div(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
@@ -301,7 +301,7 @@ public class NumericMethods {
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
-   * DecimalType.
+   *                                           DecimalType.
    */
   public static ScriptableValue gt(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
@@ -317,7 +317,7 @@ public class NumericMethods {
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
-   * DecimalType.
+   *                                           DecimalType.
    */
   public static ScriptableValue ge(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
@@ -333,7 +333,7 @@ public class NumericMethods {
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
-   * DecimalType.
+   *                                           DecimalType.
    */
   public static ScriptableValue lt(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
@@ -349,7 +349,7 @@ public class NumericMethods {
    * </pre>
    *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
-   * DecimalType.
+   *                                           DecimalType.
    */
   public static ScriptableValue le(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
@@ -442,12 +442,12 @@ public class NumericMethods {
 
   public static ScriptableValue sqroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, new Object[] { 2 }, Unary.ROOT);
+    return operate((ScriptableValue) thisObj, new Object[]{2}, Unary.ROOT);
   }
 
   public static ScriptableValue cbroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, new Object[] { 3 }, Unary.ROOT);
+    return operate((ScriptableValue) thisObj, new Object[]{3}, Unary.ROOT);
   }
 
   /**
@@ -480,11 +480,11 @@ public class NumericMethods {
    */
   public static ScriptableValue group(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
 
-    if(args == null || args.length < 1 || !(args[0] instanceof NativeArray)) {
+    if (args == null || args.length < 1 || !(args[0] instanceof NativeArray)) {
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
     }
 
-    if(args.length == 2 && !(args[1] instanceof NativeArray)) {
+    if (args.length == 2 && !(args[1] instanceof NativeArray)) {
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
     }
 
@@ -494,12 +494,12 @@ public class NumericMethods {
     List<Value> boundaries = boundaryValues(sv.getValueType(), args);
     List<Value> outliers = outlierValues(sv.getValueType(), args);
 
-    if(currentValue.isSequence()) {
-      if(currentValue.isNull()) {
+    if (currentValue.isSequence()) {
+      if (currentValue.isNull()) {
         return new ScriptableValue(thisObj, TextType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      for(Value value : currentValue.asSequence().getValue()) {
+      for (Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupGroup(ctx, thisObj, value, boundaries, outliers));
       }
       return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
@@ -536,14 +536,14 @@ public class NumericMethods {
    * group() method.
    *
    * @param valueType
-   * @param args
+   * @param array
    * @return
    */
   private static List<Value> nativeArrayToValueList(ValueType valueType, Object array) {
     NativeArray a = (NativeArray) array;
     List<Value> newValues = new ArrayList<>();
     Value newValue;
-    for(int index = 0; index < (int) a.getLength(); index++) {
+    for (int index = 0; index < (int) a.getLength(); index++) {
       newValue = valueType.valueOf(a.get(index, a));
       newValues.add(index, newValue);
     }
@@ -562,25 +562,25 @@ public class NumericMethods {
    * @return
    */
   private static Value lookupGroup(Context ctx, Scriptable thisObj, Value value, Iterable<Value> boundaries,
-      Collection<Value> outliers) {
-    if(outliers != null && outliers.contains(value)) {
+                                   Collection<Value> outliers) {
+    if (outliers != null && outliers.contains(value)) {
       return TextType.get().convert(value);
     }
-    if(value.isNull()) {
+    if (value.isNull()) {
       return TextType.get().nullValue();
     }
 
     Value lowerBound = null;
     // boundaries are ordered
-    for(Value upperBound : boundaries) {
-      if(value.compareTo(upperBound) < 0) {
+    for (Value upperBound : boundaries) {
+      if (value.compareTo(upperBound) < 0) {
         return lowerBound == null //
             ? TextType.get().valueOf("-" + formatNumberValue(upperBound)) //
             : TextType.get().valueOf(formatNumberValue(lowerBound) + "-" + formatNumberValue(upperBound));
       }
       lowerBound = upperBound;
     }
-    if(lowerBound != null && value.compareTo(lowerBound) >= 0) {
+    if (lowerBound != null && value.compareTo(lowerBound) >= 0) {
       return TextType.get().valueOf(formatNumberValue(lowerBound) + "+");
     }
 
@@ -595,9 +595,9 @@ public class NumericMethods {
    * @return
    */
   private static String formatNumberValue(Value value) {
-    if(value.isNull()) return null;
+    if (value.isNull()) return null;
     String str = value.toString();
-    if(str == null) return null;
+    if (str == null) return null;
     return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
   }
 
@@ -631,19 +631,19 @@ public class NumericMethods {
     return BooleanType.get().trueValue();
   }
 
-    static ScriptableValue operate(ScriptableValue thisObj, Object args[], Unary operation) {
+  static ScriptableValue operate(ScriptableValue thisObj, Object args[], Unary operation) {
     try {
       BigDecimal value = asBigDecimal(thisObj);
-      if(value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
+      if (value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
       value = operation.operate(value, args);
       Unit<?> unit = operation.operate(UnitMethods.extractUnit(thisObj), args);
       try {
         long longValue = value.longValueExact();
         return new ScriptableValue(thisObj, IntegerType.get().valueOf(longValue), unit.toString());
-      } catch(ArithmeticException e) {
+      } catch (ArithmeticException e) {
         return new ScriptableValue(thisObj, DecimalType.get().valueOf(value.doubleValue()), unit.toString());
       }
-    } catch(ArithmeticException e) {
+    } catch (ArithmeticException e) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
   }
@@ -651,11 +651,11 @@ public class NumericMethods {
   static ScriptableValue operate(ScriptableValue thisObj, Object args[], Ops operation) {
     try {
       BigDecimal value = asBigDecimal(thisObj);
-      if(value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
+      if (value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
       Unit<?> unit = UnitMethods.extractUnit(thisObj);
-      for(Object argument : args) {
+      for (Object argument : args) {
         BigDecimal rhs = asBigDecimal(argument);
-        if(rhs == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
+        if (rhs == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
         value = operation.operate(value, rhs);
         unit = operation.operate(unit, UnitMethods.extractUnit(argument));
       }
@@ -663,40 +663,40 @@ public class NumericMethods {
       try {
         long longValue = value.longValueExact();
         return new ScriptableValue(thisObj, IntegerType.get().valueOf(longValue), unit.toString());
-      } catch(ArithmeticException e) {
+      } catch (ArithmeticException e) {
         return new ScriptableValue(thisObj, DecimalType.get().valueOf(value.doubleValue()), unit.toString());
       }
-    } catch(ArithmeticException e) {
+    } catch (ArithmeticException e) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
   }
 
   static Double asDouble(Object obj) {
-    if(obj == null) return null;
-    if(obj instanceof Number) {
+    if (obj == null) return null;
+    if (obj instanceof Number) {
       return ((Number) obj).doubleValue();
     }
-    if(obj instanceof ScriptableValue) {
+    if (obj instanceof ScriptableValue) {
       ScriptableValue sv = (ScriptableValue) obj;
       Value value = sv.getValue();
       return value.isNull() ? null : ((Number) value.getValue()).doubleValue();
     }
-    if(obj instanceof String) {
+    if (obj instanceof String) {
       return Double.valueOf((String) obj);
     }
     throw new IllegalArgumentException("cannot interpret argument as number: '" + obj + "'");
   }
 
   static BigDecimal asBigDecimal(Object object) {
-    if(object == null) return null;
+    if (object == null) return null;
 
-    if(object instanceof ScriptableValue) {
+    if (object instanceof ScriptableValue) {
       return asBigDecimal((ScriptableValue) object);
     }
-    if(object instanceof Number) {
+    if (object instanceof Number) {
       return new BigDecimal(object.toString());
     }
-    if(object instanceof String) {
+    if (object instanceof String) {
       return new BigDecimal((String) object);
     }
     throw new IllegalArgumentException("cannot interpret argument as number: '" + object + "'");
@@ -708,13 +708,13 @@ public class NumericMethods {
   }
 
   static BigDecimal asBigDecimal(Value value) {
-    if(value.isNull()) {
+    if (value.isNull()) {
       // Throw a runtime exception if the null value provided in scriptableValue argument is not convertible to decimal.
       // This is to manipulate the null value only created by a "Number" Type.
       ValueType.Factory.converterFor(value.getValueType(), DecimalType.get());
       return null;
     }
-    if(value.getValueType().isNumeric()) {
+    if (value.getValueType().isNumeric()) {
       return new BigDecimal(((Number) value.getValue()).doubleValue());
     }
     Value decimalValue = DecimalType.get().convert(value);
@@ -722,11 +722,11 @@ public class NumericMethods {
   }
 
   static Double min(ValueSequence valueSequence) {
-    if(valueSequence.isNull()) return null;
+    if (valueSequence.isNull()) return null;
 
     Double min = null;
-    for(Value v : valueSequence.getValue()) {
-      if(!v.isNull()) {
+    for (Value v : valueSequence.getValue()) {
+      if (!v.isNull()) {
         double doubleValue = ((Number) v.getValue()).doubleValue();
         if (min == null) min = doubleValue;
         else min = Math.min(doubleValue, min);
@@ -736,11 +736,11 @@ public class NumericMethods {
   }
 
   static Double max(ValueSequence valueSequence) {
-    if(valueSequence.isNull()) return null;
+    if (valueSequence.isNull()) return null;
 
     Double max = null;
-    for(Value v : valueSequence.getValue()) {
-      if(!v.isNull()) {
+    for (Value v : valueSequence.getValue()) {
+      if (!v.isNull()) {
         double doubleValue = ((Number) v.getValue()).doubleValue();
         if (max == null) max = doubleValue;
         else max = Math.max(doubleValue, max);
@@ -750,11 +750,11 @@ public class NumericMethods {
   }
 
   static Double sum(ValueSequence valueSequence) {
-    if(valueSequence.isNull()) return null;
+    if (valueSequence.isNull()) return null;
 
     double sum = 0;
-    for(Value v : valueSequence.getValue()) {
-      if(!v.isNull()) {
+    for (Value v : valueSequence.getValue()) {
+      if (!v.isNull()) {
         sum += ((Number) v.getValue()).doubleValue();
       }
     }
@@ -763,26 +763,45 @@ public class NumericMethods {
 
   static Double average(ValueSequence valueSequence) {
     int size = valueSequence.getSize();
-    if(size == 0) return null;
+    if (size == 0) return null;
     Double sum = sum(valueSequence);
-    if(sum != null) {
+    if (sum != null) {
       return sum / size;
     }
     return null;
   }
 
+  static Double median(ValueSequence valueSequence) {
+    ValueSequence valueSequenceNoNull = valueSequence.getValueType().sequenceOf(valueSequence.getValues().stream()
+        .filter(v -> !v.isNull()).collect(Collectors.toList()));
+    int size = valueSequenceNoNull.getSize();
+    if (size == 0) return null;
+    int middle = size / 2;
+    ValueSequence sorted = valueSequenceNoNull.sort();
+    if (size % 2 == 0) {
+      // even
+      Value lower = sorted.get(middle - 1);
+      Value upper = sorted.get(middle);
+      BigDecimal avg = asBigDecimal(lower).add(asBigDecimal(upper)).divide(new BigDecimal(2));
+      return avg.doubleValue();
+    } else {
+      // odd
+      return ((Number) sorted.get(middle).getValue()).doubleValue();
+    }
+  }
+
   static Double stddev(ValueSequence valueSequence) {
-    if(valueSequence.isNull()) return null;
+    if (valueSequence.isNull()) return null;
 
     Double avg = average(valueSequence);
-    if(avg == null) return null;
+    if (avg == null) return null;
 
     int size = valueSequence.getSize();
-    if(size == 0) return null;
+    if (size == 0) return null;
 
     double sumDev = 0;
-    for(Value v : valueSequence.getValue()) {
-      if(!v.isNull()) {
+    for (Value v : valueSequence.getValue()) {
+      if (!v.isNull()) {
         double d = ((Number) v.getValue()).doubleValue();
         sumDev += (d - avg) * (d - avg);
       }

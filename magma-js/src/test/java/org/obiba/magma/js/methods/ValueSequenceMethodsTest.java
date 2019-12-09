@@ -609,6 +609,43 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     }
   }
 
+  // median
+
+  @Test
+  public void test_median_integerValuesOdd() {
+    assertMethod("median()", IntegerType.get().sequenceOf("1,2,3,4,5"), DecimalType.get().valueOf("3"));
+    assertMethod("median()", IntegerType.get().sequenceOf("1,5,4,2,3"), DecimalType.get().valueOf("3"));
+  }
+
+  @Test
+  public void test_median_decimalValuesOdd() {
+    assertMethod("median()", DecimalType.get().sequenceOf("1,2,3,4,5"), DecimalType.get().valueOf("3"));
+    assertMethod("median()", DecimalType.get().sequenceOf("1,5,4,2,3"), DecimalType.get().valueOf("3"));
+  }
+
+  @Test
+  public void test_median_integerValuesEven() {
+    assertMethod("median()", IntegerType.get().sequenceOf("1,2,3,4,5,6"), DecimalType.get().valueOf("3.5"));
+    assertMethod("median()", IntegerType.get().sequenceOf("6,3,1,5,4,2"), DecimalType.get().valueOf("3.5"));
+  }
+
+  @Test
+  public void test_median_decimalValuesEven() {
+    assertMethod("median()", DecimalType.get().sequenceOf("1,2,3,4,5,6"), DecimalType.get().valueOf("3.5"));
+    assertMethod("median()", DecimalType.get().sequenceOf("6,3,1,5,4,2"), DecimalType.get().valueOf("3.5"));
+  }
+
+  @Test
+  public void test_median_integerSingleValue() {
+    assertMethod("median()", IntegerType.get().sequenceOf("3"), DecimalType.get().valueOf("3"));
+  }
+
+  @Test
+  public void test_median_integerValuesWithNull() {
+    assertMethod("median()", IntegerType.get().sequenceOf("1,2,,3,4,5"), DecimalType.get().valueOf("3"));
+    assertMethod("median()", IntegerType.get().sequenceOf("1,2,,3,,,4,,5,6,,"), DecimalType.get().valueOf("3.5"));
+  }
+
   // stddev
 
   @Test
