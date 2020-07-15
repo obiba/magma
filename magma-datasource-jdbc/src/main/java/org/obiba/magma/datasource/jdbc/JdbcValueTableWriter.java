@@ -25,6 +25,7 @@ import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.AddColumnChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
+import org.obiba.magma.support.VariableHelper;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.LocaleType;
@@ -305,32 +306,40 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     protected void doWriteVariable(Variable variable) {
       String columnName = getVariableSqlName(variable.getName());
-      String dataType = variable.isRepeatable() && !valueTable.isMultilines()
-          ? SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE)
-          : SqlTypes.sqlTypeFor(variable.getValueType(),
-          variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null);
+      String dataType = getDataType(variable);
 
       if (variableExists(variable)) {
-        if (hasValueSets)
-          ensureVariableUpdateCompatibility(variable);
-        modifyColumn(columnName, dataType);
+        try {
+          Variable existingVariable = valueTable.getVariableValueSource(variable.getName()).getVariable();
+          boolean modifiedType = !getDataType(existingVariable).equals(dataType);
+          if (modifiedType) {
+            if (hasValueSets)
+              ensureVariableUpdateCompatibility(existingVariable, variable);
+            modifyColumn(columnName, dataType);
+          }
+        } catch (NoSuchVariableException e) {
+          // should not happen, unless the database and the java object are not sync
+          modifyColumn(columnName, dataType);
+        }
       } else {
         addNewColumn(variable.getName(), dataType);
       }
     }
 
-    private void ensureVariableUpdateCompatibility(Variable variable) {
+    private String getDataType(Variable variable) {
+      return variable.isRepeatable() && !valueTable.isMultilines()
+          ? SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE)
+          : SqlTypes.sqlTypeFor(variable.getValueType(),
+          variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null);
+    }
+
+    private void ensureVariableUpdateCompatibility(Variable existingVariable, Variable variable) {
       // some properties cannot be modified if there are already data stored, this affects the data schema of the SQL table
-      try {
-        Variable existingVariable = valueTable.getVariableValueSource(variable.getName()).getVariable();
-        if (!existingVariable.getValueType().equals(variable.getValueType())) {
-          throw new IncompatibleValueTypeException(variable.getName(), existingVariable.getValueType(), variable.getValueType());
-        }
-        if (existingVariable.isRepeatable() != variable.isRepeatable()) {
-          throw new IncompatibleRepeatabilityException(variable.getName(), existingVariable.isRepeatable(), variable.isRepeatable());
-        }
-      } catch (NoSuchVariableException e) {
-        // ignore
+      if (!existingVariable.getValueType().equals(variable.getValueType())) {
+        throw new IncompatibleValueTypeException(variable.getName(), existingVariable.getValueType(), variable.getValueType());
+      }
+      if (existingVariable.isRepeatable() != variable.isRepeatable()) {
+        throw new IncompatibleRepeatabilityException(variable.getName(), existingVariable.isRepeatable(), variable.isRepeatable());
       }
     }
 
@@ -367,33 +376,39 @@ class JdbcValueTableWriter implements ValueTableWriter {
     @Override
     protected void doWriteVariable(Variable variable) {
       boolean variableExists = variableExists(variable);
+      boolean insert = true;
 
       if (variableExists) {
-        deleteVariableMetadata(variable.getName());
+          Variable existingVariable = valueTable.getVariableValueSource(variable.getName()).getVariable();
+          insert = VariableHelper.isModified(existingVariable, variable);
+          if (insert)
+            deleteVariableMetadata(variable.getName());
       } else {
         addTableTimestampChange();
       }
 
-      InsertDataChangeBuilder builder = new InsertDataChangeBuilder() //
-          .tableName(VARIABLES_TABLE);
+      if (insert) {
+        InsertDataChangeBuilder builder = new InsertDataChangeBuilder() //
+            .tableName(VARIABLES_TABLE);
 
-      if (getDatasource().getSettings().isMultipleDatasources())
-        builder.withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName());
+        if (getDatasource().getSettings().isMultipleDatasources())
+          builder.withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName());
 
-      builder.withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
-          .withColumn(NAME_COLUMN, variable.getName()) //
-          .withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()) //
-          .withColumn("ref_entity_type", variable.getReferencedEntityType())//
-          .withColumn("mime_type", variable.getMimeType())//
-          .withColumn("units", variable.getUnit()) //
-          .withColumn("is_repeatable", variable.isRepeatable()) //
-          .withColumn("occurrence_group", variable.getOccurrenceGroup()) //
-          .withColumn("index", Integer.toString(variable.getIndex())) //
-          .withColumn(SQL_NAME_COLUMN, valueTable.getVariableSqlName(variable.getName()));
+        builder.withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
+            .withColumn(NAME_COLUMN, variable.getName()) //
+            .withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()) //
+            .withColumn("ref_entity_type", variable.getReferencedEntityType())//
+            .withColumn("mime_type", variable.getMimeType())//
+            .withColumn("units", variable.getUnit()) //
+            .withColumn("is_repeatable", variable.isRepeatable()) //
+            .withColumn("occurrence_group", variable.getOccurrenceGroup()) //
+            .withColumn("index", Integer.toString(variable.getIndex())) //
+            .withColumn(SQL_NAME_COLUMN, valueTable.getVariableSqlName(variable.getName()));
 
-      changes.add(builder.build());
-      writeAttributes(variable);
-      writeCategories(variable);
+        changes.add(builder.build());
+        writeAttributes(variable);
+        writeCategories(variable);
+      }
 
       super.doWriteVariable(variable);
     }

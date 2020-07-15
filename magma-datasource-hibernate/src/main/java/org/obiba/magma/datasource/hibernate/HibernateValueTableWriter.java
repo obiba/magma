@@ -43,6 +43,7 @@ import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
+import org.obiba.magma.support.VariableHelper;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -120,11 +121,18 @@ class HibernateValueTableWriter implements ValueTableWriter {
               " expected, " + variable.getEntityType() + " received.");
 
       // add or update variable
-      errorOccurred = true;
-      VariableState state = variableConverter.marshal(variable, context);
-      transaction.addSource(valueSourceFactory.createSource(state));
-      errorOccurred = false;
+      boolean insertOrUpdate = true;
+      if (valueTable.hasVariable(variable.getName())) {
+        Variable existingVariable = valueTable.getVariable(variable.getName());
+        insertOrUpdate = VariableHelper.isModified(existingVariable, variable);
+      }
+      if (insertOrUpdate) {
+        errorOccurred = true;
+        VariableState state = variableConverter.marshal(variable, context);
+        transaction.addSource(valueSourceFactory.createSource(state));
+        errorOccurred = false;
 
+      }
       dirty = true;
     }
 
