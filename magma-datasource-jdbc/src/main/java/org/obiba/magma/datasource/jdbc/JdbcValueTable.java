@@ -164,6 +164,18 @@ class JdbcValueTable extends AbstractValueTable {
     return new ValueSetTimestamps(entity, getCreatedTimestampColumnName(), getUpdatedTimestampColumnName());
   }
 
+  @Override
+  public void dropValueSets() {
+    String sql = String.format("TRUNCATE TABLE %s", getDatasource().escapeTableName(getSqlName()));
+    getDatasource().getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        getDatasource().getJdbcTemplate().update(sql);
+        getJdbcVariableEntityProvider().removeAll();
+      }
+    });
+  }
+
   @NotNull
   @Override
   public Timestamps getTimestamps() {
