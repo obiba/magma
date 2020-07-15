@@ -121,6 +121,12 @@ public interface Variable extends AttributeAware {
    */
   Set<Category> getCategories();
 
+  /**
+   * Get category by name or null if not found.
+   *
+   * @param categoryName
+   * @return
+   */
   @Nullable
   Category getCategory(String categoryName);
 
@@ -133,9 +139,24 @@ public interface Variable extends AttributeAware {
    */
   boolean isMissingValue(Value value);
 
+  /**
+   * Check whether there is no category or there is at least one category that is not flagged as being missing value.
+   *
+   * @return
+   */
   boolean areAllCategoriesMissing();
 
+  /**
+   * Get variable unique name (in the context of the provided table).
+   *
+   * @param table
+   * @return
+   */
   String getVariableReference(@NotNull ValueTable table);
+
+  //
+  // Internal classes
+  //
 
   /**
    * A builder for {@code Variable} instances. This uses the builder pattern for constructing {@code Variable}

@@ -21,6 +21,7 @@ import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.support.DatasourceParsingException;
+import org.obiba.magma.support.VariableHelper;
 import org.obiba.magma.type.BinaryType;
 
 import javax.annotation.Nullable;
@@ -265,19 +266,26 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       // insert or update
       DBObject varObject = VariableConverter.marshall(variable);
       if(existingDbObject != null) {
-        if (hasValueSets) {
-          // some properties cannot be modified if there are already data stored, this affects the data schema of the collection
-          Variable existingVariable = VariableConverter.unmarshall(existingDbObject);
-          if (!existingVariable.getValueType().equals(variable.getValueType())) {
-            throw new IncompatibleValueTypeException(variable.getName(), existingVariable.getValueType(), variable.getValueType());
+        Variable existingVariable = VariableConverter.unmarshall(existingDbObject);
+        // check if variable has changed
+        boolean modified = VariableHelper.isModified(existingVariable, variable);
+        if (modified) {
+          if (hasValueSets) {
+            // some properties cannot be modified if there are already data stored, this affects the data schema of the collection
+            if (!existingVariable.getValueType().equals(variable.getValueType())) {
+              throw new IncompatibleValueTypeException(variable.getName(), existingVariable.getValueType(), variable.getValueType());
+            }
+            if (existingVariable.isRepeatable() != variable.isRepeatable()) {
+              throw new IncompatibleRepeatabilityException(variable.getName(), existingVariable.isRepeatable(), variable.isRepeatable());
+            }
           }
-          if (existingVariable.isRepeatable() != variable.isRepeatable()) {
-            throw new IncompatibleRepeatabilityException(variable.getName(), existingVariable.isRepeatable(), variable.isRepeatable());
-          }
+          varObject.put("_id", existingDbObject.get("_id"));
+        } else {
+          varObject = null;
         }
-        varObject.put("_id", existingDbObject.get("_id"));
       }
-      table.getVariablesCollection().save(varObject);
+      if (varObject != null)
+        table.getVariablesCollection().save(varObject);
     }
 
     @Override
