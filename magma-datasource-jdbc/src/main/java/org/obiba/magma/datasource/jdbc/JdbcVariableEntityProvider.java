@@ -124,4 +124,8 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
     entitiesCount = entitiesCount - 1;
   }
 
+  public void removeAll() {
+    entitiesCount = 0;
+  }
+
 }
