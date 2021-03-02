@@ -35,7 +35,6 @@ public class JoinTableTest extends MagmaTest {
   private static final String PARTICIPANT_ENTITY_TYPE = "Participant";
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void testTableListCannotBeNull() {
     new JoinTable(null);

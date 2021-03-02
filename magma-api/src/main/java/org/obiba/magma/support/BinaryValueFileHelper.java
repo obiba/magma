@@ -49,7 +49,6 @@ public class BinaryValueFileHelper {
    * @return
    */
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   public static byte[] readValue(@Nullable File parent, String path) {
     byte[] value = null;
     try {
@@ -97,7 +96,6 @@ public class BinaryValueFileHelper {
    * @param entity
    */
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   public static void removeValue(File parent, Variable variable, VariableEntity entity) {
     final String name = getFileName(variable, entity);
     final String extension = getFileExtension(variable);
@@ -149,7 +147,6 @@ public class BinaryValueFileHelper {
    * @return
    */
   @SuppressWarnings({ "ResultOfMethodCallIgnored", "PMD.NcssMethodCount" })
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   private static Value writeFileValue(File parent, String name, String extension, Value value) {
     if (parent == null) {
       throw new IllegalArgumentException("Destination folder cannot be null");
@@ -193,7 +190,6 @@ public class BinaryValueFileHelper {
    * @return
    */
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   private static Value writeFileValueSequence(File parent, @SuppressWarnings("TypeMayBeWeakened") final String name,
       final String extension, Value value) {
     if(value.isNull()) {

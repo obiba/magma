@@ -47,7 +47,6 @@ import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
 
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "ResultOfMethodCallIgnored", "OverlyCoupledClass" })
-@edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 public class CsvDatasourceTest extends AbstractMagmaTest {
 
   private static final Logger log = LoggerFactory.getLogger(CsvDatasourceTest.class);

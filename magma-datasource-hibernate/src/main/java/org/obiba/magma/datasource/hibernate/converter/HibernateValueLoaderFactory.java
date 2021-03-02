@@ -92,7 +92,6 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
     @NotNull
     @Override
     @SuppressWarnings("ConstantConditions")
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH")
     public Object getValue() {
       if(value == null) {
         if(BinaryType.get().equals(valueRef.getValueType())) {

@@ -281,8 +281,10 @@ public class VariableScriptValidator {
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this).omitNullValues().addValue(variableRef).add("callers", callers).toString();
+      return "VariableRefNode{" +
+          "variableRef='" + variableRef + '\'' +
+          ", callers=" + callers +
+          '}';
     }
-
   }
 }

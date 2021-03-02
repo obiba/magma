@@ -34,14 +34,12 @@ public class ValueSetBeanTest {
   }
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_preconditions_1() {
     new ValueSetBean(null, ENTITY);
   }
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_preconditions_2() {
     new ValueSetBean(mockTable, null);

@@ -48,7 +48,7 @@
     <fest.version>2.0M10</fest.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
     <flapdoodle_embed_mongo.version>1.50.0</flapdoodle_embed_mongo.version>
-    <guava.version>19.0</guava.version>
+    <guava.version>30.1-jre</guava.version>
     <hibernate.version>4.3.8.Final</hibernate.version>
     <hsqldb.version>2.3.3</hsqldb.version>
     <httpclient.version>4.5</httpclient.version>
@@ -58,14 +58,14 @@
     <json.version>20140107</json.version>
     <jsr305.version>3.0.0</jsr305.version>
     <jts.version>1.13</jts.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
     <liquibase-core.version>3.6.2</liquibase-core.version>
     <logback.version>1.1.2</logback.version>
     <mockito.version>1.10.8</mockito.version>
     <mariadb-connector-java.version>2.2.5</mariadb-connector-java.version>
     <mongodb-driver.version>3.8.0</mongodb-driver.version>
     <mysql-connector-java.version>8.0.11</mysql-connector-java.version>
-    <obiba-commons.version>1.12.0</obiba-commons.version>
+    <obiba-commons.version>1.15.0</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>3.9</poi-ooxml.version>
     <postgresql.version>42.2.5</postgresql.version>
@@ -73,10 +73,10 @@
     <shiro.version>1.4.0</shiro.version>
     <shiro-extras.version>1.1.0</shiro-extras.version>
     <slf4j.version>1.7.12</slf4j.version>
-    <spring.version>4.2.1.RELEASE</spring.version>
+    <spring.version>4.3.30.RELEASE</spring.version>
     <truezip.version>6.6</truezip.version>
     <validation.version>1.1.0.Final</validation.version>
-    <xstream.version>1.4.8</xstream.version>
+    <xstream.version>1.4.15</xstream.version>
 
     <!-- maven plugins -->
     <bintray-maven-plugin.version>1.2.20180117184439</bintray-maven-plugin.version>
@@ -782,7 +782,7 @@
     <repository>
       <id>obiba-releases</id>
       <name>Obiba Maven Releases Repository</name>
-      <url>https://dl.bintray.com/obiba/maven</url>
+      <url>https://obiba.jfrog.io/obiba/libs-release</url>
       <releases>
         <enabled>true</enabled>
       </releases>
@@ -816,12 +816,12 @@
 
   <distributionManagement>
     <repository>
-      <id>obiba-bintray</id>
-      <url>https://api.bintray.com/obiba/maven/</url>
+      <id>obiba-release-local</id>
+      <url>https://obiba.jfrog.io/obiba/libs-release-local</url>
     </repository>
     <snapshotRepository>
-      <id>obiba-artifactory</id>
-      <url>https://obiba.jfrog.io/obiba/libs-snapshot</url>
+      <id>obiba-snapshot-local</id>
+      <url>https://obiba.jfrog.io/obiba/libs-snapshot-local</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -841,46 +841,5 @@
     <system>Travis</system>
     <url>https://travis-ci.org/obiba/magma</url>
   </ciManagement>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <!-- Disable default deployer. -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-
-          <!-- Enable alternative deployer. -->
-          <plugin>
-            <groupId>com.carrotgarden.maven</groupId>
-            <artifactId>bintray-maven-plugin</artifactId>
-            <configuration>
-              <skip>false</skip>
-              <subject>obiba</subject>
-              <repository>maven</repository>
-              <serverId>obiba-bintray</serverId>
-              <packageVcsUrl>https://github.com/obiba/magma</packageVcsUrl>
-              <performCleanup>false</performCleanup>
-            </configuration>
-            <executions>
-              <!-- Activate "bintray:deploy" during "deploy" -->
-              <execution>
-                <goals>
-                  <goal>deploy</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>

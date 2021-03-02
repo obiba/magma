@@ -43,7 +43,6 @@ import com.google.common.io.Files;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "OverlyLongMethod", "ReuseOfLocalVariable", "ResultOfMethodCallIgnored", "PMD.NcssMethodCount" })
-@edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   /**

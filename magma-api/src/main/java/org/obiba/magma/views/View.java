@@ -70,8 +70,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   /**
    * No-arg constructor for XStream.
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
-      justification = "Needed by XStream")
   public View() {
     setSelectClause(new AllClause());
     setWhereClause(new AllClause());
@@ -87,8 +85,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
-      justification = "Needed by XStream")
   public View(String name, @NotNull SelectClause selectClause, @NotNull WhereClause whereClause, String[] innerFrom,
               @NotNull ValueTable... from) {
     Preconditions.checkArgument(selectClause != null, "null selectClause");

@@ -611,7 +611,6 @@ class Base64 {
    * @see Base64#DO_BREAK_LINES
    * @since 2.0
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("DM_DEFAULT_ENCODING")
   public static String encodeObject(Serializable serializableObject, int options) throws IOException {
 
     if(serializableObject == null) {
@@ -794,7 +793,6 @@ class Base64 {
    * @see Base64#DO_BREAK_LINES
    * @since 2.0
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("DM_DEFAULT_ENCODING")
   public static String encodeBytes(byte[] source, int off, int len, int options) throws IOException {
     byte[] encoded = encodeBytesToBytes(source, off, len, options);
 
@@ -1161,7 +1159,6 @@ class Base64 {
    * @throws NullPointerException if <tt>s</tt> is null
    * @since 1.4
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("DM_DEFAULT_ENCODING")
   public static byte[] decode(String s, int options) throws IOException {
 
     if(s == null) {

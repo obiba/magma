@@ -210,6 +210,9 @@ public class MongoDBVariable implements Variable {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("id", id).addValue(variable).toString();
+    return "MongoDBVariable{" +
+        "id='" + id + '\'' +
+        ", variable=" + variable +
+        '}';
   }
 }

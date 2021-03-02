@@ -64,7 +64,6 @@ public class BinaryValueFileLoader implements ValueLoader, Serializable {
 
   @NotNull
   @Override
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP")
   public Object getValue() {
     if(value == null) {
       value = BinaryValueFileHelper.readValue(parent, path);

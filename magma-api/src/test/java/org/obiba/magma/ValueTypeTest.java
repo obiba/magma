@@ -57,7 +57,6 @@ public class ValueTypeTest extends MagmaTest {
   }
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_factory_newValue_doesNotAcceptNull() {
     ValueType.Factory.newValue(null);

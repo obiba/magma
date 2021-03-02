@@ -34,7 +34,6 @@ public class IntegerType extends AbstractNumberType {
   }
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @NotNull
   public static IntegerType get() {
     if(instance == null || instance.get() == null) {

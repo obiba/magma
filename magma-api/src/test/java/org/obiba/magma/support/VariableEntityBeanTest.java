@@ -18,14 +18,12 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class VariableEntityBeanTest {
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_preconditions_1() {
     new VariableEntityBean(null, "1");
   }
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_preconditions_2() {
     new VariableEntityBean("type", null);

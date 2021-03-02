@@ -55,8 +55,6 @@ public class ScriptableValue extends ScriptableObject {
   /**
    * No-arg ctor for building the prototype
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
-      justification = "Needed by ScriptableValuePrototypeFactory")
   ScriptableValue() {
 
   }

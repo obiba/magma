@@ -180,7 +180,6 @@ public class ConcurrentValueTableReader {
       return entity;
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
     public Value[] getValues() {
       return values;
     }

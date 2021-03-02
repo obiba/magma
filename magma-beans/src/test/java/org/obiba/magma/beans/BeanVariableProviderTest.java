@@ -296,12 +296,10 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
       this.state = state;
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
     public final Date getDate() {
       return date;
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP2")
     public final void setDate(Date date) {
       this.date = date;
     }
@@ -369,12 +367,10 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
       this.decimal = decimal;
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
     public final byte[] getData() {
       return data;
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP2")
     public final void setData(byte... data) {
       this.data = data;
     }

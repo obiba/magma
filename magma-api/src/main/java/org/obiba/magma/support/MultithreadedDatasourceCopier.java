@@ -152,8 +152,6 @@ public class MultithreadedDatasourceCopier {
 
   private final List<DatasourceCopierProgressListener> progressListeners = Lists.newArrayList();
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
-      justification = "Fields will be populated by Builder")
   private MultithreadedDatasourceCopier() {
 
   }

@@ -459,8 +459,6 @@ public class BooleanMethods {
   }
 
   @Nullable
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
-      justification = "Clients expect ternary methods to return null as a valid value.")
   private static Boolean toBoolean(Value value) {
     return value.isNull() ? null : (Boolean) value.getValue();
   }

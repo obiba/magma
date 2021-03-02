@@ -40,7 +40,6 @@ public class FeedbackServerDataGeneratorTest {
 
   @Test
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   public void generateTestData() throws IOException {
 
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());

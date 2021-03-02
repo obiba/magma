@@ -96,8 +96,11 @@ class AttributeBean implements Attribute, Serializable {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("namespace", namespace).add("name", name).add("locale", locale)
-        .add("value", value).toString();
+    return "AttributeBean{" +
+        "name='" + name + '\'' +
+        ", namespace='" + namespace + '\'' +
+        ", locale=" + locale +
+        ", value=" + value +
+        '}';
   }
-
 }

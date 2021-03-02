@@ -10,25 +10,16 @@
 
 package org.obiba.magma.xstream;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
-import org.obiba.magma.ValueType;
-import org.obiba.magma.xstream.converter.AttributeConverter;
-import org.obiba.magma.xstream.converter.CategoryConverter;
-import org.obiba.magma.xstream.converter.JoinTableConverter;
-import org.obiba.magma.xstream.converter.ValueConverter;
-import org.obiba.magma.xstream.converter.ValueSequenceConverter;
-import org.obiba.magma.xstream.converter.ValueTableConverter;
-import org.obiba.magma.xstream.converter.VariableConverter;
-import org.obiba.magma.xstream.mapper.MagmaMapper;
-
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
+import org.obiba.magma.ValueType;
+import org.obiba.magma.xstream.converter.*;
+import org.obiba.magma.xstream.mapper.MagmaMapper;
+
+import java.util.List;
 
 public class DefaultXStreamFactory implements XStreamFactory {
 
@@ -41,10 +32,10 @@ public class DefaultXStreamFactory implements XStreamFactory {
 
   @Override
   @SuppressWarnings("PMD.NcssMethodCount")
-  public XStream createXStream(@Nullable ReflectionProvider reflectionProvider) {
+  public XStream createXStream(ReflectionProvider reflectionProvider) {
     XStream xstream = null;
     //noinspection IfMayBeConditional
-    if(reflectionProvider == null) {
+    if (reflectionProvider == null) {
       xstream = new XStream() {
         @Override
         protected MapperWrapper wrapMapper(MapperWrapper next) {
@@ -59,6 +50,10 @@ public class DefaultXStreamFactory implements XStreamFactory {
         }
       };
     }
+    XStream.setupDefaultSecurity(xstream);
+    xstream.allowTypesByWildcard(new String[]{
+        "org.obiba.**"
+    });
 
     xstream.registerConverter(new VariableConverter(xstream.getMapper()));
     xstream.registerConverter(new CategoryConverter(xstream.getMapper()));
@@ -69,7 +64,7 @@ public class DefaultXStreamFactory implements XStreamFactory {
     xstream.registerConverter(new JoinTableConverter());
 
     // Converters are prioritized in reverse order of their addition
-    for(Converter converter : converters) {
+    for (Converter converter : converters) {
       xstream.registerConverter(converter);
     }
 

@@ -33,7 +33,6 @@ public class NullValueTable implements ValueTable {
   @NotNull
   @Override
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
   public String getName() {
     return null;
   }
@@ -41,7 +40,6 @@ public class NullValueTable implements ValueTable {
   @NotNull
   @Override
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
   public Datasource getDatasource() {
     return null;
   }
@@ -162,7 +160,6 @@ public class NullValueTable implements ValueTable {
   }
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @NotNull
   public static NullValueTable get() {
     if (instance == null || instance.get() == null) {

@@ -70,7 +70,6 @@ public class ValueSetBinaryValue extends AbstractEntity {
     return occurrence;
   }
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP")
   public byte[] getValue() {
     return value;
   }
@@ -84,7 +83,6 @@ public class ValueSetBinaryValue extends AbstractEntity {
   }
 
   @SuppressWarnings("MethodCanBeVariableArityMethod")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP2")
   public void setValue(@NotNull byte[] value) {
     //noinspection ConstantConditions
     if(value == null) {

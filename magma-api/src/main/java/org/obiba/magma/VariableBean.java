@@ -187,7 +187,16 @@ public class VariableBean extends AbstractAttributeAware implements Variable, Se
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("name", name).add("valueType", valueType).add("repeatable", repeatable)
-        .add("entityType", entityType).toString();
+    return "VariableBean{" +
+        "name='" + name + '\'' +
+        ", entityType='" + entityType + '\'' +
+        ", mimeType='" + mimeType + '\'' +
+        ", unit='" + unit + '\'' +
+        ", valueType=" + valueType +
+        ", referencedEntityType='" + referencedEntityType + '\'' +
+        ", repeatable=" + repeatable +
+        ", index=" + index +
+        ", occurrenceGroup='" + occurrenceGroup + '\'' +
+        '}';
   }
 }

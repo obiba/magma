@@ -106,8 +106,6 @@ public final class Booleans {
    * @return true, false or null (see truth table)
    */
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
-      justification = "Clients expect ternaryAnd to return null as a valid value.")
   public static Boolean ternaryAnd(@Nullable Boolean op1, @Nullable Boolean op2) {
     // If either operands is null, then the outcome is either null or false.
     if(isNull(op1) || isNull(op2)) {
@@ -126,8 +124,6 @@ public final class Booleans {
    * @return true, false or null (see truth table)
    */
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
-      justification = "Clients expect ternaryOr to return null as a valid value.")
   public static Boolean ternaryOr(@Nullable Boolean op1, @Nullable Boolean op2) {
     // If either operands is null, then the outcome is either null or true.
     if(isNull(op1) || isNull(op2)) {
@@ -144,8 +140,6 @@ public final class Booleans {
    * @param op operand
    * @return true, false or null (see truth table)
    */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
-      justification = "Clients expect ternaryNot to return null as a valid value.")
   public static Boolean ternaryNot(Boolean op) {
     // If operand is null, then the outcome is null.
     if(isNull(op)) return null;

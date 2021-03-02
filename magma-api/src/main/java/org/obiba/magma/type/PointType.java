@@ -32,7 +32,6 @@ public class PointType extends JSONAwareValueType {
   }
 
   @SuppressWarnings("ConstantConditions")
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @NotNull
   public static PointType get() {
     if(instance == null || instance.get() == null) {

@@ -36,7 +36,6 @@ public class BinaryType extends AbstractValueType {
 
   }
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @SuppressWarnings("ConstantConditions")
   @NotNull
   public static BinaryType get() {

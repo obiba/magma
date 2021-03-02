@@ -51,8 +51,6 @@ public class ValueSetState extends AbstractTimestampVersionedEntity {
   @JoinColumn(name = "variable_entity_id")
   private VariableEntityState variableEntity;
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "SE_BAD_FIELD",
-      justification = "Cannot declare as LinkedHashSet because of Hibernate: Illegal attempt to map a non collection as a @OneToMany")
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "id.valueSet", orphanRemoval = true)
   private Set<ValueSetValue> values;
 
