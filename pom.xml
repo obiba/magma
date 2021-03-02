@@ -53,6 +53,7 @@
     <hsqldb.version>2.3.3</hsqldb.version>
     <httpclient.version>4.5</httpclient.version>
     <javassist.version>3.19.0-GA</javassist.version>
+    <javolution.version>5.5.1</javolution.version>
     <janino.version>2.5.10</janino.version>
     <jscience-physics.version>5.0-r53p01</jscience-physics.version>
     <json.version>20140107</json.version>
@@ -232,6 +233,11 @@
         <groupId>org.unitsofmeasurement</groupId>
         <artifactId>unit-api</artifactId>
         <version>${unit-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javolution</groupId>
+        <artifactId>javolution</artifactId>
+        <version>${javolution.version}</version>
       </dependency>
 
       <dependency>

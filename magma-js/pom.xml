@@ -41,6 +41,10 @@
       <artifactId>unit-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>javolution</groupId>
+      <artifactId>javolution</artifactId>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>provided</scope>
