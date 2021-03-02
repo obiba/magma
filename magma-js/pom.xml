@@ -37,6 +37,10 @@
       <artifactId>jscience-physics</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.unitsofmeasurement</groupId>
+      <artifactId>unit-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>provided</scope>
