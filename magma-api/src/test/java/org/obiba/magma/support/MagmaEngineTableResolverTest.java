@@ -24,6 +24,13 @@ public class MagmaEngineTableResolverTest {
   }
 
   @Test
+  public void testValueOfQualifiedTableNameWithDots() throws Exception {
+    MagmaEngineTableResolver resolver = MagmaEngineTableResolver.valueOf("ironman.Participant.123");
+    assertThat(resolver.getDatasourceName()).isEqualTo("ironman");
+    assertThat(resolver.getTableName()).isEqualTo("Participant.123");
+  }
+
+  @Test
   public void testValueOfTableName() throws Exception {
     MagmaEngineTableResolver resolver = MagmaEngineTableResolver.valueOf("Participant");
     assertThat(resolver.getDatasourceName()).isNull();
