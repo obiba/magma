@@ -48,9 +48,9 @@ public class MagmaEngineTableResolver extends MagmaEngineReferenceResolver {
   public static MagmaEngineTableResolver valueOf(String name) {
     MagmaEngineTableResolver resolver = new MagmaEngineTableResolver();
     if(name.contains(".")) {
-      String[] parts = name.split("\\.");
-      resolver.setDatasourceName(parts[0]);
-      resolver.setTableName(parts[1]);
+      int idx = name.indexOf(".");
+      resolver.setDatasourceName(name.substring(0, idx));
+      resolver.setTableName(name.substring(idx+1));
     } else {
       resolver.setTableName(name);
     }
