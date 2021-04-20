@@ -33,6 +33,10 @@
       <artifactId>poi-ooxml</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.obiba.commons</groupId>
       <artifactId>obiba-core</artifactId>
       <scope>test</scope>
