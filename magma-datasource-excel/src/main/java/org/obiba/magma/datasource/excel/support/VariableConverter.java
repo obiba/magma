@@ -124,7 +124,7 @@ public class VariableConverter {
     Integer idx = getVariableHeaderIndex(TABLE);
     String table = ExcelDatasource.DEFAULT_TABLE_NAME;
     if(idx != null) {
-      table = getVariableCellValue(variableRow, TABLE);
+      table = getVariableCellValue(variableRow, TABLE).trim();
     }
     return valueTable.getName().equals(table);
   }
