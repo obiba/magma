@@ -40,7 +40,7 @@
     <catch-exception.version>1.2.0</catch-exception.version>
     <cglib-nodep.version>3.1</cglib-nodep.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
-    <commons-io.version>2.4</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <commons-math.version>3.5</commons-math.version>
     <concave_hull.version>0.1</concave_hull.version>
     <dbunit.version>2.5.1</dbunit.version>
