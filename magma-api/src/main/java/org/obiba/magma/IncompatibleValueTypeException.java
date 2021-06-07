@@ -21,7 +21,7 @@ public class IncompatibleValueTypeException extends MagmaRuntimeException {
   private final ValueType valueType;
 
   public IncompatibleValueTypeException(String variableName, ValueType originalValueType, ValueType valueType) {
-    super("Incompatible value types for variable [" + variableName + "]: '" + originalValueType + "' / '" + valueType + "'");
+    super("Incompatible value types for variable [" + variableName + "]: '" + originalValueType.getName() + "' / '" + valueType.getName() + "'");
     this.variableName = variableName;
     this.originalValueType = originalValueType;
     this.valueType = valueType;
