@@ -19,6 +19,7 @@ import org.obiba.magma.support.PagingVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.BadSqlGrammarException;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -53,17 +54,26 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
   @Override
   public synchronized void initialise() {
     if (entitiesCount == -1) {
-      JdbcDatasource datasource = valueTable.getDatasource();
-      int count = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(*) FROM %s %s",
-          tableName,
-          whereStatement), Integer.class);
+      try {
+        JdbcDatasource datasource = valueTable.getDatasource();
+        int count = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(*) FROM %s %s",
+            tableName,
+            whereStatement), Integer.class);
 
-      entitiesCount = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(DISTINCT %s) FROM %s %s",
-          idColumn,
-          tableName,
-          whereStatement), Integer.class);
+        entitiesCount = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(DISTINCT %s) FROM %s %s",
+            idColumn,
+            tableName,
+            whereStatement), Integer.class);
 
-      multilines = count > entitiesCount;
+        multilines = count > entitiesCount;
+      } catch (Exception e) {
+        if (log.isDebugEnabled())
+          log.warn("Cannot retrieve table's identifiers. Is the SQL table '{}' readable? ", valueTable.getName(), e);
+        else
+          log.warn("Cannot retrieve table's identifiers. Is the SQL table '{}' readable? ", valueTable.getName());
+        entitiesCount = 0;
+        multilines = false;
+      }
     }
   }
 
@@ -79,9 +89,11 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
     initialise();
     int from = Math.max(offset, 0);
     from = Math.min(from, entitiesCount);
-    int pageSize = limit < 0 ? entitiesCount : limit;
+    int pageSize = limit < 0 ? entitiesCount : Math.min(entitiesCount, limit);
 
     List<VariableEntity> entities = new VariableEntityList();
+    if (pageSize == 0) return entities;
+    
     JdbcDatasource datasource = valueTable.getDatasource();
     String query = String
         .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC LIMIT %s OFFSET %s", // works for mysql, maria, posgre, hsql databases
