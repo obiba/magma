@@ -303,6 +303,14 @@ class JdbcValueTable extends AbstractValueTable {
     return ((JdbcVariableEntityProvider) getVariableEntityProvider()).isMultilines() || isSettingsMultilines();
   }
 
+  String getEntityIdentifierColumn() {
+    return getSettings().getEntityIdentifierColumn();
+  }
+
+  DataType getEntityIdentifierColumnType() {
+    return tableOrView.getColumn(getEntityIdentifierColumn()).getType();
+  }
+
   private boolean isSettingsMultilines() {
     return getSettings().isMultilines() || getDatasource().getSettings().isMultilines();
   }
@@ -319,10 +327,9 @@ class JdbcValueTable extends AbstractValueTable {
     return entityIdentifierColumns.isEmpty() ? "" : entityIdentifierColumns.get(0);
   }
 
-  static boolean hasEntityIdentifierColumn(Relation tableOrView, String defaultEntityIdColumnName) {
-    return tableOrView.getColumn(defaultEntityIdColumnName) != null;
+  static boolean hasEntityIdentifierColumn(Relation tableOrView, String entityIdColumnName) {
+    return tableOrView.getColumn(entityIdColumnName) != null;
   }
-
 
   private void initialiseVariableValueSources() {
     clearSources();

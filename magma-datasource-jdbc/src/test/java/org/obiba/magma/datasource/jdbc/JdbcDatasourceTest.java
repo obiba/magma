@@ -39,6 +39,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -70,6 +71,23 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
 
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-numids.sql",
+      afterSchema = "schema-notables.sql")
+  @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
+  @Test
+  public void testCreateDatasourceFromExistingDatabaseWithNumericalIDs() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).build());
+    jdbcDatasource.initialise();
+
+    createDatasourceFromExistingDatabase(jdbcDatasource);
+
+    ValueTable table = jdbcDatasource.getValueTable("BONE_DENSITY");
+    List<VariableEntity> entities = table.getVariableEntities();
+    ValueSet vs = table.getValueSet(entities.get(0));
     jdbcDatasource.dispose();
   }
 

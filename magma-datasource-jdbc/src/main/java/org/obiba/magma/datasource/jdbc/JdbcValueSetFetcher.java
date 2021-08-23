@@ -14,6 +14,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import liquibase.structure.core.DataType;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -33,12 +34,15 @@ class JdbcValueSetFetcher {
 
   private final String sqlTableName;
 
+  private final boolean numericIdentifiers;
+
   private RowMapper<Map<String, Value>> mapper;
 
   JdbcValueSetFetcher(final JdbcValueTable valueTable) {
     this.valueTable = valueTable;
     sqlTableName = valueTable.getSettings().getSqlTableName();
     this.mapper = new JdbcRowMapper(valueTable);
+    numericIdentifiers = SqlTypes.valueTypeFor(valueTable.getEntityIdentifierColumnType().getDataTypeId()).isNumeric();
   }
 
   List<Map<String, Value>> loadNonBinaryVariableValues(List<VariableEntity> entities) {
@@ -82,7 +86,7 @@ class JdbcValueSetFetcher {
    */
   private List<Map<String, Value>> loadValues(List<String> columnNames, VariableEntity entity) {
     final JdbcDatasource datasource = valueTable.getDatasource();
-    String entityIdentifierColumn = valueTable.getSettings().getEntityIdentifierColumn();
+    String entityIdentifierColumn = valueTable.getEntityIdentifierColumn();
     String whereClause = String.format("%s = ?", datasource.escapeColumnName(entityIdentifierColumn));
     if (valueTable.getSettings().hasEntityIdentifiersWhere()) {
       whereClause = String.format("%s AND %s", valueTable.getSettings().getEntityIdentifiersWhere(), whereClause);
@@ -105,7 +109,7 @@ class JdbcValueSetFetcher {
   private List<Map<String, Value>> queryValues(String selectClause, String fromClause, String whereClause, VariableEntity entity) {
     String sql = String.format("SELECT %s FROM %s WHERE %s", selectClause, fromClause, whereClause);
     return valueTable.getDatasource().getJdbcTemplate()
-        .query(sql, new String[] { entity.getIdentifier() }, mapper);
+        .query(sql, new Object[] { asIdentifier(entity) }, mapper);
   }
 
   private List<Map<String, Value>> loadValues(List<String> columnNames, List<VariableEntity> entities) {
@@ -129,12 +133,14 @@ class JdbcValueSetFetcher {
     String sql = String.format("SELECT %s FROM %s WHERE %s", selectClause, fromClause, whereClause);
 
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    ImmutableList.Builder<String> ids = ImmutableList.builder();
-    for (VariableEntity entity : entities) {
-      ids.add(entity.getIdentifier());
-    }
-    parameters.addValue("ids", ids.build());
+    parameters.addValue("ids", entities.stream().map(this::asIdentifier).collect(Collectors.toList()));
 
     return valueTable.getDatasource().getNamedParameterJdbcTemplate().query(sql, parameters, mapper);
+  }
+
+  private Object asIdentifier(VariableEntity entity) {
+    if (numericIdentifiers)
+      return new Long(entity.getIdentifier());
+    return entity.getIdentifier();
   }
 }

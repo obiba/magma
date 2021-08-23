@@ -39,12 +39,15 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
 
   private boolean multilines = false;
 
+  private final boolean numericIdentifiers;
+
   JdbcVariableEntityProvider(JdbcValueTable valueTable) {
     super(valueTable.getEntityType());
     this.valueTable = valueTable;
     this.whereStatement = valueTable.getSettings().hasEntityIdentifiersWhere() ? "WHERE " + valueTable.getSettings().getEntityIdentifiersWhere() : "";
     this.idColumn = valueTable.getEntityIdentifierColumnSql();
     this.tableName = valueTable.getDatasource().escapeTableName(valueTable.getSqlName());
+    this.numericIdentifiers = SqlTypes.valueTypeFor(valueTable.getEntityIdentifierColumnType().getDataTypeId()).isNumeric();
   }
 
   @Override
@@ -97,10 +100,11 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
   @Override
   public boolean hasVariableEntity(VariableEntity entity) {
     String where = Strings.isNullOrEmpty(whereStatement) ? "WHERE " : whereStatement + " AND ";
-    String q = String.format("SELECT COUNT(*) FROM %s %s %s = '%s'",
+    String q = String.format("SELECT COUNT(*) FROM %s %s %s = %s",
         tableName,
         where,
-        idColumn, entity.getIdentifier());
+        idColumn,
+        asIdentifierParameter(entity));
     Integer found = valueTable.getDatasource().getJdbcTemplate().queryForObject(q, Integer.class);
     return found != null && found != 0;
   }
@@ -128,4 +132,9 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
     entitiesCount = 0;
   }
 
+  private String asIdentifierParameter(VariableEntity entity) {
+    if (numericIdentifiers)
+      return entity.getIdentifier();
+    return "'" + entity.getIdentifier() + "'";
+  }
 }
