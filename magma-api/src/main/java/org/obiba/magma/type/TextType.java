@@ -11,10 +11,14 @@
 package org.obiba.magma.type;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
@@ -86,7 +90,13 @@ public class TextType extends CSVAwareValueType {
     if(object == null) {
       return nullValue();
     }
-    return Factory.newValue(this, object.toString());
+    // opal#3694 make complex values more readable
+    Object objectValue = object;
+    if (object instanceof Map)
+      objectValue = new JSONObject((Map)object);
+    else if (object instanceof List)
+      objectValue = new JSONArray((List)object);
+    return Factory.newValue(this, objectValue.toString());
   }
 
   /**
