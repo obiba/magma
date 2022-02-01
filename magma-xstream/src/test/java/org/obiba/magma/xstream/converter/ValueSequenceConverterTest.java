@@ -10,6 +10,7 @@
 
 package org.obiba.magma.xstream.converter;
 
+import com.thoughtworks.xstream.security.AnyTypePermission;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,7 @@ public class ValueSequenceConverterTest {
   public void startYourEngine() {
     new MagmaEngine();
     xstream = new XStream();
+    xstream.addPermission(AnyTypePermission.ANY);
     xstream.registerConverter(new ValueConverter());
     xstream.registerConverter(new ValueSequenceConverter());
   }

@@ -13,6 +13,7 @@ package org.obiba.magma.xstream.converter;
 import java.util.Locale;
 import java.util.Set;
 
+import com.thoughtworks.xstream.security.AnyTypePermission;
 import org.junit.Test;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;
@@ -33,6 +34,7 @@ public class VariableConverterTest extends AbstractMagmaTest {
   @Test
   public void testBasicVariable() {
     XStream xstream = new XStream();
+    xstream.addPermission(AnyTypePermission.ANY);
     xstream.registerConverter(new VariableConverter(xstream.getMapper()));
 
     Variable v = newVariable().build();
@@ -47,6 +49,7 @@ public class VariableConverterTest extends AbstractMagmaTest {
   @Test
   public void testVariableWithAttributes() {
     XStream xstream = new XStream();
+    xstream.addPermission(AnyTypePermission.ANY);
     xstream.registerConverter(new VariableConverter(xstream.getMapper()));
     xstream.registerConverter(new AttributeConverter());
 
@@ -76,6 +79,7 @@ public class VariableConverterTest extends AbstractMagmaTest {
   @Test
   public void testVariableWithCategories() {
     XStream xstream = new XStream();
+    xstream.addPermission(AnyTypePermission.ANY);
     xstream.registerConverter(new VariableConverter(xstream.getMapper()));
     xstream.registerConverter(new AttributeConverter());
     xstream.registerConverter(new CategoryConverter(xstream.getMapper()));
