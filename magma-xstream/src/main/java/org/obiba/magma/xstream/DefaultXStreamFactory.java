@@ -15,6 +15,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.xstream.converter.*;
 import org.obiba.magma.xstream.mapper.MagmaMapper;
@@ -50,7 +51,6 @@ public class DefaultXStreamFactory implements XStreamFactory {
         }
       };
     }
-    XStream.setupDefaultSecurity(xstream);
     xstream.allowTypesByWildcard(new String[]{
         "org.obiba.**"
     });
