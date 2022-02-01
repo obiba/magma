@@ -101,6 +101,18 @@ public class TextTypeTest extends BaseValueTypeTest {
     assertSequence(sequence, "\"", "\"\"", "\"\"\"");
   }
 
+  @Test
+  public void testSequenceOfJSONValues() {
+    ValueSequence sequence = TextType.get().sequenceOf("[null,\"Not Null\", null]");
+    assertSequence(sequence, null, "Not Null", null);
+  }
+
+  @Test
+  public void testSequenceOfJSONEmptyValues() {
+    ValueSequence sequence = TextType.get().sequenceOf("[]");
+    assertThat(sequence.getSize() == 0);
+  }
+
   @SuppressWarnings("ConstantConditions")
   private void assertSequence(ValueSequence sequence, String... strings) {
     assertThat(sequence).isNotNull();

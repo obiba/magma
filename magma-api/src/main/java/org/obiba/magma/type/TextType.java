@@ -25,7 +25,7 @@ import org.obiba.magma.Value;
 import com.google.common.base.Strings;
 
 @SuppressWarnings("MethodReturnAlwaysConstant")
-public class TextType extends CSVAwareValueType {
+public class TextType extends FormattedValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 

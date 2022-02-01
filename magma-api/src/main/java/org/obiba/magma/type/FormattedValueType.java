@@ -9,20 +9,20 @@
  */
 package org.obiba.magma.type;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
+import au.com.bytecode.opencsv.CSVParser;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 
-import au.com.bytecode.opencsv.CSVParser;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
-public abstract class CSVAwareValueType extends AbstractValueType {
+public abstract class FormattedValueType extends AbstractValueType {
 
   private static final long serialVersionUID = 1864782499603380247L;
 
@@ -39,20 +39,31 @@ public abstract class CSVAwareValueType extends AbstractValueType {
    * <p/>
    * When the original {@code value} contains a {@code "}, it is escaped by adding another {@code "}, as per the CSV
    * standard.
+   *
+   * Reads JSON array format when input string is enclosed with brackets.
    */
   @NotNull
   @Override
   public ValueSequence sequenceOf(@Nullable String string) {
-    if(string == null) {
+    if (string == null) {
       return nullSequence();
     }
     Collection<Value> values = new ArrayList<>();
-    try {
-      for(String currentValue : getCsvParser().parseLine(string)) {
-        values.add(valueOf(currentValue.isEmpty() ? null : currentValue));
+    if (string.startsWith("[") && string.endsWith("]")) {
+      // expect JSON format
+      JSONArray array = new JSONArray(string);
+      for (int i = 0; i < array.length(); i++) {
+        Object val = array.get(i);
+        values.add(valueOf(val == JSONObject.NULL ? null : val));
       }
-    } catch(IOException e) {
-      throw new MagmaRuntimeException("Invalid value sequence formatting: " + string, e);
+    } else {
+      try {
+        for (String currentValue : getCsvParser().parseLine(string)) {
+          values.add(valueOf(currentValue.isEmpty() ? null : currentValue));
+        }
+      } catch (IOException e) {
+        throw new MagmaRuntimeException("Invalid value sequence formatting: " + string, e);
+      }
     }
 
     return sequenceOf(values);
@@ -65,7 +76,7 @@ public abstract class CSVAwareValueType extends AbstractValueType {
   }
 
   private CSVParser getCsvParser() {
-    if(csvParser == null) {
+    if (csvParser == null) {
       // we don't want escape processing try DEL as a rare character until we can turn it off
       csvParser = new CSVParser(SEPARATOR, QUOTE, DEL_CHAR);
     }
