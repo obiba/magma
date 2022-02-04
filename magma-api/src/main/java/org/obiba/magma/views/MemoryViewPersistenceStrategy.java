@@ -10,24 +10,19 @@
 
 package org.obiba.magma.views;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
+import org.obiba.magma.ValueView;
 import org.obiba.magma.views.support.VariableOperationContext;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.util.*;
 
 /**
  * Simple Map storage. Not for production!
  */
 public class MemoryViewPersistenceStrategy implements ViewPersistenceStrategy {
 
-  private final Map<String, Map<String, View>> map = new HashMap<>();
+  private final Map<String, Map<String, ValueView>> map = new HashMap<>();
 
   @Override
   public void initialise() {
@@ -39,25 +34,25 @@ public class MemoryViewPersistenceStrategy implements ViewPersistenceStrategy {
   }
 
   @Override
-  public void writeViews(@NotNull String datasourceName, @NotNull Set<View> views, @Nullable String comment, @Nullable
-  VariableOperationContext context) {
-    Map<String, View> datasourceViews = getSafeDatasourceViews(datasourceName);
-    for(View view : views) {
+  public void writeViews(@NotNull String datasourceName, @NotNull Set<ValueView> views, @Nullable String comment, @Nullable
+      VariableOperationContext context) {
+    Map<String, ValueView> datasourceViews = getSafeDatasourceViews(datasourceName);
+    for (ValueView view : views) {
       datasourceViews.put(view.getName(), view);
     }
   }
 
   @Override
-  public void   writeView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment, @Nullable
+  public void writeView(@NotNull String datasourceName, @NotNull ValueView view, @Nullable String comment, @Nullable
       VariableOperationContext context) {
-    Map<String, View> datasourceViews = getSafeDatasourceViews(datasourceName);
+    Map<String, ValueView> datasourceViews = getSafeDatasourceViews(datasourceName);
     datasourceViews.put(view.getName(), view);
   }
 
   @NotNull
-  private Map<String, View> getSafeDatasourceViews(String datasourceName) {
-    Map<String, View> datasourceViews = map.get(datasourceName);
-    if(datasourceViews == null) {
+  private Map<String, ValueView> getSafeDatasourceViews(String datasourceName) {
+    Map<String, ValueView> datasourceViews = map.get(datasourceName);
+    if (datasourceViews == null) {
       datasourceViews = new HashMap<>();
       map.put(datasourceName, datasourceViews);
     }
@@ -66,8 +61,8 @@ public class MemoryViewPersistenceStrategy implements ViewPersistenceStrategy {
 
   @Override
   public void removeView(@NotNull String datasourceName, @NotNull String viewName) {
-    Map<String, View> datasourceViews = map.get(datasourceName);
-    if(datasourceViews != null) {
+    Map<String, ValueView> datasourceViews = map.get(datasourceName);
+    if (datasourceViews != null) {
       datasourceViews.remove(viewName);
     }
   }
@@ -78,9 +73,9 @@ public class MemoryViewPersistenceStrategy implements ViewPersistenceStrategy {
   }
 
   @Override
-  public Set<View> readViews(@NotNull String datasourceName) {
-    Map<String, View> datasourceViews = map.get(datasourceName);
-    return datasourceViews == null ? Collections.<View>emptySet() : new HashSet<>(datasourceViews.values());
+  public Set<ValueView> readViews(@NotNull String datasourceName) {
+    Map<String, ValueView> datasourceViews = map.get(datasourceName);
+    return datasourceViews == null ? Collections.<ValueView>emptySet() : new HashSet<>(datasourceViews.values());
   }
 
 }

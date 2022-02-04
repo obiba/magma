@@ -10,15 +10,14 @@
 
 package org.obiba.magma.views;
 
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.ValueView;
 import org.obiba.magma.views.support.VariableOperationContext;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 public interface ViewPersistenceStrategy extends Initialisable, Disposable {
 
@@ -28,8 +27,8 @@ public interface ViewPersistenceStrategy extends Initialisable, Disposable {
    * @param datasourceName
    * @param views
    */
-  void writeViews(@NotNull String datasourceName, @NotNull Set<View> views, @Nullable String comment,
-      @Nullable VariableOperationContext context);
+  void writeViews(@NotNull String datasourceName, @NotNull Set<ValueView> views, @Nullable String comment,
+                  @Nullable VariableOperationContext context);
 
   /**
    * Add or update the view for the datasource.
@@ -37,7 +36,7 @@ public interface ViewPersistenceStrategy extends Initialisable, Disposable {
    * @param datasourceName
    * @param view
    */
-  void writeView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment, @Nullable
+  void writeView(@NotNull String datasourceName, @NotNull ValueView view, @Nullable String comment, @Nullable
       VariableOperationContext context);
 
   /**
@@ -61,6 +60,6 @@ public interface ViewPersistenceStrategy extends Initialisable, Disposable {
    * @param datasourceName
    * @return
    */
-  Set<View> readViews(@NotNull String datasourceName);
+  Set<ValueView> readViews(@NotNull String datasourceName);
 
 }

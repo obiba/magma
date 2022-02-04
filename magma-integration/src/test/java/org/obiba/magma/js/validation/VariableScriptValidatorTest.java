@@ -161,7 +161,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
 
     validateJavascriptValueSource(view, "bmi_metric");
     validateJavascriptValueSource(view, "bmi");
@@ -190,7 +190,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     try {
       validateJavascriptValueSource(view, "A");
       fail("Should throw CircularVariableDependencyRuntimeException");
@@ -220,7 +220,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     validateJavascriptValueSource(view, "A");
   }
 
@@ -236,7 +236,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     try {
       validateJavascriptValueSource(view, "circular");
       fail("Should throw CircularVariableDependencyRuntimeException");
@@ -257,7 +257,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     try {
       validateJavascriptValueSource(view, "var");
       fail("Should throw NoSuchVariableException");
@@ -301,7 +301,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "HOP");
+    ValueView view = viewManager.getView(DATASOURCE, "HOP");
 
     Stopwatch stopwatch = Stopwatch.createUnstarted();
     for (Variable variable : view.getVariables()) {

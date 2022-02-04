@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @SuppressWarnings("OverlyCoupledClass")
-public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
+public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable, ValueView {
 
   private static final Logger log = LoggerFactory.getLogger(View.class);
 
@@ -125,6 +125,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     Disposables.silentlyDispose(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
   }
@@ -185,6 +186,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
         return created == null || created.isNull() ? getWrappedValueTable().getTimestamps().getCreated() : created;
       }
     };
+  }
+
+  @Override
+  public ValueTableWriter.VariableWriter createVariableWriter() {
+    return getListClause().createWriter();
   }
 
   @SuppressWarnings({"AssignmentToMethodParameter", "PMD.AvoidReassigningParameters"})
@@ -383,6 +389,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return variableEntityProvider;
   }
 
+  @Override
   public void setDatasource(ViewAwareDatasource datasource) {
     viewDatasource = datasource;
   }

@@ -172,7 +172,7 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
         }
         viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-        View view = viewManager.getView(DATASOURCE, "view");
+        ValueView view = viewManager.getView(DATASOURCE, "view");
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<VariableEntity> entities = view.getVariableEntities();
         log.info("Load {} entities in {}", entities.size(), stopwatch);

@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceTransformer;
+import org.obiba.magma.ValueView;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.ViewAwareDatasource;
 
@@ -32,7 +33,7 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
   @SuppressWarnings("FieldCanBeLocal")
   private String name;
 
-  private Set<View> views;
+  private Set<ValueView> views;
 
   //
   // DatasourceTransformer Methods

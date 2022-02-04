@@ -437,8 +437,8 @@ public class ViewTest extends MagmaTest {
 
     ViewManager manager = new DefaultViewManagerImpl(viewPersistenceMock);
 
-    Set<View> views = new HashSet<>();
-    View view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
+    Set<ValueView> views = new HashSet<>();
+    ValueView view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
     views.add(view);
 
     listClauseMock.setValueTable(view);

@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.obiba.magma.NoSuchViewException;
+import org.obiba.magma.ValueView;
 import org.obiba.magma.Variable;
-import org.obiba.magma.views.View;
 
 public class VariableOperationContext {
 
@@ -28,15 +28,15 @@ public class VariableOperationContext {
 
   private final Map<String, Map<Operation, Collection<Variable>>> viewOperations = new HashMap<>();
 
-  public void addVariable(View view, Variable variable) {
+  public void addVariable(ValueView view, Variable variable) {
     addOperation(view, Operation.ADD, variable);
   }
 
-  public void deleteVariable(View view, Variable variable) {
+  public void deleteVariable(ValueView view, Variable variable) {
     addOperation(view, Operation.DELETE, variable);
   }
 
-  public Map<Operation, Collection<Variable>> getOperations(View view) {
+  public Map<Operation, Collection<Variable>> getOperations(ValueView view) {
     String viewName = view.getName();
 
     if (viewOperations.containsKey(viewName)) {
@@ -46,11 +46,11 @@ public class VariableOperationContext {
     throw new NoSuchViewException(view.getName());
   }
 
-  public boolean hasOperations(View view) {
+  public boolean hasOperations(ValueView view) {
     return viewOperations.containsKey(view.getName());
   }
 
-  private void addOperation(View view, Operation operation, Variable variable) {
+  private void addOperation(ValueView view, Operation operation, Variable variable) {
     String viewName = view.getName();
     Map<Operation, Collection<Variable>> operations = viewOperations.get(viewName);
 

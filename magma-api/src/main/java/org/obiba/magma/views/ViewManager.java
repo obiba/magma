@@ -12,6 +12,7 @@ package org.obiba.magma.views;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Decorator;
+import org.obiba.magma.ValueView;
 import org.obiba.magma.views.support.VariableOperationContext;
 
 import javax.annotation.Nullable;
@@ -20,7 +21,7 @@ import java.util.Set;
 
 public interface ViewManager extends Decorator<Datasource> {
 
-  void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment, @Nullable
+  void addView(@NotNull String datasourceName, @NotNull ValueView view, @Nullable String comment, @Nullable
       VariableOperationContext context);
 
   void removeView(@NotNull String datasourceName, @NotNull String viewName);
@@ -31,7 +32,7 @@ public interface ViewManager extends Decorator<Datasource> {
 
   boolean hasView(@NotNull String datasourceName, @NotNull String viewName);
 
-  View getView(@NotNull String datasourceName, @NotNull String viewName);
+  ValueView getView(@NotNull String datasourceName, @NotNull String viewName);
 
-  void addViews(@NotNull String datasource, Set<View> views, @Nullable String comment);
+  void addViews(@NotNull String datasource, Set<ValueView> views, @Nullable String comment);
 }

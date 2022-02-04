@@ -15,15 +15,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaCacheExtension;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchValueTableException;
-import org.obiba.magma.Timestamped;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.*;
 import org.obiba.magma.support.AbstractDatasourceWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
@@ -36,16 +28,16 @@ import com.google.common.collect.Sets;
 
 public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
-  private final Map<String, View> views;
+  private final Map<String, ValueView> views;
 
   private Value lastUpdate = DateTimeType.get().nullValue();
 
-  public ViewAwareDatasource(Datasource datasource, Iterable<View> views) {
+  public ViewAwareDatasource(Datasource datasource, Iterable<ValueView> views) {
     super(datasource);
     if(views == null) throw new IllegalArgumentException("views cannot be null");
 
     this.views = Maps.newLinkedHashMap();
-    for(View view : views) {
+    for(ValueView view : views) {
       this.views.put(view.getName(), view);
     }
   }
@@ -55,7 +47,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     super.initialise();
 
     // Initialise the views.
-    for(View view : views.values()) {
+    for(ValueView view : views.values()) {
       view.setDatasource(this);
       Initialisables.initialise(view);
     }
@@ -135,14 +127,14 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     return new UnionTimestamps(builder.build());
   }
 
-  public Set<View> getViews() {
+  public Set<ValueView> getViews() {
     return ImmutableSet.copyOf(views.values());
   }
 
   /**
    * Add or replace View.
    */
-  public synchronized void addView(View view) {
+  public synchronized void addView(ValueView view) {
     if(getWrappedDatasource().hasValueTable(view.getName())) {
       throw new IllegalArgumentException(
           "can't add view to datasource: a table with this name '" + view.getName() + "' already exists");
@@ -162,7 +154,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   public synchronized void removeView(String name) {
     if(views.containsKey(name)) {
-      View view = views.get(name);
+      ValueView view = views.get(name);
       evictVariableEntitiesCache(view);
       views.remove(name);
       Disposables.dispose(view);
@@ -172,7 +164,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   public synchronized void renameView(String name, String newName) {
     if(views.containsKey(name)) {
-      View view = views.remove(name);
+      ValueView view = views.remove(name);
       evictVariableEntitiesCache(view);
       view.setName(newName);
       views.put(newName, view);
@@ -180,7 +172,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     }
   }
 
-  private void evictVariableEntitiesCache(View view) {
+  private void evictVariableEntitiesCache(ValueTable view) {
     if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
       MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
       if (cacheExtension.hasVariableEntitiesCache()) {
@@ -194,8 +186,8 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   }
 
   @NotNull
-  public View getView(String name) throws NoSuchValueTableException {
-    View view = views.get(name);
+  public ValueView getView(String name) throws NoSuchValueTableException {
+    ValueView view = views.get(name);
     if(view != null) {
       return view;
     }

@@ -149,7 +149,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
 
     Map<String, Long> viewValues = Maps.newHashMap();
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     for (ValueSet valueSet : view.getValueSets()) {
       viewValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) view.getValue(lbsWeight, valueSet).getValue());
     }
@@ -180,7 +180,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
 
     Set<VariableEntity> allEntities = Sets.newLinkedHashSet();
     allEntities.addAll(table.getVariableEntities());
@@ -215,7 +215,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     List<Value> tableValues = Lists
         .newArrayList(tableVectorSource.getValues(table.getVariableEntities()));
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     VectorSource viewVectorSource = view.getVariableValueSource("weight_in_lbs").asVectorSource();
     assertThat(viewVectorSource).isNotNull();
     int i = 0;
@@ -244,7 +244,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
 
 
     VectorSource weightVector = view.getVariableValueSource("weight").asVectorSource();
@@ -287,7 +287,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     for (ValueSet valueSet : view.getValueSets()) {
       view.getValue(varA, valueSet);
     }
@@ -314,7 +314,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     VariableValueSource variableValueSource = view.getVariableValueSource("A");
     assertThat(variableValueSource.supportVectorSource()).isTrue();
     VectorSource vectorSource = variableValueSource.asVectorSource();
@@ -346,7 +346,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
 
     Map<String, Long> viewValues = Maps.newHashMap();
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     for (ValueSet valueSet : view.getValueSets()) {
       viewValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) view.getValue(lbsWeight, valueSet).getValue());
     }
@@ -383,7 +383,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     for (ValueSet valueSet : view.getValueSets()) {
 //      log.debug("weight_in_kg: {}", view.getValue(weight_in_kg, valueSet));
 //      log.debug("weight_in_lbs: {}", view.getValue(weight_in_lbs, valueSet));
@@ -424,7 +424,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
 
     List<VariableEntity> entities = view.getVariableEntities();
 
@@ -462,7 +462,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
 
     Variable varC = view.getVariable("C");
 
@@ -492,7 +492,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     Stopwatch stopwatch = Stopwatch.createStarted();
     List<VariableEntity> entities = view.getVariableEntities();
     log.info("Load {} entities in {}", entities.size(), stopwatch);
@@ -525,7 +525,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     for (ValueSet valueSet : view.getValueSets()) {
       view.getValue(varA, valueSet);
     }
@@ -550,7 +550,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    View view = viewManager.getView(DATASOURCE, "view");
+    ValueView view = viewManager.getView(DATASOURCE, "view");
     for (ValueSet valueSet : view.getValueSets()) {
       view.getValue(varA, valueSet);
     }
