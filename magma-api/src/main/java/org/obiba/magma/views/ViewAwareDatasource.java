@@ -49,7 +49,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     // Initialise the views.
     for(ValueView view : views.values()) {
       view.setDatasource(this);
-      Initialisables.initialise(view);
+      Initialisables.silentlyInitialise(view);
     }
   }
 

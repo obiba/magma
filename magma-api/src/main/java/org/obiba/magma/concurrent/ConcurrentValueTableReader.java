@@ -19,6 +19,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -26,6 +28,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.AbstractValueTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,20 +207,43 @@ public class ConcurrentValueTableReader {
     public void run() {
       try {
         VariableEntity entity = readQueue.poll();
+        List<VariableEntity> entitiesBatch = Lists.newArrayList();
         while(entity != null && !callback.isCancelled()) {
-          if(valueTable.hasValueSet(entity)) {
-            log.trace("Read entity {}", entity.getIdentifier());
-            writeQueue.put(new VariableEntityValues(entity, readValues(entity)));
+          entitiesBatch.add(entity);
+          if (entitiesBatch.size() == AbstractValueTable.ENTITY_BATCH_SIZE) {
+            writeValues(entitiesBatch);
+            entitiesBatch.clear();
           }
           entity = readQueue.poll();
+        }
+        if (!entitiesBatch.isEmpty()) {
+          writeValues(entitiesBatch);
         }
       } catch(InterruptedException e) {
         // do nothing
       }
     }
 
+    private void writeValues(List<VariableEntity> entities) throws InterruptedException {
+      List<Value[]> values = readValues(entities);
+      for (int i = 0; i<entities.size(); i++) {
+        log.trace("Read entity {}", entities.get(i).getIdentifier());
+        writeQueue.put(new VariableEntityValues(entities.get(i), values.get(i)));
+      }
+    }
+
+    private List<Value[]> readValues(List<VariableEntity> entities) {
+      Iterable<ValueSet> valueSets = valueTable.getValueSets(entities);
+      return StreamSupport.stream(valueSets.spliterator(), false)
+          .map(this::readValues)
+          .collect(Collectors.toList());
+    }
+
     private Value[] readValues(VariableEntity entity) {
-      ValueSet valueSet = valueTable.getValueSet(entity);
+      return readValues(valueTable.getValueSet(entity));
+    }
+
+    private Value[] readValues(ValueSet valueSet) {
       Value[] values = new Value[sources.length];
       for(int i = 0; i < sources.length; i++) {
         try {

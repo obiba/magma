@@ -10,45 +10,67 @@
 
 package org.obiba.magma.support;
 
-import javax.validation.constraints.NotNull;
-
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 public final class Initialisables {
 
-  private Initialisables() {}
+  private static final Logger log = LoggerFactory.getLogger(Initialisables.class);
+
+  private Initialisables() {
+  }
+
+  public static void silentlyInitialise(@Nullable Initialisable initialisable) {
+    try {
+      initialise(initialisable);
+    } catch (RuntimeException e) {
+      log.warn("Ignoring exception during initialisable.initialise().", e);
+    }
+  }
+
+  public static void silentlyInitialise(@NotNull Object... initialisable) {
+    try {
+      initialise(initialisable);
+    } catch (RuntimeException e) {
+      log.warn("Ignoring exception during initialisable.initialise().", e);
+    }
+  }
 
   public static void initialise(@NotNull Initialisable initialisable) {
     try {
       initialisable.initialise();
-    } catch(MagmaRuntimeException e) {
+    } catch (MagmaRuntimeException e) {
       throw e;
-    } catch(RuntimeException e) {
+    } catch (RuntimeException e) {
       throw new MagmaRuntimeException(e);
     }
   }
 
   public static void initialise(Object initialisable) {
-    if(initialisable instanceof Initialisable) {
+    if (initialisable instanceof Initialisable) {
       initialise((Initialisable) initialisable);
     }
   }
 
   public static void initialise(@NotNull Initialisable... initialisable) {
-    for(Initialisable o : initialisable) {
+    for (Initialisable o : initialisable) {
       initialise(o);
     }
   }
 
   public static void initialise(@NotNull Object... initialisable) {
-    for(Object o : initialisable) {
+    for (Object o : initialisable) {
       initialise(o);
     }
   }
 
   public static void initialise(@NotNull Iterable<?> initialisables) {
-    for(Object o : initialisables) {
+    for (Object o : initialisables) {
       initialise(o);
     }
   }
