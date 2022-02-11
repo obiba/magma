@@ -15,6 +15,7 @@ import java.lang.ref.WeakReference;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.json.JSONObject;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.support.ValueComparator;
@@ -92,7 +93,7 @@ public class BooleanType extends AbstractValueType {
   @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
-    if(object == null) {
+    if(object == null || object.equals(JSONObject.NULL)) {
       return nullValue();
     }
     if(object instanceof Boolean) {

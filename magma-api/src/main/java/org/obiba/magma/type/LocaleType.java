@@ -17,6 +17,7 @@ import java.util.Locale;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.json.JSONObject;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
@@ -69,7 +70,7 @@ public class LocaleType extends AbstractValueType {
   @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
-    if(object == null) {
+    if(object == null || object.equals(JSONObject.NULL)) {
       return nullValue();
     }
     Class<?> type = object.getClass();

@@ -131,11 +131,9 @@ public class PolygonType extends JSONAwareValueType {
   @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
-
-    if(object == null) {
+    if(object == null || object.equals(JSONObject.NULL)) {
       return nullValue();
     }
-
     Class<?> type = object.getClass();
     if(type.equals(String.class)) {
       return valueOf((String) object);

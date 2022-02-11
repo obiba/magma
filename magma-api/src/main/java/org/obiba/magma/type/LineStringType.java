@@ -126,7 +126,7 @@ public class LineStringType extends JSONAwareValueType {
   @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
-    if(object == null) {
+    if(object == null || object.equals(JSONObject.NULL)) {
       return nullValue();
     }
 

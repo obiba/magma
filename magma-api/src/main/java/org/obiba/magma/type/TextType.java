@@ -87,7 +87,7 @@ public class TextType extends FormattedValueType {
   @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
-    if(object == null) {
+    if(object == null || object.equals(JSONObject.NULL)) {
       return nullValue();
     }
     // opal#3694 make complex values more readable

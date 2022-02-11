@@ -18,6 +18,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.json.JSONObject;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoaderFactory;
@@ -98,7 +99,7 @@ public class BinaryType extends AbstractValueType {
   @Override
   public Value valueOf(@Nullable Object object) {
     // input type is expected to be byte[]
-    if(object == null) {
+    if(object == null || object.equals(JSONObject.NULL)) {
       return nullValue();
     }
     Class<?> type = object.getClass();
