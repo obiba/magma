@@ -1,0 +1,39 @@
+/*
+ * Copyright (c) 2022 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.obiba.magma.math;
+
+public interface FrequenciesSummary {
+
+  /**
+   * Frequency name of the empty values.
+   */
+  String NULL_NAME = "N/A";
+
+  /**
+   * Frequency name of the not empty values.
+   */
+  String NOT_NULL_NAME = "NOT_NULL";
+
+  /**
+   * Get the total count of values.
+   *
+   * @return
+   */
+  long getN();
+
+  /**
+   * Get the frequencies.
+   *
+   * @return
+   */
+  Iterable<Frequency> getFrequencies();
+
+}

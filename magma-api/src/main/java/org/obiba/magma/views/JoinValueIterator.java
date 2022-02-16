@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 class JoinValueIterator implements Iterator<Value> {
 
   @NotNull
-  private final List<VariableEntity> entities;
+  private final Iterable<VariableEntity> entities;
 
   private final Iterator<VariableEntity> entitiesIterator;
 
@@ -33,7 +33,7 @@ class JoinValueIterator implements Iterator<Value> {
 
   private List<Iterator<Value>> valueIterators = Lists.newArrayList();
 
-  JoinValueIterator(List<VariableEntity> entities, List<ValueTable> owners, Variable variable) {
+  JoinValueIterator(Iterable<VariableEntity> entities, List<ValueTable> owners, Variable variable) {
     this.entities = entities;
     this.owners = owners;
     this.variable = variable;

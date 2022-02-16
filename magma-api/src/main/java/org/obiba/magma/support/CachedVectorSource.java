@@ -50,7 +50,7 @@ public class CachedVectorSource implements VectorSource {
   }
 
   @Override
-  public Iterable<Value> getValues(final List<VariableEntity> entities) {
+  public Iterable<Value> getValues(final Iterable<VariableEntity> entities) {
     boolean missing = true;
     List<Value> res = new ArrayList<>();
 

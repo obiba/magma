@@ -74,7 +74,7 @@ public class OutlierRemovingVariableValueSource extends AbstractVariableValueSou
   }
 
   @Override
-  public Iterable<Value> getValues(List<VariableEntity> entities) {
+  public Iterable<Value> getValues(Iterable<VariableEntity> entities) {
     return Iterables.transform(getWrapped().asVectorSource().getValues(entities), new Function<Value, Value>() {
 
       @Override

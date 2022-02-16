@@ -15,6 +15,7 @@ import org.obiba.magma.*;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 public final class NullValueSource implements ValueSource, VectorSource {
 
@@ -48,8 +49,9 @@ public final class NullValueSource implements ValueSource, VectorSource {
   }
 
   @Override
-  public Iterable<Value> getValues(List<VariableEntity> entities) {
-    return Collections.nCopies(entities.size(), valueType.nullValue());
+  public Iterable<Value> getValues(Iterable<VariableEntity> entities) {
+    long size = StreamSupport.stream(entities.spliterator(), false).count();
+    return Collections.nCopies((int) size, valueType.nullValue());
   }
 
 }

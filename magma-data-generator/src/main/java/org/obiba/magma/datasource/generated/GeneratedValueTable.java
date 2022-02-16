@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class GeneratedValueTable implements ValueTable {
 
@@ -130,8 +131,8 @@ public class GeneratedValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
-    return entities.stream().map(this::getValueSetTimestamps).collect(Collectors.toList());
+  public Iterable<Timestamps> getValueSetTimestamps(Iterable<VariableEntity> entities) {
+    return StreamSupport.stream(entities.spliterator(), false).map(this::getValueSetTimestamps).collect(Collectors.toList());
   }
 
   @Override

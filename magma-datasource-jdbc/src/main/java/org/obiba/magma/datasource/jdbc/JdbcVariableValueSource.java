@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 class JdbcVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
   //
@@ -90,7 +91,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
   }
 
   @Override
-  public Iterable<Value> getValues(final List<VariableEntity> entities) {
+  public Iterable<Value> getValues(final Iterable<VariableEntity> entities) {
     return () -> {
       try {
         return new ValueIterator(entities);
@@ -124,7 +125,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
     private final Map<String, Value> valueMap = Maps.newHashMap();
 
-    private ValueIterator(List<VariableEntity> entities) throws SQLException {
+    private ValueIterator(Iterable<VariableEntity> entities) throws SQLException {
       JdbcDatasource datasource = valueTable.getDatasource();
       String escapedIdentifierColumn = valueTable.getEntityIdentifierColumnSql();
 
@@ -132,7 +133,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
           datasource.escapeColumnName(columnName), datasource.escapeTableName(valueTable.getSqlName()),
           getWhereClause(), escapedIdentifierColumn);
       this.entities = entities.iterator();
-      this.identifiersPartitions = Lists.partition(entities.stream()
+      this.identifiersPartitions = Lists.partition(StreamSupport.stream(entities.spliterator(), false)
               .map(VariableEntity::getIdentifier).collect(Collectors.toList()),
           valueTable.getVariableEntityBatchSize());
     }
@@ -154,7 +155,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
         if (cursor == null) {
           cursor = newCursor();
         }
-        
+
         if (cursor != null) {
           // Scroll until we find the required entity or reach the end of the results
           boolean found = false;
@@ -181,7 +182,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     }
 
     private ResultSet newCursor() throws SQLException {
-      if (partitionIndex<identifiersPartitions.size()) {
+      if (partitionIndex < identifiersPartitions.size()) {
         List<String> identifiers = identifiersPartitions.get(partitionIndex);
         partitionIndex++;
         String q = query.replace(":ids", Joiner.on("','").join(identifiers));

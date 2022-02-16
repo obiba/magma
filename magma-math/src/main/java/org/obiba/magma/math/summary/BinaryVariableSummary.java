@@ -9,45 +9,33 @@
  */
 package org.obiba.magma.math.summary;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
+import org.obiba.magma.*;
+import org.obiba.magma.math.FrequenciesSummary;
+import org.obiba.magma.math.Frequency;
+import org.obiba.magma.math.summary.support.DefaultFrequenciesSummary;
+import org.obiba.magma.math.summary.support.DefaultFrequency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Iterator;
 
 /**
  *
  */
-public class BinaryVariableSummary extends AbstractVariableSummary implements Serializable {
+public class BinaryVariableSummary extends AbstractVariableSummary implements FrequenciesSummary, Serializable {
 
   private static final long serialVersionUID = 203198842420473154L;
 
   private static final Logger log = LoggerFactory.getLogger(BinaryVariableSummary.class);
 
-  public static final String NULL_NAME = "N/A";
-
-  public static final String NOT_NULL_NAME = "NOT_NULL";
-
   private final org.apache.commons.math3.stat.Frequency frequencyDist = new org.apache.commons.math3.stat.Frequency();
 
-  private long n;
-
-  private boolean empty = true;
-
-  private final Collection<Frequency> frequencies = new ArrayList<>();
+  private FrequenciesSummary frequenciesSummary;
 
   private BinaryVariableSummary(@NotNull Variable variable) {
     super(variable);
@@ -58,46 +46,15 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
     return BinaryVariableSummaryFactory.getCacheKey(variable, table, getOffset(), getLimit());
   }
 
+  @Override
   @NotNull
   public Iterable<Frequency> getFrequencies() {
-    return ImmutableList.copyOf(frequencies);
+    return frequenciesSummary.getFrequencies();
   }
 
+  @Override
   public long getN() {
-    return n;
-  }
-
-  public boolean isEmpty() {
-    return empty;
-  }
-
-  public static class Frequency implements Serializable {
-
-    private static final long serialVersionUID = -2876592652764310324L;
-
-    private final String value;
-
-    private final long freq;
-
-    private final double pct;
-
-    public Frequency(String value, long freq, double pct) {
-      this.value = value;
-      this.freq = freq;
-      this.pct = pct;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    public long getFreq() {
-      return freq;
-    }
-
-    public double getPct() {
-      return pct;
-    }
+    return frequenciesSummary.getN();
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
@@ -119,7 +76,7 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
     @Override
     public Builder addValue(@NotNull Value value) {
-      if(addedTable) {
+      if (addedTable) {
         throw new IllegalStateException("Cannot add value for variable " + summary.variable.getName() +
             " because values where previously added from the whole table with addTable().");
       }
@@ -130,7 +87,7 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
     @Override
     public Builder addTable(@NotNull ValueTable table, @NotNull ValueSource valueSource) {
-      if(addedValue) {
+      if (addedValue) {
         throw new IllegalStateException("Cannot add table for variable " + summary.variable.getName() +
             " because values where previously added with addValue().");
       }
@@ -145,9 +102,17 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
       Preconditions.checkArgument(table != null, "table cannot be null");
       //noinspection ConstantConditions
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
-      if(!variableValueSource.supportVectorSource()) return;
-      for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
-        add(value);
+      if (!variableValueSource.supportVectorSource()) return;
+      VectorSource vs = variableValueSource.asVectorSource();
+      Iterable<VariableEntity> entities = summary.getFilteredVariableEntities(table);
+      if (vs.supportVectorSummary()) {
+        summary.frequenciesSummary = vs.getVectorSummarySource(entities).asFrequenciesSummary();
+      }
+      // if no pre-computed summary, go through values
+      if (summary.frequenciesSummary == null) {
+        for (Value value : vs.getValues(entities)) {
+          add(value);
+        }
       }
     }
 
@@ -155,17 +120,16 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
 
-      if(summary.empty) summary.empty = false;
-      if(value.isSequence()) {
-        if(value.isNull()) {
-          summary.frequencyDist.addValue(NULL_NAME);
+      if (value.isSequence()) {
+        if (value.isNull()) {
+          summary.frequencyDist.addValue(FrequenciesSummary.NULL_NAME);
         } else {
-          for(Value v : value.asSequence().getValue()) {
+          for (Value v : value.asSequence().getValue()) {
             add(v);
           }
         }
       } else {
-        summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : NOT_NULL_NAME);
+        summary.frequencyDist.addValue(value.isNull() ? FrequenciesSummary.NULL_NAME : FrequenciesSummary.NOT_NULL_NAME);
       }
     }
 
@@ -184,16 +148,21 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
     private void compute() {
       log.trace("Start compute default summary {}", summary.variable);
-      Iterator<String> concat = freqNames(summary.frequencyDist);
+      if (summary.frequenciesSummary == null) {
+        DefaultFrequenciesSummary frequenciesSummary = new DefaultFrequenciesSummary();
+        Iterator<String> concat = freqNames(summary.frequencyDist);
 
-      // Iterate over all category names including or not distinct values.
-      // The loop will also determine the mode of the distribution (most frequent value)
-      while(concat.hasNext()) {
-        String value = concat.next();
-        summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
+        // Iterate over all category names including or not distinct values.
+        // The loop will also determine the mode of the distribution (most frequent value)
+        while (concat.hasNext()) {
+          String value = concat.next();
+          frequenciesSummary.addFrequency(new DefaultFrequency(value, summary.frequencyDist.getCount(value),
+              Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
+        }
+        frequenciesSummary.setN(summary.frequencyDist.getSumFreq());
+
+        summary.frequenciesSummary = frequenciesSummary;
       }
-      summary.n = summary.frequencyDist.getSumFreq();
     }
 
     public Builder filter(Integer offset, Integer limit) {

@@ -11,37 +11,33 @@ package org.obiba.magma.math.summary;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import org.obiba.magma.*;
+import org.obiba.magma.math.FrequenciesSummary;
+import org.obiba.magma.math.Frequency;
+import org.obiba.magma.math.summary.support.DefaultFrequenciesSummary;
+import org.obiba.magma.math.summary.support.DefaultFrequency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  *
  */
-public class TextVariableSummary extends AbstractVariableSummary implements Serializable {
+public class TextVariableSummary extends AbstractVariableSummary implements FrequenciesSummary, Serializable {
 
   private static final long serialVersionUID = 203198842420473154L;
 
   private static final Logger log = LoggerFactory.getLogger(TextVariableSummary.class);
 
-  public static final String NULL_NAME = "N/A";
-
-  public static final String NOT_NULL_NAME = "NOT_NULL";
-
   private final org.apache.commons.math3.stat.Frequency frequencyDist = new org.apache.commons.math3.stat.Frequency();
 
-  private long n;
-
-  private boolean empty = true;
-
-  private final List<Frequency> frequencies = new ArrayList<>();
+  private FrequenciesSummary frequenciesSummary;
 
   private TextVariableSummary(@NotNull Variable variable) {
     super(variable);
@@ -52,53 +48,15 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
     return TextVariableSummaryFactory.getCacheKey(variable, table, getOffset(), getLimit());
   }
 
+  @Override
   @NotNull
   public Iterable<Frequency> getFrequencies() {
-    return ImmutableList.copyOf(frequencies);
+    return frequenciesSummary.getFrequencies();
   }
 
+  @Override
   public long getN() {
-    return n;
-  }
-
-  public boolean isEmpty() {
-    return empty;
-  }
-
-  public static class Frequency implements Serializable {
-
-    private static final long serialVersionUID = -2876592652764310324L;
-
-    private final String value;
-
-    private final long freq;
-
-    private final double pct;
-
-    private final boolean missing;
-
-    public Frequency(String value, long freq, double pct, boolean missing) {
-      this.value = value;
-      this.freq = freq;
-      this.pct = pct;
-      this.missing = missing;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    public long getFreq() {
-      return freq;
-    }
-
-    public double getPct() {
-      return pct;
-    }
-
-    public boolean isMissing() {
-      return missing;
-    }
+    return frequenciesSummary.getN();
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
@@ -148,8 +106,16 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
       if (!variableValueSource.supportVectorSource()) return;
-      for (Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
-        add(value);
+      VectorSource vs = variableValueSource.asVectorSource();
+      Iterable<VariableEntity> entities = summary.getFilteredVariableEntities(table);
+      if (vs.supportVectorSummary()) {
+        summary.frequenciesSummary = vs.getVectorSummarySource(entities).asFrequenciesSummary();
+      }
+      // if no pre-computed summary, go through values
+      if (summary.frequenciesSummary == null) {
+        for (Value value : vs.getValues(entities)) {
+          add(value);
+        }
       }
     }
 
@@ -157,17 +123,16 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
 
-      if (summary.empty) summary.empty = false;
       if (value.isSequence()) {
         if (value.isNull()) {
-          summary.frequencyDist.addValue(NULL_NAME);
+          summary.frequencyDist.addValue(FrequenciesSummary.NULL_NAME);
         } else {
           for (Value v : value.asSequence().getValue()) {
             add(v);
           }
         }
       } else {
-        summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : value.toString());
+        summary.frequencyDist.addValue(value.isNull() ? FrequenciesSummary.NULL_NAME : value.toString());
       }
     }
 
@@ -186,30 +151,28 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
 
     private void compute() {
       log.trace("Start compute default summary {}", summary.variable);
-      Iterator<String> concat = freqNames(summary.frequencyDist);
+      if (summary.frequenciesSummary == null) {
+        DefaultFrequenciesSummary frequenciesSummary = new DefaultFrequenciesSummary();
+        Iterator<String> concat = freqNames(summary.frequencyDist);
 
-      List<String> missings = variable.getCategories().stream()
-          .filter(Category::isMissing)
-          .map(Category::getName)
-          .collect(Collectors.toList());
+        List<String> missings = variable.getCategories().stream()
+            .filter(Category::isMissing)
+            .map(Category::getName)
+            .collect(Collectors.toList());
 
-      // Iterate over all category names including or not distinct values.
-      // The loop will also determine the mode of the distribution (most frequent value)
-      while (concat.hasNext()) {
-        String value = concat.next();
-        summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
-            missings.contains(value) || value.equals(NULL_NAME)));
-      }
-
-      Collections.sort(summary.frequencies, new Comparator<Frequency>() {
-        @Override
-        public int compare(Frequency o1, Frequency o2) {
-          return (int) (o2.getFreq() - o1.getFreq());
+        // Iterate over all category names including or not distinct values.
+        // The loop will also determine the mode of the distribution (most frequent value)
+        while (concat.hasNext()) {
+          String value = concat.next();
+          frequenciesSummary.addFrequency(new DefaultFrequency(value, summary.frequencyDist.getCount(value),
+              Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+              missings.contains(value) || value.equals(FrequenciesSummary.NULL_NAME)));
         }
-      });
+        frequenciesSummary.sortFrequencies();
+        frequenciesSummary.setN(summary.frequencyDist.getSumFreq());
 
-      summary.n = summary.frequencyDist.getSumFreq();
+        summary.frequenciesSummary = frequenciesSummary;
+      }
     }
 
     public Builder filter(Integer offset, Integer limit) {

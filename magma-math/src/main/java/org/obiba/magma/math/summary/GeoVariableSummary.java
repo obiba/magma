@@ -11,12 +11,16 @@ package org.obiba.magma.math.summary;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.obiba.magma.*;
+import org.obiba.magma.math.FrequenciesSummary;
+import org.obiba.magma.math.Frequency;
+import org.obiba.magma.math.GeoSummary;
+import org.obiba.magma.math.summary.support.DefaultFrequency;
+import org.obiba.magma.math.summary.support.DefaultGeoSummary;
 import org.obiba.magma.type.LineStringType;
 import org.obiba.magma.type.PointType;
 import org.obiba.magma.type.PolygonType;
@@ -35,21 +39,13 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class GeoVariableSummary extends AbstractVariableSummary implements Serializable {
+public class GeoVariableSummary extends AbstractVariableSummary implements GeoSummary, Serializable {
 
   private static final long serialVersionUID = 203198842420473154L;
 
   private static final Logger log = LoggerFactory.getLogger(GeoVariableSummary.class);
 
-  public static final String NULL_NAME = "N/A";
-
-  public static final String NOT_NULL_NAME = "NOT_NULL";
-
   private final org.apache.commons.math3.stat.Frequency frequencyDist = new org.apache.commons.math3.stat.Frequency();
-
-  private long n;
-
-  private boolean empty = true;
 
   private final Collection<Frequency> frequencies = new ArrayList<>();
 
@@ -62,59 +58,22 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
     return GeoVariableSummaryFactory.getCacheKey(variable, table, getOffset(), getLimit());
   }
 
+  private GeoSummary geoSummary;
+
+  @Override
+  public long getN() {
+    return geoSummary.getN();
+  }
+
+  @Override
   @NotNull
   public Iterable<Frequency> getFrequencies() {
-    return ImmutableList.copyOf(frequencies);
+    return geoSummary.getFrequencies();
   }
 
-  public long getN() {
-    return n;
-  }
-
-  public boolean isEmpty() {
-    return empty;
-  }
-
-  public ArrayList<Coordinate> getCoordinates() {
-    return coordinates;
-  }
-
-  public ArrayList<Coordinate> coordinates = new ArrayList<>();
-
-  public static class Frequency implements Serializable {
-
-    private static final long serialVersionUID = -2876592652764310324L;
-
-    private final String value;
-
-    private final long freq;
-
-    private final double pct;
-
-    private final boolean missing;
-
-    public Frequency(String value, long freq, double pct, boolean missing) {
-      this.value = value;
-      this.freq = freq;
-      this.pct = pct;
-      this.missing = missing;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    public long getFreq() {
-      return freq;
-    }
-
-    public double getPct() {
-      return pct;
-    }
-
-    public boolean isMissing() {
-      return missing;
-    }
+  @Override
+  public List<Coordinate> getCoordinates() {
+    return geoSummary.getCoordinates();
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
@@ -172,8 +131,16 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
       if (!variableValueSource.supportVectorSource()) return;
-      for (Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
-        add(value);
+      VectorSource vs = variableValueSource.asVectorSource();
+      Iterable<VariableEntity> entities = summary.getFilteredVariableEntities(table);
+      if (vs.supportVectorSummary()) {
+        summary.geoSummary = vs.getVectorSummarySource(entities).asGeoSummary();
+      }
+      // if no pre-computed summary, go through values
+      if (summary.geoSummary == null) {
+        for (Value value : vs.getValues(entities)) {
+          add(value);
+        }
       }
     }
 
@@ -181,17 +148,16 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
 
-      if (summary.empty) summary.empty = false;
       if (value.isSequence()) {
         if (value.isNull()) {
-          summary.frequencyDist.addValue(NULL_NAME);
+          summary.frequencyDist.addValue(FrequenciesSummary.NULL_NAME);
         } else {
           for (Value v : value.asSequence().getValue()) {
             add(v);
           }
         }
       } else if (value.isNull()) {
-        summary.frequencyDist.addValue(NULL_NAME);
+        summary.frequencyDist.addValue(FrequenciesSummary.NULL_NAME);
       } else {
         boolean added = false;
         if (!missings.isEmpty()) {
@@ -202,7 +168,7 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
           }
         }
         if (!added) {
-          summary.frequencyDist.addValue(NOT_NULL_NAME);
+          summary.frequencyDist.addValue(FrequenciesSummary.NOT_NULL_NAME);
           getCoordinates(value);
         }
       }
@@ -236,23 +202,28 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
 
     private void compute() {
       log.trace("Start compute default summary {}", summary.variable);
-      long max = 0;
-      Iterator<String> concat = freqNames(summary.frequencyDist);
+      if (summary.geoSummary == null) {
+        DefaultGeoSummary geoSummary = new DefaultGeoSummary();
+        long max = 0;
+        Iterator<String> concat = freqNames(summary.frequencyDist);
 
-      // Iterate over all values.
-      // The loop will also determine the mode of the distribution (most frequent value)
-      while (concat.hasNext()) {
-        String value = concat.next();
-        long count = summary.frequencyDist.getCount(value);
-        if (count > max) {
-          max = count;
+        // Iterate over all values.
+        // The loop will also determine the mode of the distribution (most frequent value)
+        while (concat.hasNext()) {
+          String value = concat.next();
+          long count = summary.frequencyDist.getCount(value);
+          if (count > max) {
+            max = count;
+          }
+          geoSummary.addFrequency(new DefaultFrequency(value, summary.frequencyDist.getCount(value),
+              Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+              missings.contains(value) || value.equals(FrequenciesSummary.NULL_NAME)));
         }
-        summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
-            missings.contains(value) || value.equals(NULL_NAME)));
+        geoSummary.setN(summary.frequencyDist.getSumFreq());
+        geoSummary.addCoordinates(getConcaveHull(coords));
+
+        summary.geoSummary = geoSummary;
       }
-      summary.n = summary.frequencyDist.getSumFreq();
-      summary.coordinates.addAll(getConcaveHull(coords));
     }
 
     public Builder filter(Integer offset, Integer limit) {

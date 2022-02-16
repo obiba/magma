@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.obiba.magma.*;
+import org.obiba.magma.math.CategoricalSummary;
+import org.obiba.magma.math.Frequency;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.Values;
 import org.obiba.magma.test.AbstractMagmaTest;
@@ -47,7 +49,7 @@ public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
     CategoricalVariableSummary summary = computeFromTable(variable,
         Values.asValues(IntegerType.get(), "1", "2", "1", "9", "3"));
     assertThat(summary.getMode()).isEqualTo("1");
-    for (CategoricalVariableSummary.Frequency frequency : summary.getFrequencies()) {
+    for (Frequency frequency : summary.getFrequencies()) {
       switch (frequency.getValue()) {
         case "1":
           assertThat(frequency.getFreq()).isEqualTo(2);
@@ -72,7 +74,7 @@ public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
     CategoricalVariableSummary summary = computeFromTable(variable,
         Values.asValues(DecimalType.get(), "1", "2", "1", "9", "3"));
     assertThat(summary.getMode()).isEqualTo("1");
-    for (CategoricalVariableSummary.Frequency frequency : summary.getFrequencies()) {
+    for (Frequency frequency : summary.getFrequencies()) {
       switch (frequency.getValue()) {
         case "1":
           assertThat(frequency.getFreq()).isEqualTo(2);
@@ -96,7 +98,7 @@ public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
         .addCategories("YES", "NO", "DNK", "PNA").build();
     CategoricalVariableSummary summary = computeFromTable(variable,
         Values.asValues(TextType.get(), "YES", "NO", null, null));
-    assertThat(summary.getMode()).isEqualTo(CategoricalVariableSummary.NULL_NAME);
+    assertThat(summary.getMode()).isEqualTo(CategoricalSummary.NULL_NAME);
   }
 
   @Test

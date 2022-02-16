@@ -95,7 +95,7 @@ public class NullValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(Iterable<VariableEntity> entities) {
     List<Timestamps> timestamps = Lists.newArrayList();
     for (VariableEntity entity : entities) {
       timestamps.add(getValueSetTimestamps(entity));

@@ -182,7 +182,7 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(final List<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(final Iterable<VariableEntity> entities) {
     return () -> new JoinTimestampsIterator(JoinTable.this, entities);
   }
 

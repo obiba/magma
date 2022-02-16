@@ -126,8 +126,8 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(final List<VariableEntity> entities) {
-    if (entities.isEmpty()) {
+  public Iterable<Timestamps> getValueSetTimestamps(final Iterable<VariableEntity> entities) {
+    if (!entities.iterator().hasNext()) {
       return ImmutableList.of();
     }
     return () -> new TimestampsIterator(entities.iterator());

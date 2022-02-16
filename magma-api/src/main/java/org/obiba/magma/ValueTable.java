@@ -151,7 +151,7 @@ public interface ValueTable extends Timestamped {
    * @param entities
    * @return
    */
-  Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities);
+  Iterable<Timestamps> getValueSetTimestamps(Iterable<VariableEntity> entities);
 
   /**
    * Check table has variable (name is unique in a table).

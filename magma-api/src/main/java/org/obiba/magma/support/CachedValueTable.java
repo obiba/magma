@@ -108,7 +108,7 @@ public class CachedValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(final List<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(final Iterable<VariableEntity> entities) {
     List<String> ids = new ArrayList<>();
 
     for (VariableEntity variableEntity : entities) {

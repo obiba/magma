@@ -9,61 +9,38 @@
  */
 package org.obiba.magma.math.summary;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Category;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.*;
+import org.obiba.magma.*;
+import org.obiba.magma.math.CategoricalSummary;
+import org.obiba.magma.math.Frequency;
+import org.obiba.magma.math.summary.support.DefaultCategoricalSummary;
+import org.obiba.magma.math.summary.support.DefaultFrequency;
 import org.obiba.magma.type.BooleanType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  */
-public class CategoricalVariableSummary extends AbstractVariableSummary implements Serializable {
+public class CategoricalVariableSummary extends AbstractVariableSummary implements CategoricalSummary, Serializable {
 
   private static final long serialVersionUID = 203198842420473154L;
 
   private static final Logger log = LoggerFactory.getLogger(CategoricalVariableSummary.class);
 
-  public static final String NULL_NAME = "N/A";
-
-  private static final String OTHER_NAME = "OTHER_VALUES";
-
   private final org.apache.commons.math3.stat.Frequency frequencyDist = new org.apache.commons.math3.stat.Frequency();
 
-  /**
-   * Mode is the most frequent value
-   */
-  private String mode = NULL_NAME;
-
-  private long n;
+  private CategoricalSummary categoricalSummary;
 
   private boolean distinct;
-
-  private boolean empty = true;
-
-  private final Collection<Frequency> frequencies = new ArrayList<>();
-
-  private long otherFrequency;
 
   private CategoricalVariableSummary(@NotNull Variable variable) {
     super(variable);
@@ -74,17 +51,25 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
     return CategoricalVariableSummaryFactory.getCacheKey(variable, table, distinct, getOffset(), getLimit());
   }
 
+  @Override
   @NotNull
   public Iterable<Frequency> getFrequencies() {
-    return ImmutableList.copyOf(frequencies);
+    return categoricalSummary.getFrequencies();
   }
 
+  @Override
   public String getMode() {
-    return mode;
+    return categoricalSummary.getMode();
   }
 
+  @Override
   public long getN() {
-    return n;
+    return categoricalSummary.getN();
+  }
+
+  @Override
+  public long getOtherFrequency() {
+    return categoricalSummary.getOtherFrequency();
   }
 
   public boolean isDistinct() {
@@ -93,50 +78,6 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
 
   public void setDistinct(boolean distinct) {
     this.distinct = distinct;
-  }
-
-  public boolean isEmpty() {
-    return empty;
-  }
-
-  public long getOtherFrequency() {
-    return otherFrequency;
-  }
-
-  public static class Frequency implements Serializable {
-
-    private static final long serialVersionUID = -2876592652764310324L;
-
-    private final String value;
-
-    private final long freq;
-
-    private final double pct;
-
-    private final boolean missing;
-
-    public Frequency(String value, long freq, double pct, boolean missing) {
-      this.value = value;
-      this.freq = freq;
-      this.pct = pct;
-      this.missing = missing;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    public long getFreq() {
-      return freq;
-    }
-
-    public double getPct() {
-      return pct;
-    }
-
-    public boolean isMissing() {
-      return missing;
-    }
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
@@ -158,7 +99,7 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
 
     @Override
     public Builder addValue(@NotNull Value value) {
-      if(addedTable) {
+      if (addedTable) {
         throw new IllegalStateException("Cannot add value for variable " + summary.variable.getName() +
             " because values where previously added from the whole table with addTable().");
       }
@@ -169,7 +110,7 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
 
     @Override
     public Builder addTable(@NotNull ValueTable table, @NotNull ValueSource valueSource) {
-      if(addedValue) {
+      if (addedValue) {
         throw new IllegalStateException("Cannot add table for variable " + summary.variable.getName() +
             " because values where previously added with addValue().");
       }
@@ -184,9 +125,17 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
       Preconditions.checkArgument(table != null, "table cannot be null");
       //noinspection ConstantConditions
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
-      if(!variableValueSource.supportVectorSource()) return;
-      for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
-        add(value, categoryNames());
+      if (!variableValueSource.supportVectorSource()) return;
+      VectorSource vs = variableValueSource.asVectorSource();
+      Iterable<VariableEntity> entities = summary.getFilteredVariableEntities(table);
+      if (vs.supportVectorSummary()) {
+        summary.categoricalSummary = vs.getVectorSummarySource(entities).asCategoricalSummary(variable.getCategories());
+      }
+      // if no pre-computed summary, go through values
+      if (summary.categoricalSummary == null) {
+        for (Value value : vs.getValues(entities)) {
+          add(value, categoryNames());
+        }
       }
     }
 
@@ -194,31 +143,30 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
 
-      if(summary.empty) summary.empty = false;
-      if(value.isSequence()) {
-        if(value.isNull()) {
-          summary.frequencyDist.addValue(NULL_NAME);
+      if (value.isSequence()) {
+        if (value.isNull()) {
+          summary.frequencyDist.addValue(CategoricalSummary.NULL_NAME);
         } else {
-          for(Value v : value.asSequence().getValue()) {
+          for (Value v : value.asSequence().getValue()) {
             add(v, categoryNames);
           }
         }
       } else {
-        if(value.isNull()) {
-          summary.frequencyDist.addValue(NULL_NAME);
+        if (value.isNull()) {
+          summary.frequencyDist.addValue(CategoricalSummary.NULL_NAME);
         } else {
           String valueStr = value.toString();
           String intValueStr = null;
-          if (value.getValueType().isNumeric() && valueStr.endsWith(".0")) intValueStr = valueStr.substring(0, valueStr.length() - 2);
-          if(summary.distinct || categoryNames.contains(valueStr)) {
+          if (value.getValueType().isNumeric() && valueStr.endsWith(".0"))
+            intValueStr = valueStr.substring(0, valueStr.length() - 2);
+          if (summary.distinct || categoryNames.contains(valueStr)) {
             summary.frequencyDist.addValue(valueStr);
           } else if (intValueStr != null && categoryNames.contains(intValueStr)) {
             summary.frequencyDist.addValue(intValueStr);
           } else {
-            summary.frequencyDist.addValue(OTHER_NAME);
+            summary.frequencyDist.addValue(CategoricalSummary.OTHER_NAME);
           }
         }
-
       }
     }
 
@@ -239,7 +187,7 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
      * Returns an iterator of category names
      */
     private List<String> categoryNames() {
-      if(variable.getValueType().equals(BooleanType.get())) {
+      if (variable.getValueType().equals(BooleanType.get())) {
         return ImmutableList.<String>builder() //
             .add(BooleanType.get().trueValue().toString()) //
             .add(BooleanType.get().falseValue().toString()).build();
@@ -266,34 +214,40 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
 
     private void compute() {
       log.trace("Start compute categorical {}", summary.variable.getName());
-      long max = 0;
-      Iterator<String> concat = summary.distinct //
-          ? freqNames(summary.frequencyDist)  // category names, null values and distinct values
-          : Iterators.concat(categoryNames().iterator(),
-              ImmutableList.of(NULL_NAME).iterator()); // category names and null values
+      if (summary.categoricalSummary == null) {
+        DefaultCategoricalSummary defaultCategoricalSummary = new DefaultCategoricalSummary();
 
-      // Iterate over all category names including or not distinct values.
-      // The loop will also determine the mode of the distribution (most frequent value)
-      Map<String, Category> categoriesByName = getCategoriesByName();
-      while(concat.hasNext()) {
-        String value = concat.next();
-        long count = summary.frequencyDist.getCount(value);
-        if(count > max) {
-          max = count;
-          summary.mode = value;
+        long max = 0;
+        Iterator<String> concat = summary.distinct //
+            ? freqNames(summary.frequencyDist)  // category names, null values and distinct values
+            : Iterators.concat(categoryNames().iterator(),
+            ImmutableList.of(CategoricalSummary.NULL_NAME).iterator()); // category names and null values
+
+        // Iterate over all category names including or not distinct values.
+        // The loop will also determine the mode of the distribution (most frequent value)
+        Map<String, Category> categoriesByName = getCategoriesByName();
+        while (concat.hasNext()) {
+          String value = concat.next();
+          long count = summary.frequencyDist.getCount(value);
+          if (count > max) {
+            max = count;
+            defaultCategoricalSummary.setMode(value);
+          }
+
+          boolean notMissing = variable.getValueType().equals(BooleanType.get())
+              ? value.equals(BooleanType.get().trueValue().toString()) ||
+              value.equals(BooleanType.get().falseValue().toString())
+              : categoriesByName.containsKey(value) && !categoriesByName.get(value).isMissing();
+
+          defaultCategoricalSummary.addFrequency(new DefaultFrequency(value, summary.frequencyDist.getCount(value),
+              Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+              !notMissing));
         }
+        defaultCategoricalSummary.setOtherFrequency(summary.frequencyDist.getCount(CategoricalSummary.OTHER_NAME));
+        defaultCategoricalSummary.setN(summary.frequencyDist.getSumFreq());
 
-        boolean notMissing = variable.getValueType().equals(BooleanType.get())
-            ? value.equals(BooleanType.get().trueValue().toString()) ||
-            value.equals(BooleanType.get().falseValue().toString())
-            : categoriesByName.containsKey(value) && !categoriesByName.get(value).isMissing();
-
-        summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
-            !notMissing));
+        summary.categoricalSummary = defaultCategoricalSummary;
       }
-      summary.otherFrequency = summary.frequencyDist.getCount(OTHER_NAME);
-      summary.n = summary.frequencyDist.getSumFreq();
     }
 
     public Builder distinct(boolean distinct) {

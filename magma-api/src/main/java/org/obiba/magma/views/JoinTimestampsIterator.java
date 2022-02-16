@@ -27,13 +27,13 @@ class JoinTimestampsIterator implements Iterator<Timestamps> {
   private final JoinTable joinTable;
 
   @NotNull
-  private final List<VariableEntity> entities;
+  private final Iterable<VariableEntity> entities;
 
   private final Iterator<VariableEntity> entitiesIterator;
 
   private List<Iterator<Timestamps>> timestampsIterators = Lists.newArrayList();
 
-  JoinTimestampsIterator(JoinTable joinTable, List<VariableEntity> entities) {
+  JoinTimestampsIterator(JoinTable joinTable, Iterable<VariableEntity> entities) {
     this.joinTable = joinTable;
     this.entities = entities;
     entitiesIterator = entities.iterator();

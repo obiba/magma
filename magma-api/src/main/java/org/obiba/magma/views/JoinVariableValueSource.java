@@ -77,7 +77,7 @@ public class JoinVariableValueSource implements VariableValueSource, VectorSourc
   }
 
   @Override
-  public Iterable<Value> getValues(final List<VariableEntity> entities) {
+  public Iterable<Value> getValues(final Iterable<VariableEntity> entities) {
     return () -> new JoinValueIterator(entities, owners, getVariable());
   }
 

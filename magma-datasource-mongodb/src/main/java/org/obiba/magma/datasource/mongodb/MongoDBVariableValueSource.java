@@ -13,7 +13,10 @@ package org.obiba.magma.datasource.mongodb;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mongodb.*;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
 import org.bson.BSONObject;
 import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
@@ -25,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class MongoDBVariableValueSource implements VariableValueSource, VectorSource {
 
@@ -61,8 +65,8 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
   }
 
   @Override
-  public Iterable<Value> getValues(final List<VariableEntity> entities) {
-    if (entities.isEmpty()) {
+  public Iterable<Value> getValues(final Iterable<VariableEntity> entities) {
+    if (!entities.iterator().hasNext()) {
       return ImmutableList.of();
     }
     return () -> new ValueIterator(getVariable(), entities);
@@ -110,13 +114,13 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
     private DBCursor cursor;
 
-    private ValueIterator(MongoDBVariable variable, List<VariableEntity> entities) {
+    private ValueIterator(MongoDBVariable variable, Iterable<VariableEntity> entities) {
       field = variable.getId();
       type = variable.getValueType();
       repeatable = variable.isRepeatable();
       fields = BasicDBObjectBuilder.start(field, 1).get();
       this.entities = entities.iterator();
-      this.identifiersPartitions = Lists.partition(entities.stream()
+      this.identifiersPartitions = Lists.partition(StreamSupport.stream(entities.spliterator(), false)
               .map(VariableEntity::getIdentifier).collect(Collectors.toList()),
           table.getVariableEntityBatchSize());
     }
@@ -154,7 +158,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     }
 
     private DBCursor newCursor() {
-      if (partitionIndex<identifiersPartitions.size()) {
+      if (partitionIndex < identifiersPartitions.size()) {
         List<String> identifiers = identifiersPartitions.get(partitionIndex);
         partitionIndex++;
         DBObject query = QueryBuilder.start("_id").in(identifiers).get();

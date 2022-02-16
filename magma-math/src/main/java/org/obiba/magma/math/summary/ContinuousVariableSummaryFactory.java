@@ -19,8 +19,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 
 import com.google.common.base.Joiner;
-
-import static org.obiba.magma.math.summary.ContinuousVariableSummary.Distribution;
+import org.obiba.magma.math.Distribution;
 
 public class ContinuousVariableSummaryFactory extends AbstractVariableSummaryFactory<ContinuousVariableSummary> {
 

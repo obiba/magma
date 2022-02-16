@@ -92,8 +92,8 @@ class HibernateVariableValueSource extends AbstractVariableValueSource implement
   }
 
   @Override
-  public Iterable<Value> getValues(final List<VariableEntity> entities) {
-    if (entities.isEmpty()) {
+  public Iterable<Value> getValues(final Iterable<VariableEntity> entities) {
+    if (!entities.iterator().hasNext()) {
       return ImmutableList.of();
     }
     return () -> new ValueIterator(entities.iterator());

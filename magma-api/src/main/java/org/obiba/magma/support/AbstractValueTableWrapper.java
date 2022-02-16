@@ -73,7 +73,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(Iterable<VariableEntity> entities) {
     return getWrappedValueTable().getValueSetTimestamps(entities);
   }
 

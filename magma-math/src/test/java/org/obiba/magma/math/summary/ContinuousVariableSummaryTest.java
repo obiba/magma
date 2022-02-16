@@ -9,10 +9,10 @@
  */
 package org.obiba.magma.math.summary;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.obiba.magma.*;
+import org.obiba.magma.math.Distribution;
 import org.obiba.magma.support.Values;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
@@ -32,11 +32,10 @@ public class ContinuousVariableSummaryTest extends AbstractMagmaTest {
   public void test_compute_integerType() {
     Variable mockVariable = Variable.Builder.newVariable("mock", IntegerType.get(), "mock").build();
     ContinuousVariableSummary summary = computeFromTable(mockVariable, Values.asValues(IntegerType.get(), 1, 2, 3));
-    DescriptiveStatistics descriptiveStats = summary.getDescriptiveStats();
-    assertThat(descriptiveStats.getMin()).isEqualTo(1.0);
-    assertThat(descriptiveStats.getMax()).isEqualTo(3.0);
-    assertThat(descriptiveStats.getMean()).isEqualTo(2.0);
-    assertThat(descriptiveStats.getN()).isEqualTo(3l);
+    assertThat(summary.getMin()).isEqualTo(1.0);
+    assertThat(summary.getMax()).isEqualTo(3.0);
+    assertThat(summary.getMean()).isEqualTo(2.0);
+    assertThat(summary.getN()).isEqualTo(3l);
   }
 
   @Test
@@ -44,11 +43,10 @@ public class ContinuousVariableSummaryTest extends AbstractMagmaTest {
     Variable mockVariable = Variable.Builder.newVariable("mock", IntegerType.get(), "mock").build();
     ContinuousVariableSummary summary = computeFromTable(mockVariable,
         Values.asValues(IntegerType.get(), 1, 2, 3, null, null));
-    DescriptiveStatistics descriptiveStats = summary.getDescriptiveStats();
-    assertThat(descriptiveStats.getMin()).isEqualTo(1.0);
-    assertThat(descriptiveStats.getMax()).isEqualTo(3.0);
-    assertThat(descriptiveStats.getMean()).isEqualTo(2.0);
-    assertThat(descriptiveStats.getN()).isEqualTo(3l);
+    assertThat(summary.getMin()).isEqualTo(1.0);
+    assertThat(summary.getMax()).isEqualTo(3.0);
+    assertThat(summary.getMean()).isEqualTo(2.0);
+    assertThat(summary.getN()).isEqualTo(3l);
   }
 
   @Test
@@ -57,11 +55,10 @@ public class ContinuousVariableSummaryTest extends AbstractMagmaTest {
         .addCategory("999", "", true).build();
     ContinuousVariableSummary summary = computeFromTable(mockVariable,
         Values.asValues(IntegerType.get(), 1, 2, 3, 888, 999));
-    DescriptiveStatistics descriptiveStats = summary.getDescriptiveStats();
-    assertThat(descriptiveStats.getMin()).isEqualTo(1.0);
-    assertThat(descriptiveStats.getMax()).isEqualTo(3.0);
-    assertThat(descriptiveStats.getMean()).isEqualTo(2.0);
-    assertThat(descriptiveStats.getN()).isEqualTo(3l);
+    assertThat(summary.getMin()).isEqualTo(1.0);
+    assertThat(summary.getMax()).isEqualTo(3.0);
+    assertThat(summary.getMean()).isEqualTo(2.0);
+    assertThat(summary.getN()).isEqualTo(3l);
   }
 
   /*
@@ -105,7 +102,7 @@ public class ContinuousVariableSummaryTest extends AbstractMagmaTest {
     when(table.getVariableEntities()).thenReturn(new ArrayList<>());
     when(table.getVariableValueSource(variable.getName())).thenReturn(valueSource);
 
-    return new ContinuousVariableSummary.Builder(variable, ContinuousVariableSummary.Distribution.normal)
+    return new ContinuousVariableSummary.Builder(variable, Distribution.normal)
         .addTable(table, table.getVariableValueSource(variable.getName())).build();
   }
 

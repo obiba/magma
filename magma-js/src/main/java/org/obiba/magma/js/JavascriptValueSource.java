@@ -95,7 +95,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   @Override
   @SuppressWarnings("unchecked")
-  public Iterable<Value> getValues(List<VariableEntity> entities) {
+  public Iterable<Value> getValues(Iterable<VariableEntity> entities) {
     initialiseIfNot();
     Stopwatch stopwatch = Stopwatch.createStarted();
     Iterable<Value> values = (Iterable<Value>) ContextFactory.getGlobal()
@@ -265,29 +265,29 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   private final class ValueVectorEvaluationContextAction extends AbstractEvaluationContextAction {
 
     @Nullable
-    private final List<VariableEntity> entities;
+    private final Iterable<VariableEntity> entities;
 
     private final VectorCache vectorCache = new VectorCache();
 
-    ValueVectorEvaluationContextAction(@Nullable List<VariableEntity> entities) {
+    ValueVectorEvaluationContextAction(@Nullable Iterable<VariableEntity> entities) {
       this.entities = entities;
     }
 
-    List<VariableEntity> getEntities(MagmaContext context) {
+    Iterable<VariableEntity> getEntities(MagmaContext context) {
       return entities == null ? new ArrayList<>(context.peek(ValueTable.class).getVariableEntities()) : entities;
     }
 
     @Override
     void enterContext(MagmaContext context, Scriptable scope) {
       super.enterContext(context, scope);
-      context.push(List.class, getEntities(context));
+      context.push(Iterable.class, getEntities(context));
       context.push(VectorCache.class, vectorCache);
     }
 
     @Override
     void exitContext(MagmaContext context) {
       super.exitContext(context);
-      context.pop(List.class);
+      context.pop(Iterable.class);
       context.pop(VectorCache.class);
     }
 
@@ -326,14 +326,14 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         ContextFactory.getGlobal().enterContext(context);
         JavascriptValueSource.this.enterContext(context, scope);
         context.push(VectorCache.class, vectorCache);
-        context.push(List.class, entities);
+        context.push(Iterable.class, entities);
         context.push(VariableEntity.class, variableEntity);
       }
 
       private void cleanContext() {
         JavascriptValueSource.this.exitContext(context);
         context.pop(VectorCache.class).next();
-        context.pop(List.class);
+        context.pop(Iterable.class);
         context.pop(VariableEntity.class);
         Context.exit();
       }
@@ -359,7 +359,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     public Value get(MagmaContext context, VectorSource source) {
       VectorHolder<Value> holder = vectors.get(source);
       if (holder == null) {
-        holder = new VectorHolder<>(source.getValues(context.peek(List.class)).iterator());
+        holder = new VectorHolder<>(source.getValues(context.peek(Iterable.class)).iterator());
         vectors.put(source, holder);
       }
       return holder.get(index);
@@ -367,7 +367,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     public Timestamps get(MagmaContext context, ValueTable table) {
       if (timestampsVector == null) {
-        timestampsVector = new VectorHolder<>(table.getValueSetTimestamps(context.peek(List.class)).iterator());
+        timestampsVector = new VectorHolder<>(table.getValueSetTimestamps(context.peek(Iterable.class)).iterator());
       }
       return timestampsVector.get(index);
     }

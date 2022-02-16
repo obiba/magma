@@ -15,7 +15,8 @@ import java.math.RoundingMode;
 import java.util.Random;
 
 import org.junit.Test;
-import org.obiba.magma.math.stat.IntervalFrequency.Interval;
+import org.obiba.magma.math.IntervalFrequency;
+import org.obiba.magma.math.IntervalFrequency.Interval;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

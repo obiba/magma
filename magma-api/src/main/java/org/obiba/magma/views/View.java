@@ -14,7 +14,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.obiba.magma.*;
-import org.obiba.magma.lang.VariableEntityList;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.Disposables;
@@ -278,7 +277,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
-  public Iterable<Timestamps> getValueSetTimestamps(List<VariableEntity> entities) {
+  public Iterable<Timestamps> getValueSetTimestamps(Iterable<VariableEntity> entities) {
     List<Timestamps> timestamps = Lists.newArrayList();
     for (VariableEntity entity : entities) {
       timestamps.add(getValueSetTimestamps(entity));
@@ -495,7 +494,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       }
 
       @Override
-      public Iterable<Value> getValues(List<VariableEntity> entities) {
+      public Iterable<Value> getValues(Iterable<VariableEntity> entities) {
         return wrapped.getValues(getMappedEntities(entities));
       }
 

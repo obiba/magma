@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 OBiBa. All rights reserved.
+ * Copyright (c) 2022 OBiBa. All rights reserved.
  *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
@@ -16,6 +16,11 @@ import javax.validation.constraints.NotNull;
  */
 public interface ValueSource {
 
+  /**
+   * Value type of the values being accessed.
+   *
+   * @return
+   */
   @NotNull
   ValueType getValueType();
 
@@ -25,13 +30,24 @@ public interface ValueSource {
    * @param valueSet
    * @return
    * @throws IllegalArgumentException when the provided valueSet is for a entityType different than the variable's
-   * entityType
+   *                                  entityType
    */
   @NotNull
   Value getValue(ValueSet valueSet);
 
+  /**
+   * Whether this value source can extract a {@link VectorSource}.
+   *
+   * @return
+   */
   boolean supportVectorSource();
 
+  /**
+   * The vector of values accessor, if supported.
+   *
+   * @return
+   * @throws VectorSourceNotSupportedException
+   */
   @NotNull
   VectorSource asVectorSource() throws VectorSourceNotSupportedException;
 

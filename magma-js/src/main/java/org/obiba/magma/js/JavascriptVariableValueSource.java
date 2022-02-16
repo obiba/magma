@@ -91,7 +91,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
-  public Iterable<Value> getValues(List<VariableEntity> entities) {
+  public Iterable<Value> getValues(Iterable<VariableEntity> entities) {
     validateScript();
     return super.getValues(entities);
   }
