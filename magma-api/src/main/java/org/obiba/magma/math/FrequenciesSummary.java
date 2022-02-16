@@ -10,7 +10,9 @@
 
 package org.obiba.magma.math;
 
-public interface FrequenciesSummary {
+import java.io.Serializable;
+
+public interface FrequenciesSummary extends Serializable {
 
   /**
    * Frequency name of the empty values.

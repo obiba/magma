@@ -10,7 +10,9 @@
 
 package org.obiba.magma.math;
 
-public interface Frequency {
+import java.io.Serializable;
+
+public interface Frequency extends Serializable {
 
   /**
    * The name that designate the value (or the set of values) being counted.
