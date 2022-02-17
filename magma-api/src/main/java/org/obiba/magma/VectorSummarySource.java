@@ -19,12 +19,13 @@ import java.util.Set;
 public interface VectorSummarySource {
 
   /**
-   * Basic frequency count summary.
+   * Basic frequency count summary. If detailed, reports all observations, otherwise only report nulls/non nulls.
    *
+   * @param detailed
    * @return
    */
   @Nullable
-  FrequenciesSummary asFrequenciesSummary();
+  FrequenciesSummary asFrequenciesSummary(boolean detailed);
 
   /**
    * Get the summary statistics for the given categories.

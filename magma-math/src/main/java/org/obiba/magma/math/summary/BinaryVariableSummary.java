@@ -106,7 +106,7 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Fr
       VectorSource vs = variableValueSource.asVectorSource();
       Iterable<VariableEntity> entities = summary.getFilteredVariableEntities(table);
       if (vs.supportVectorSummary()) {
-        summary.frequenciesSummary = vs.getVectorSummarySource(entities).asFrequenciesSummary();
+        summary.frequenciesSummary = vs.getVectorSummarySource(entities).asFrequenciesSummary(false);
       }
       // if no pre-computed summary, go through values
       if (summary.frequenciesSummary == null) {
