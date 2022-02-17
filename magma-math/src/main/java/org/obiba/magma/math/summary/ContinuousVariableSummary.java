@@ -173,7 +173,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
   @Override
   @NotNull
   public Iterable<Frequency> getFrequencies() {
-    return ImmutableList.copyOf(frequencies);
+    return continuousSummary.getFrequencies();
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
