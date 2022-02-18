@@ -11,7 +11,6 @@ package org.obiba.magma.math.summary;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -20,7 +19,7 @@ import org.obiba.magma.math.ContinuousSummary;
 import org.obiba.magma.math.Distribution;
 import org.obiba.magma.math.Frequency;
 import org.obiba.magma.math.IntervalFrequency;
-import org.obiba.magma.math.summary.support.DefaultContinuousSummary;
+import org.obiba.magma.math.summary.support.DescriptiveContinuousSummary;
 import org.obiba.magma.math.summary.support.DefaultFrequency;
 import org.obiba.magma.type.IntegerType;
 import org.slf4j.Logger;
@@ -299,7 +298,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
     private void compute() {
       log.trace("Start compute continuous {}", summary.variable.getName());
       if (summary.continuousSummary == null) {
-        DefaultContinuousSummary continuousSummary = new DefaultContinuousSummary(summary.descriptiveStats);
+        DescriptiveContinuousSummary continuousSummary = new DescriptiveContinuousSummary(summary.descriptiveStats);
         // frequencies
         Iterator<String> concat = freqNames(summary.frequencyDist);
         // Iterate over all values (N/A and NOT_EMPTY)

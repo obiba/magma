@@ -11,91 +11,126 @@
 package org.obiba.magma.math.summary.support;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.math3.distribution.ExponentialDistribution;
-import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.distribution.RealDistribution;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.obiba.magma.math.ContinuousSummary;
 import org.obiba.magma.math.IntervalFrequency;
-import org.obiba.magma.math.Distribution;
 
-import java.util.Collection;
 import java.util.List;
 
 public class DefaultContinuousSummary extends DefaultFrequenciesSummary implements ContinuousSummary {
 
-  private final DescriptiveStatistics descriptiveStatistics;
-
-  private final List<Double> percentiles = Lists.newArrayList();
-
-  private final Collection<Double> distributionPercentiles = Lists.newArrayList();
-
   private final List<IntervalFrequency.Interval> intervalFrequencies = Lists.newArrayList();
+  private final List<Double> percentiles = Lists.newArrayList();
+  private final List<Double> distributionPercentiles = Lists.newArrayList();
 
-  public DefaultContinuousSummary(DescriptiveStatistics descriptiveStatistics) {
-    this.descriptiveStatistics = descriptiveStatistics;
-  }
-
-  @Override
-  public long getN() {
-    return descriptiveStatistics.getN();
-  }
+  private double min = 0;
+  private double max = 0;
+  private double sum = 0;
+  private double sumsq = 0;
+  private double mean = 0;
+  private double median = 0;
+  private double geomean = 0;
+  private double variance = 0;
+  private double stddev = 0;
+  private double skewness = 0;
+  private double kurtosis = 0;
 
   @Override
   public double getMin() {
-    return descriptiveStatistics.getMin();
+    return min;
+  }
+
+  public void setMin(double min) {
+    this.min = min;
   }
 
   @Override
   public double getMax() {
-    return descriptiveStatistics.getMax();
+    return max;
+  }
+
+  public void setMax(double max) {
+    this.max = max;
   }
 
   @Override
   public double getSum() {
-    return descriptiveStatistics.getSum();
+    return sum;
+  }
+
+  public void setSum(double sum) {
+    this.sum = sum;
   }
 
   @Override
   public double getSumsq() {
-    return descriptiveStatistics.getSumsq();
+    return sumsq;
+  }
+
+  public void setSumsq(double sumsq) {
+    this.sumsq = sumsq;
   }
 
   @Override
   public double getMean() {
-    return descriptiveStatistics.getMean();
+    return mean;
+  }
+
+  public void setMean(double mean) {
+    this.mean = mean;
   }
 
   @Override
   public double getMedian() {
-    double median = descriptiveStatistics.apply(new Median());
     return median;
+  }
+
+  public void setMedian(double median) {
+    this.median = median;
   }
 
   @Override
   public double getGeometricMean() {
-    return descriptiveStatistics.getGeometricMean();
+    return geomean;
+  }
+
+  public void setGeometricMean(double geomean) {
+    this.geomean = geomean;
   }
 
   @Override
   public double getVariance() {
-    return descriptiveStatistics.getVariance();
+    return variance;
+  }
+
+  public void setVariance(double variance) {
+    this.variance = variance;
   }
 
   @Override
   public double getStandardDeviation() {
-    return descriptiveStatistics.getStandardDeviation();
+    return stddev;
+  }
+
+  public void setStandardDeviation(double stddev) {
+    this.stddev = stddev;
   }
 
   @Override
   public double getSkewness() {
-    return descriptiveStatistics.getSkewness();
+    return skewness;
+  }
+
+  public void setSkewness(double skewness) {
+    this.skewness = skewness;
   }
 
   @Override
   public double getKurtosis() {
-    return descriptiveStatistics.getKurtosis();
+    return kurtosis;
+  }
+
+  public void setKurtosis(double kurtosis) {
+    this.kurtosis = kurtosis;
   }
 
   @Override
@@ -103,7 +138,7 @@ public class DefaultContinuousSummary extends DefaultFrequenciesSummary implemen
     return percentiles;
   }
 
-  public void addPercentile(Double value) {
+  public void addPercentile(double value) {
     percentiles.add(value);
   }
 
@@ -112,18 +147,8 @@ public class DefaultContinuousSummary extends DefaultFrequenciesSummary implemen
     return distributionPercentiles;
   }
 
-  public void addDistributionPercentile(Double value) {
+  public void addDistributionPercentile(double value) {
     distributionPercentiles.add(value);
-  }
-
-  public void computeDistributionPercentiles(Distribution distribution, List<Double> defaultPercentiles) {
-    RealDistribution realDistribution = getDistribution(distribution);
-    for (Double p : defaultPercentiles) {
-      addPercentile(descriptiveStatistics.getPercentile(p));
-      if (realDistribution != null) {
-        addDistributionPercentile(realDistribution.inverseCumulativeProbability(p / 100d));
-      }
-    }
   }
 
   @Override
@@ -135,22 +160,4 @@ public class DefaultContinuousSummary extends DefaultFrequenciesSummary implemen
     intervalFrequencies.add(interval);
   }
 
-  public void computeIntervalFrequencies(int intervals, boolean roundToIntegers) {
-    IntervalFrequency intervalFrequency = new IntervalFrequency(getMin(), getMax(), intervals, roundToIntegers);
-    for (double d : descriptiveStatistics.getSortedValues()) {
-      intervalFrequency.add(d);
-    }
-    for (IntervalFrequency.Interval interval : intervalFrequency.intervals()) {
-      addIntervalFrequency(interval);
-    }
-  }
-
-  private RealDistribution getDistribution(Distribution distribution) {
-    if (distribution.equals(Distribution.normal)) {
-      double stddev = descriptiveStatistics.getStandardDeviation();
-      return stddev > 0 ? new NormalDistribution(descriptiveStatistics.getMean(), stddev) : null;
-    } else {
-      return new ExponentialDistribution(descriptiveStatistics.getMean());
-    }
-  }
 }

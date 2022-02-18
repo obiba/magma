@@ -9,8 +9,6 @@
  */
 package org.obiba.magma;
 
-import java.util.List;
-
 /**
  * A source of iterable values from the same variable.
  */
