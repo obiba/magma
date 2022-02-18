@@ -48,8 +48,6 @@ public interface ContinuousSummary extends FrequenciesSummary {
 
   Iterable<Double> getDistributionPercentiles();
 
-  Iterable<IntervalFrequency.Interval> getIntervalFrequencies();
-
-  Iterable<Frequency> getFrequencies();
+  Iterable<Interval> getIntervalFrequencies();
 
 }

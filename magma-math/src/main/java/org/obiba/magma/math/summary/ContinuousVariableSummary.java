@@ -15,10 +15,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.*;
-import org.obiba.magma.math.ContinuousSummary;
-import org.obiba.magma.math.Distribution;
-import org.obiba.magma.math.Frequency;
-import org.obiba.magma.math.IntervalFrequency;
+import org.obiba.magma.math.*;
 import org.obiba.magma.math.summary.support.DescriptiveContinuousSummary;
 import org.obiba.magma.math.summary.support.DefaultFrequency;
 import org.obiba.magma.type.IntegerType;
@@ -165,7 +162,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
   @Override
   @NotNull
-  public Iterable<IntervalFrequency.Interval> getIntervalFrequencies() {
+  public Iterable<Interval> getIntervalFrequencies() {
     return continuousSummary.getIntervalFrequencies();
   }
 

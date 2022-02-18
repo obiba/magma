@@ -8,7 +8,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.obiba.magma.math;
+package org.obiba.magma.math.summary;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -143,7 +143,7 @@ public class IntervalFrequency implements Serializable {
   /**
    * Maintains the frequency of the values between {@code [lower, upper[}
    */
-  public class Interval implements Comparable<Interval>, Serializable {
+  public class Interval implements org.obiba.magma.math.Interval, Comparable<Interval>, Serializable {
 
     private static final long serialVersionUID = -166445440512189129L;
 
@@ -158,10 +158,12 @@ public class IntervalFrequency implements Serializable {
       this.upper = upper;
     }
 
+    @Override
     public double getLower() {
       return lower.doubleValue();
     }
 
+    @Override
     public double getUpper() {
       return upper.doubleValue();
     }
@@ -171,6 +173,7 @@ public class IntervalFrequency implements Serializable {
      *
      * @return
      */
+    @Override
     public long getFreq() {
       return freq;
     }
@@ -183,18 +186,8 @@ public class IntervalFrequency implements Serializable {
      *
      * @return
      */
+    @Override
     public double getDensity() {
-      return density().doubleValue();
-    }
-
-    /**
-     * Returns the density percentage of this interval (freq / total / width)
-     * <p/>
-     * This value represents the proportion of this interval in regards to all others
-     *
-     * @return
-     */
-    public double getDensityPct() {
       // freq / width / total
       if(n > 0) {
         return density().divide(BigDecimal.valueOf(n), CTX).doubleValue();
@@ -243,7 +236,7 @@ public class IntervalFrequency implements Serializable {
 
     @Override
     public String toString() {
-      return "[" + lower + ',' + upper + "[:" + freq + " (" + density() + ',' + getDensityPct() + ")";
+      return "[" + lower + ',' + upper + "[:" + freq + " (" + density() + ")";
     }
 
     /**

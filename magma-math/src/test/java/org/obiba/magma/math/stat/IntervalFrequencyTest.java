@@ -15,8 +15,8 @@ import java.math.RoundingMode;
 import java.util.Random;
 
 import org.junit.Test;
-import org.obiba.magma.math.IntervalFrequency;
-import org.obiba.magma.math.IntervalFrequency.Interval;
+import org.obiba.magma.math.summary.IntervalFrequency;
+import org.obiba.magma.math.summary.IntervalFrequency.Interval;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -35,14 +35,14 @@ public class IntervalFrequencyTest {
   }
 
   @Test
-  public void test_densityPct_areaSumsToOne() {
+  public void test_density_areaSumsToOne() {
     IntervalFrequency freqs = newRandomDistribution(100);
 
     // Compute the area of each interval and sum
     BigDecimal totalArea = BigDecimal.ZERO;
     for(Interval freq : freqs.intervals()) {
       BigDecimal width = BigDecimal.valueOf(freq.getUpper()).subtract(BigDecimal.valueOf(freq.getLower()));
-      totalArea = totalArea.add(width.multiply(BigDecimal.valueOf(freq.getDensityPct())));
+      totalArea = totalArea.add(width.multiply(BigDecimal.valueOf(freq.getDensity())));
     }
     // Round the result to 2 decimal places: 0.998 => 1.00
     totalArea = totalArea.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros();
@@ -80,15 +80,12 @@ public class IntervalFrequencyTest {
     IntervalFrequency freqs = newRandomDistribution(0);
     long n = 0;
     double density = 0;
-    double densityPct = 0;
     for(Interval freq : freqs.intervals()) {
       n += freq.getFreq();
       density += freq.getDensity();
-      densityPct += freq.getDensityPct();
     }
     assertThat(n).isEqualTo(0l);
     assertThat(density).isEqualTo(0d);
-    assertThat(densityPct).isEqualTo(0d);
   }
 
   @Test(expected = IllegalArgumentException.class)

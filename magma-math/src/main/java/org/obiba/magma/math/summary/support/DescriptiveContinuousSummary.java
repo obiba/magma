@@ -17,8 +17,9 @@ import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.obiba.magma.math.ContinuousSummary;
-import org.obiba.magma.math.IntervalFrequency;
 import org.obiba.magma.math.Distribution;
+import org.obiba.magma.math.Interval;
+import org.obiba.magma.math.summary.IntervalFrequency;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +32,7 @@ public class DescriptiveContinuousSummary extends DefaultFrequenciesSummary impl
 
   private final Collection<Double> distributionPercentiles = Lists.newArrayList();
 
-  private final List<IntervalFrequency.Interval> intervalFrequencies = Lists.newArrayList();
+  private final List<Interval> intervalFrequencies = Lists.newArrayList();
 
   public DescriptiveContinuousSummary(DescriptiveStatistics descriptiveStatistics) {
     this.descriptiveStatistics = descriptiveStatistics;
@@ -127,7 +128,7 @@ public class DescriptiveContinuousSummary extends DefaultFrequenciesSummary impl
   }
 
   @Override
-  public Iterable<IntervalFrequency.Interval> getIntervalFrequencies() {
+  public Iterable<Interval> getIntervalFrequencies() {
     return intervalFrequencies;
   }
 

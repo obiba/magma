@@ -12,13 +12,13 @@ package org.obiba.magma.math.summary.support;
 
 import com.google.common.collect.Lists;
 import org.obiba.magma.math.ContinuousSummary;
-import org.obiba.magma.math.IntervalFrequency;
+import org.obiba.magma.math.Interval;
 
 import java.util.List;
 
 public class DefaultContinuousSummary extends DefaultFrequenciesSummary implements ContinuousSummary {
 
-  private final List<IntervalFrequency.Interval> intervalFrequencies = Lists.newArrayList();
+  private final List<Interval> intervalFrequencies = Lists.newArrayList();
   private final List<Double> percentiles = Lists.newArrayList();
   private final List<Double> distributionPercentiles = Lists.newArrayList();
 
@@ -152,11 +152,11 @@ public class DefaultContinuousSummary extends DefaultFrequenciesSummary implemen
   }
 
   @Override
-  public Iterable<IntervalFrequency.Interval> getIntervalFrequencies() {
+  public Iterable<Interval> getIntervalFrequencies() {
     return intervalFrequencies;
   }
 
-  public void addIntervalFrequency(IntervalFrequency.Interval interval) {
+  public void addIntervalFrequency(Interval interval) {
     intervalFrequencies.add(interval);
   }
 
