@@ -10,16 +10,16 @@
 
 package org.obiba.magma.math.summary.support;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.math.GeoSummary;
-import org.obiba.magma.math.summary.support.DefaultFrequenciesSummary;
 
 import java.util.Collection;
 import java.util.List;
 
 public class DefaultGeoSummary extends DefaultFrequenciesSummary implements GeoSummary {
 
-  private List<Coordinate> coordinates;
+  private final List<Coordinate> coordinates = Lists.newArrayList();
 
   @Override
   public List<Coordinate> getCoordinates() {
@@ -31,6 +31,7 @@ public class DefaultGeoSummary extends DefaultFrequenciesSummary implements GeoS
   }
 
   public void addCoordinates(Collection<Coordinate> coords) {
-    coordinates.addAll(coords);
+    if (coords != null)
+      coordinates.addAll(coords);
   }
 }
