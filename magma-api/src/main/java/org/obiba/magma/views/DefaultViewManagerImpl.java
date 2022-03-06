@@ -13,6 +13,8 @@ package org.obiba.magma.views;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.obiba.magma.*;
+import org.obiba.magma.support.Disposables;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.support.VariableOperationContext;
 
 import javax.annotation.Nullable;
@@ -112,6 +114,17 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   public void removeAllViews(@NotNull String datasourceName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     viewPersistenceStrategy.removeViews(datasourceName);
+  }
+
+  @Override
+  public void initView(String datasourceName, String viewName) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(viewName), "viewName cannot be null or empty.");
+
+    ViewAwareDatasource datasource = getViewAwareDatasource(datasourceName);
+    ValueView view = datasource.getView(viewName);
+    Disposables.silentlyDispose(view);
+    Initialisables.initialise(view);
   }
 
   @Override
