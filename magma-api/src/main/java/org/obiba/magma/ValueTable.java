@@ -225,6 +225,15 @@ public interface ValueTable extends Timestamped {
     return ENTITY_BATCH_SIZE;
   }
 
+  /**
+   * The current state of the table. Operations will most likely fail when the table is not Ready.
+   *
+   * @return
+   */
+  default ValueTableStatus getStatus() {
+    return ValueTableStatus.READY;
+  }
+
   class Reference {
 
     private Reference() {

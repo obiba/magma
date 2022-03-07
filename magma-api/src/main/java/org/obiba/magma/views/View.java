@@ -66,6 +66,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   private transient ViewVariableEntityProvider variableEntityProvider;
 
+  private transient ValueTableStatus status;
+
   /**
    * No-arg constructor for XStream.
    */
@@ -107,21 +109,34 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public void initialise() {
-    getListClause().setValueTable(this);
-    Initialisables.initialise(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
-    if (isViewOfDerivedVariables()) {
-      setSelectClause(new NoneClause());
-    } else if (!(getSelectClause() instanceof NoneClause)) {
-      setListClause(new NoneClause());
-    } else {
-      setListClause(new NoneClause());
-      setSelectClause(new AllClause());
+    status = ValueTableStatus.LOADING;
+    try {
+      getListClause().setValueTable(this);
+      Initialisables.initialise(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
+      if (isViewOfDerivedVariables()) {
+        setSelectClause(new NoneClause());
+      } else if (!(getSelectClause() instanceof NoneClause)) {
+        setListClause(new NoneClause());
+      } else {
+        setListClause(new NoneClause());
+        setSelectClause(new AllClause());
+      }
+      status = ValueTableStatus.READY;
+    } catch (Exception e) {
+      status = ValueTableStatus.ERROR;
+      throw e;
     }
   }
 
   @Override
   public void dispose() {
+    status = ValueTableStatus.CLOSED;
     Disposables.silentlyDispose(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
+  }
+
+  @Override
+  public ValueTableStatus getStatus() {
+    return status == null ? ValueTableStatus.CLOSED : status;
   }
 
   @Override
