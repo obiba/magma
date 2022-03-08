@@ -60,7 +60,7 @@
     <jsr305.version>3.0.0</jsr305.version>
     <jts.version>1.13</jts.version>
     <junit.version>4.13.1</junit.version>
-    <liquibase-core.version>3.6.2</liquibase-core.version>
+    <liquibase-core.version>4.8.0</liquibase-core.version>
     <logback.version>1.2.3</logback.version>
     <mockito.version>1.10.8</mockito.version>
     <mariadb-connector-java.version>2.2.5</mariadb-connector-java.version>
