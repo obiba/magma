@@ -39,7 +39,7 @@
 
     <catch-exception.version>1.2.0</catch-exception.version>
     <cglib-nodep.version>3.1</cglib-nodep.version>
-    <commons-dbcp.version>1.4</commons-dbcp.version>
+    <commons-dbcp2.version>2.9.0</commons-dbcp2.version>
     <commons-io.version>2.4</commons-io.version>
     <commons-math.version>3.5</commons-math.version>
     <concave_hull.version>0.1</concave_hull.version>
@@ -60,7 +60,7 @@
     <jsr305.version>3.0.0</jsr305.version>
     <jts.version>1.13</jts.version>
     <junit.version>4.13.1</junit.version>
-    <liquibase-core.version>3.6.2</liquibase-core.version>
+    <liquibase-core.version>4.9.1</liquibase-core.version>
     <logback.version>1.2.3</logback.version>
     <mockito.version>1.10.8</mockito.version>
     <mariadb-connector-java.version>2.2.5</mariadb-connector-java.version>
@@ -69,7 +69,7 @@
     <obiba-commons.version>1.15.1</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>3.9</poi-ooxml.version>
-    <postgresql.version>42.2.25</postgresql.version>
+    <postgresql.version>42.3.4</postgresql.version>
     <rhino-js.version>1.7.7.1</rhino-js.version>
     <shiro.version>1.4.0</shiro.version>
     <shiro-extras.version>1.1.0</shiro-extras.version>
@@ -553,9 +553,9 @@
       </dependency>
 
       <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>${commons-dbcp.version}</version>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-dbcp2</artifactId>
+        <version>${commons-dbcp2.version}</version>
       </dependency>
 
       <dependency>

@@ -33,7 +33,7 @@ public class UpdateDataChangeBuilder {
   }
 
   public UpdateDataChangeBuilder where(String whereClause) {
-    updateDataChange.setWhereClause(whereClause);
+    updateDataChange.setWhere(whereClause);
     return this;
   }
 

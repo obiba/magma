@@ -18,6 +18,7 @@ import liquibase.change.core.AddColumnChange;
 import liquibase.change.core.DropColumnChange;
 import liquibase.change.core.ModifyDataTypeChange;
 import liquibase.change.core.UpdateDataChange;
+import liquibase.exception.DateParseException;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.Table;
 import org.obiba.magma.*;
@@ -263,6 +264,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private class JdbcVariableWriter implements ValueTableWriter.VariableWriter {
 
+    List<Change> schemaChanges = new ArrayList<>();
     List<Change> changes = new ArrayList<>();
 
     @Override
@@ -283,14 +285,18 @@ class JdbcValueTableWriter implements ValueTableWriter {
       DropColumnChange dcc = new DropColumnChange();
       dcc.setTableName(valueTable.getSqlName());
       dcc.setColumnName(getVariableSqlName(existingVariable.getName()));
-      changes.add(dcc);
+      schemaChanges.add(dcc);
 
       if (valueTable.hasUpdatedTimestampColumn()) {
         UpdateDataChange udc = new UpdateDataChange();
         udc.setTableName(valueTable.getSqlName());
         ColumnConfig col = new ColumnConfig();
         col.setName(valueTable.getUpdatedTimestampColumnName());
-        col.setValueDate(formattedDate(new java.util.Date()));
+        try {
+          col.setValueDate(formattedDate(new java.util.Date()));
+        } catch (DateParseException e) {
+          throw new MagmaRuntimeException("Date formatting failure", e);
+        }
         udc.addColumn(col);
 
         changes.add(udc);
@@ -299,6 +305,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() {
+      getDatasource().doWithDatabase(new ChangeDatabaseCallback(schemaChanges));
       getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes));
       valueTable.refreshTable();
       valueTable.refreshVariablesMap();
@@ -348,7 +355,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       modifyDataTypeChange.setTableName(valueTable.getSqlName());
       modifyDataTypeChange.setColumnName(columnName);
       modifyDataTypeChange.setNewDataType(dataType);
-      changes.add(modifyDataTypeChange);
+      schemaChanges.add(modifyDataTypeChange);
     }
 
     private void addNewColumn(String variableName, String dataType) {
@@ -356,7 +363,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       AddColumnChange addColumnChange = AddColumnChangeBuilder.newBuilder()//
           .table(valueTable.getSqlName())//
           .column(columnName, dataType).build();
-      changes.add(addColumnChange);
+      schemaChanges.add(addColumnChange);
     }
 
     boolean variableExists(Variable variable) {
@@ -375,6 +382,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     protected void doWriteVariable(Variable variable) {
+      super.doWriteVariable(variable);
+
       boolean variableExists = variableExists(variable);
       boolean insert = true;
 
@@ -409,8 +418,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
         writeAttributes(variable);
         writeCategories(variable);
       }
-
-      super.doWriteVariable(variable);
     }
 
     @Override
