@@ -40,7 +40,7 @@
     <catch-exception.version>1.2.0</catch-exception.version>
     <cglib-nodep.version>3.1</cglib-nodep.version>
     <commons-dbcp2.version>2.9.0</commons-dbcp2.version>
-    <commons-io.version>2.4</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <commons-math.version>3.5</commons-math.version>
     <concave_hull.version>0.1</concave_hull.version>
     <dbunit.version>2.5.1</dbunit.version>
@@ -61,7 +61,7 @@
     <jts.version>1.13</jts.version>
     <junit.version>4.13.1</junit.version>
     <liquibase-core.version>4.9.1</liquibase-core.version>
-    <logback.version>1.2.3</logback.version>
+    <logback.version>1.2.9</logback.version>
     <mockito.version>1.10.8</mockito.version>
     <mariadb-connector-java.version>2.2.5</mariadb-connector-java.version>
     <mongodb-driver.version>3.8.0</mongodb-driver.version>
