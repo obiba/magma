@@ -159,4 +159,9 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   public int getVariableEntityBatchSize() {
     return getWrappedValueTable().getVariableEntityBatchSize();
   }
+
+  @Override
+  public ValueTableStatus getStatus() {
+    return getWrappedValueTable().getStatus();
+  }
 }
