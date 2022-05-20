@@ -106,7 +106,12 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
     if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
       MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
       if (cacheExtension.hasVariableEntitiesCache()) {
-        Cache.ValueWrapper wrapper = cacheExtension.getVariableEntitiesCache().get(getTableCacheKey());
+        Cache.ValueWrapper wrapper = null;
+        try {
+          wrapper = cacheExtension.getVariableEntitiesCache().get(getTableCacheKey());
+        } catch (Exception e) {
+          // ignore, cache content is wrong
+        }
         Value viewLastUpdate = view.getTimestamps().getLastUpdate();
         VariableEntitiesCache eCache;
         if (wrapper != null) {
