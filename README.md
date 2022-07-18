@@ -1,20 +1,18 @@
-# Magma [![Build Status](https://travis-ci.org/obiba/magma.svg?branch=master)](https://travis-ci.org/obiba/magma)
+# Magma [![Build Status](https://app.travis-ci.com/obiba/magma.svg?branch=master)](https://app.travis-ci.com/github/obiba/magma)
 
 Data and meta-data abstraction layer.
 
 ## Documentation
 
-[Variables and Data](http://wiki.obiba.org/display/OPALDOC/Variables+and+Data)
+[Variables and Data](https://opaldoc.obiba.org/en/latest/variables-data.html)
 
-[Magma Javascript API](http://wiki.obiba.org/display/OPALDOC/Magma+Javascript+API)
-
-[Magma Javadoc](http://apidocs.obiba.org/magma/)
+[Magma Javascript API](https://opaldoc.obiba.org/en/latest/magma-user-guide/index.html)
 
 ## Maven Download
 
-See [Obiba Maven 2.x repository](http://repo.obiba.org/libs-release-local)
+See [Obiba Maven repository](https://obiba.jfrog.io/obiba/libs-release)
 
-And [Obiba Snaphot Maven 2.x repository](http://repo.obiba.org/libs-snapshot-local)
+And [Obiba Snaphot Maven repository](https://obiba.jfrog.io/obiba/libs-snapshot)
 
 
 ## Build
@@ -24,12 +22,12 @@ Run `gradlew`
 
 ## Bug tracker
 
-Have a bug? Please create an issue on [OBiBa JIRA](http://jira.obiba.org/jira/browse/MAGMA).
+Have a bug? Please create an issue on [OBiBa Github Issues](https://github.com/obiba/magma/issues).
 
 
 ## Continuous integration
 
-See [OBiBa Jenkins](http://ci.obiba.org/view/Magma).
+See [OBiBa Travis CI](https://app.travis-ci.com/github/obiba/magma).
 
 
 ## Mailing list
