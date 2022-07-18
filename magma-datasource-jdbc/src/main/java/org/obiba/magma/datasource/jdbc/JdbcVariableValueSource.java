@@ -171,6 +171,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
         if (valueMap.containsKey(nextId)) return getValueFromMap(entity);
         return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
       } catch (SQLException e) {
+        closeQuietly();
         throw new RuntimeException(e);
       }
     }
@@ -197,6 +198,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
     @Override
     public void remove() {
+      closeQuietly();
       throw new UnsupportedOperationException();
     }
 
@@ -214,10 +216,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     private void closeCursorIfNecessary() {
       // Close the cursor if we don't have any more results or no more entities to return
       if (!hasNextResults || !hasNext()) {
-        closeQuietly(cursor, statement, connection);
-        cursor = null;
-        connection = null;
-        statement = null;
+        closeQuietly();
       }
     }
 
@@ -231,6 +230,13 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
       Value value = valueMap.get(entity.getIdentifier());
       valueMap.remove(entity.getIdentifier());
       return value;
+    }
+
+    private void closeQuietly() {
+      closeQuietly(cursor, statement, connection);
+      cursor = null;
+      connection = null;
+      statement = null;
     }
 
     @SuppressWarnings({"OverlyStrongTypeCast", "ChainOfInstanceofChecks"})
