@@ -35,8 +35,8 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -48,7 +48,7 @@ import static org.fest.assertions.api.Assertions.fail;
 @SuppressWarnings({"ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount"})
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/test-spring-context.xml")
-@TransactionConfiguration
+@Transactional
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class,
     DbUnitAwareTestExecutionListener.class})

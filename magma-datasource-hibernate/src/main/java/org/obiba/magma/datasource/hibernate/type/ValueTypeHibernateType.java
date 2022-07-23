@@ -10,16 +10,9 @@
 
 package org.obiba.magma.datasource.hibernate.type;
 
-import java.io.Reader;
-import java.sql.Clob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-
 import org.hibernate.HibernateException;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.AbstractStandardBasicType;
 import org.hibernate.type.DiscriminatorType;
 import org.hibernate.type.descriptor.WrapperOptions;
@@ -27,6 +20,12 @@ import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
 import org.hibernate.type.descriptor.java.DataHelper;
 import org.hibernate.type.descriptor.sql.VarcharTypeDescriptor;
 import org.obiba.magma.ValueType;
+
+import java.io.Reader;
+import java.sql.Clob;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * String representation of {@link ValueType}.
@@ -51,17 +50,6 @@ public class ValueTypeHibernateType extends AbstractStandardBasicType<ValueType>
   }
 
   @Override
-  public Object get(ResultSet rs, String name, SessionImplementor session) throws HibernateException, SQLException {
-    return ValueType.Factory.forName(rs.getString(name));
-  }
-
-  @Override
-  public void set(PreparedStatement st, ValueType value, int index, SessionImplementor session)
-      throws HibernateException, SQLException {
-    st.setString(index, toString(value));
-  }
-
-  @Override
   public String toString(ValueType value) throws HibernateException {
     return value.getName();
   }
@@ -72,7 +60,7 @@ public class ValueTypeHibernateType extends AbstractStandardBasicType<ValueType>
   }
 
   @Override
-  public void nullSafeSet(PreparedStatement st, Object value, int index, boolean[] settable, SessionImplementor session)
+  public void nullSafeSet(PreparedStatement st, Object value, int index, boolean[] settable, SharedSessionContractImplementor session)
       throws HibernateException, SQLException {
     if(value == null) {
       st.setNull(index, Types.VARCHAR);
@@ -116,6 +104,9 @@ public class ValueTypeHibernateType extends AbstractStandardBasicType<ValueType>
       }
       if(ValueType.class.isAssignableFrom(type)) {
         return (X) value;
+      }
+      if(String.class.isAssignableFrom(type)) {
+        return (X) value.getName();
       }
       throw unknownUnwrap(type);
     }

@@ -10,21 +10,21 @@
 
 package org.obiba.magma.datasource.hibernate.support;
 
-import java.util.Properties;
-
-import javax.annotation.Nullable;
-import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl;
 import org.hibernate.cfg.Environment;
-import org.hibernate.cfg.ImprovedNamingStrategy;
+import org.obiba.core.service.impl.hibernate.PhysicalNamingStrategyImpl;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.datasource.hibernate.cfg.HibernateConfigurationHelper;
 import org.obiba.magma.datasource.hibernate.cfg.MagmaDialectResolver;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
+
+import javax.annotation.Nullable;
+import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
+import java.util.Properties;
 
 public class LocalSessionFactoryProvider implements SessionFactoryProvider, Initialisable {
 
@@ -53,7 +53,8 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
     // Set some reasonable defaults
     LocalSessionFactoryBuilder builder = new LocalSessionFactoryBuilder(dataSource);
     builder.addAnnotatedClasses(HibernateConfigurationHelper.getAnnotatedTypesAsArray());
-    builder.setNamingStrategy(ImprovedNamingStrategy.INSTANCE);
+    builder.setImplicitNamingStrategy(ImplicitNamingStrategyLegacyHbmImpl.INSTANCE);
+    builder.setPhysicalNamingStrategy(PhysicalNamingStrategyImpl.INSTANCE);
     builder.setProperty(Environment.DIALECT, dialect);
     builder.setProperty(Environment.HBM2DDL_AUTO, "update");
     builder.setProperty(Environment.USE_SECOND_LEVEL_CACHE, "true");

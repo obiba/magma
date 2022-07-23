@@ -9,11 +9,13 @@
  */
 package org.obiba.magma.datasource.hibernate.cfg;
 
+import org.hibernate.dialect.Database;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.dialect.MySQL5Dialect;
 import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
+import org.hibernate.engine.jdbc.dialect.spi.DialectResolver;
 
 /**
  * Ensures usage of InnoDB for MySQL databases and uses custom dialect for HSQLDB, otherwise, fallback to default
@@ -21,17 +23,27 @@ import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
  * <p/>
  * This class is instantiated by Hibernate itself through the {@code hibernate.properties} file.
  */
-public class MagmaDialectResolver extends StandardDialectResolver {
+public class MagmaDialectResolver implements DialectResolver {
 
   private static final long serialVersionUID = 6167226108895659666L;
 
   @Override
   @SuppressWarnings("ChainOfInstanceofChecks")
   public Dialect resolveDialect(DialectResolutionInfo info) {
-    Dialect dialect = super.resolveDialect(info);
+    Dialect dialect = resolveStandardDialect(info);
     if(dialect instanceof MySQL5Dialect) return new MySQL5InnoDbUtf8Dialect();
     if(dialect instanceof HSQLDialect) return new MagmaHSQLDialect();
     return dialect;
+  }
+
+  private Dialect resolveStandardDialect(DialectResolutionInfo info) {
+    for ( Database database : Database.values() ) {
+      Dialect dialect = database.resolveDialect( info );
+      if ( dialect != null ) {
+        return dialect;
+      }
+    }
+    return null;
   }
 
 }
