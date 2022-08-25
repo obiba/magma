@@ -10,22 +10,13 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import org.obiba.magma.*;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.Attribute;
-import org.obiba.magma.Category;
-import org.obiba.magma.NoSuchAttributeException;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-
-import com.google.common.base.Objects;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class MongoDBVariable implements Variable {
 

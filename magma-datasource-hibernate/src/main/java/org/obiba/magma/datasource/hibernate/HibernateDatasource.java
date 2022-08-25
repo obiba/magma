@@ -105,8 +105,10 @@ public class HibernateDatasource extends AbstractDatasource {
       } else {
         // Create table transaction.
         ValueTableState valueTableState = new ValueTableState(tableName, entityType, getDatasourceState());
-        getSessionFactory().getCurrentSession().save(valueTableState);
-        getSessionFactory().getCurrentSession().refresh(valueTableState); //OPAL-2635
+        Session session = getSessionFactory().getCurrentSession();
+        session.save(valueTableState);
+        session.flush();
+        session.refresh(valueTableState); //OPAL-2635
         // Create a transaction for a new table
         valueTableTransaction = newTableTransaction(new HibernateValueTable(this, valueTableState), true);
       }
@@ -227,8 +229,10 @@ public class HibernateDatasource extends AbstractDatasource {
     // If datasource not persisted, create the persisted DatasourceState.
     if(datasourceState == null) {
       datasourceState = new DatasourceState(getName());
-      sessionFactory.getCurrentSession().save(datasourceState);
-      sessionFactory.getCurrentSession().refresh(datasourceState); //OPAL-2635
+      Session session = sessionFactory.getCurrentSession();
+      session.save(datasourceState);
+      session.flush();
+      session.refresh(datasourceState); //OPAL-2635
     } else {
       // If already persisted, load the persisted attributes for that datasource.
       for(AttributeState attribute : datasourceState.getAttributes()) {

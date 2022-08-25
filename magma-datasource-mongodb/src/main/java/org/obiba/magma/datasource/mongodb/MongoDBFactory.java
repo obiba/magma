@@ -10,19 +10,22 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.io.Serializable;
-import java.net.URI;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoException;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
+import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.SocketFactoryProvider;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-
-import com.mongodb.*;
-import org.obiba.magma.MagmaRuntimeException;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.mongodb.gridfs.GridFS;
-import org.obiba.magma.SocketFactoryProvider;
+import java.io.Serializable;
+import java.net.URI;
 
 public class MongoDBFactory implements Serializable {
 
@@ -32,13 +35,9 @@ public class MongoDBFactory implements Serializable {
   private final String connectionURI;
 
   @Nullable
-  private transient MongoClientURI mongoClientURI;
-
-  @Nullable
   private transient MongoClient mongoClient;
 
-  @Nullable
-  private SocketFactoryProvider socketFactoryProvider;
+  private final String databaseName;
 
   public MongoDBFactory(@NotNull URI uri) {
     this(uri.toString());
@@ -47,6 +46,7 @@ public class MongoDBFactory implements Serializable {
   public MongoDBFactory(@NotNull String connectionURI) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(connectionURI), "connectionURI cannot be null or empty");
     this.connectionURI = connectionURI;
+    this.databaseName = new ConnectionString(getConnectionURI()).getDatabase();
   }
 
   /**
@@ -54,8 +54,8 @@ public class MongoDBFactory implements Serializable {
    *
    * @param socketFactoryProvider
    */
+  @Deprecated
   public void setSocketFactoryProvider(@Nullable SocketFactoryProvider socketFactoryProvider) {
-    this.socketFactoryProvider = socketFactoryProvider;
   }
 
   @NotNull
@@ -64,28 +64,10 @@ public class MongoDBFactory implements Serializable {
   }
 
   @NotNull
-  public MongoClientURI getMongoClientURI() {
-    if(mongoClientURI == null) {
-      mongoClientURI = new MongoClientURI(connectionURI) {
-
-        @Override
-        public MongoClientOptions getOptions() {
-          MongoClientOptions options = super.getOptions();
-          if (socketFactoryProvider == null || !options.isSslEnabled()) return options;
-          MongoClientOptions.Builder newOptions = MongoClientOptions.builder(options);
-          newOptions.socketFactory(socketFactoryProvider.getSocketFactory());
-          return newOptions.build();
-        }
-      };
-    }
-    return mongoClientURI;
-  }
-
-  @NotNull
   public MongoClient getMongoClient() {
     if(mongoClient == null) {
       try {
-        mongoClient = new MongoClient(getMongoClientURI());
+        mongoClient = MongoClients.create(getConnectionURI());
       } catch(MongoException e) {
         throw new MagmaRuntimeException(e);
       }
@@ -101,21 +83,16 @@ public class MongoDBFactory implements Serializable {
   }
 
   @NotNull
-  public GridFS getGridFS() {
-    return execute(new MongoDBCallback<GridFS>() {
-      @Override
-      public GridFS doWithDB(DB db) {
-        return new GridFS(db);
-      }
-    });
+  public GridFSBucket getGridFSBucket() {
+    return GridFSBuckets.create(getMongoClient().getDatabase(databaseName));
   }
 
   public <T> T execute(MongoDBCallback<T> callback) {
-    return callback.doWithDB(getMongoClient().getDB(getMongoClientURI().getDatabase()));
+    return callback.doWithDB(getMongoClient().getDatabase(databaseName));
   }
 
   public interface MongoDBCallback<T> {
-    T doWithDB(DB db);
+    T doWithDB(MongoDatabase db);
   }
 
 }

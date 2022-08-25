@@ -10,11 +10,9 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.QueryBuilder;
-import org.bson.BSONObject;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import org.bson.Document;
 import org.obiba.magma.VariableEntity;
 
 import java.util.List;
@@ -31,14 +29,13 @@ class MongoDBValueSetFetcher {
     this.table = table;
   }
 
-  BSONObject getDBObject(VariableEntity entity) {
-    DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
-    BSONObject object = table.getValueSetCollection().findOne(template);
+  Document getDBObject(VariableEntity entity) {
+    Document object = table.getValueSetCollection().find(Filters.eq("_id", entity.getIdentifier())).first();
     return object;
   }
 
-  DBCursor getDBObjects(List<VariableEntity> entities) {
-    DBObject query = QueryBuilder.start("_id").in(entities.stream().map(VariableEntity::getIdentifier).collect(Collectors.toList())).get();
-    return table.getValueSetCollection().find(query);
+  MongoCursor<Document> getDBObjects(List<VariableEntity> entities) {
+    return table.getValueSetCollection().find(Filters.in("_id",
+        entities.stream().map(VariableEntity::getIdentifier).collect(Collectors.toList()))).cursor();
   }
 }

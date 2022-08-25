@@ -12,8 +12,8 @@ package org.obiba.magma.datasource.mongodb;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.MongoCursor;
+import org.bson.Document;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSetBatch;
 import org.obiba.magma.VariableEntity;
@@ -43,11 +43,11 @@ public class MongoDBValueSetBatch implements ValueSetBatch {
 
   @Override
   public List<ValueSet> getValueSets() {
-    DBCursor cursor = fetcher.getDBObjects(Lists.newArrayList(entitiesMap.values()));
+    MongoCursor<Document> cursor = fetcher.getDBObjects(Lists.newArrayList(entitiesMap.values()));
     ImmutableList.Builder<ValueSet> builder = ImmutableList.builder();
     try {
       while (true) {
-        DBObject object = cursor.next();
+        Document object = cursor.next();
         String identifier = object.get("_id").toString();
         MongoDBValueSet vs = new MongoDBValueSet(table, entitiesMap.get(identifier));
         vs.setDBObject(object);

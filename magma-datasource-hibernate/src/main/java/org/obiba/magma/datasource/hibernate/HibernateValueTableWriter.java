@@ -81,8 +81,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     session = valueTable.getDatasource().getSessionFactory().getCurrentSession();
     valueSourceFactory = new HibernateVariableValueSourceFactory(valueTable);
-    if(session.getFlushMode() != FlushMode.MANUAL) {
-      session.setFlushMode(FlushMode.MANUAL);
+    if(session.getHibernateFlushMode() != FlushMode.MANUAL) {
+      session.setHibernateFlushMode(FlushMode.MANUAL);
     }
 
     context = valueTable.createContext();
@@ -261,6 +261,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
         // Persists the ValueSet
         session.save(state);
+        session.flush();
         session.refresh(state); //OPAL-2635
         values = Maps.newHashMap();
         isNewValueSet = true;

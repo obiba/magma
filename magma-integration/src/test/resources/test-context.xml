@@ -25,11 +25,13 @@
     <property name="password" value="${jdbc.password}"/>
   </bean>
 
-  <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+  <bean id="implicitNamingStrategy" class="org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl"/>
+  <bean id="physicalNamingStrategy" class="org.obiba.core.service.impl.hibernate.PhysicalNamingStrategyImpl"/>
+
+  <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
     <property name="dataSource" ref="dataSource"/>
-    <property name="namingStrategy">
-      <bean class="org.obiba.magma.datasource.hibernate.cfg.MagmaNamingStrategy"/>
-    </property>
+    <property name="implicitNamingStrategy" ref="implicitNamingStrategy"/>
+    <property name="physicalNamingStrategy" ref="physicalNamingStrategy"/>
     <property name="packagesToScan" value="org.obiba.magma.datasource.hibernate.domain"/>
     <property name="hibernateProperties">
       <props>
@@ -42,7 +44,7 @@
     </property>
   </bean>
 
-  <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+  <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 

@@ -10,15 +10,14 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.Set;
-
+import com.google.common.collect.ImmutableSet;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Sorts;
+import org.bson.Document;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
 
-import com.google.common.collect.ImmutableSet;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCursor;
+import java.util.Set;
 
 public class MongoDBVariableValueSourceFactory implements VariableValueSourceFactory {
 
@@ -31,8 +30,9 @@ public class MongoDBVariableValueSourceFactory implements VariableValueSourceFac
   @Override
   public Set<VariableValueSource> createSources() {
     ImmutableSet.Builder<VariableValueSource> builder = ImmutableSet.builder();
-    try(DBCursor variableCursor = table.getVariablesCollection().find(new BasicDBObject())
-        .sort(BasicDBObjectBuilder.start().add("_id", 1).get())) {
+    try(MongoCursor<Document> variableCursor = table.getVariablesCollection()
+        .find()
+        .sort(Sorts.ascending("_id")).cursor()) {
       while(variableCursor.hasNext()) {
         builder.add(new MongoDBVariableValueSource(table, variableCursor.next().get("name").toString()));
       }

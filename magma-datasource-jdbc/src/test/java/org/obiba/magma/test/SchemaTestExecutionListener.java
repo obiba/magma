@@ -19,6 +19,7 @@ import javax.sql.DataSource;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -72,7 +73,7 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
       if(!schemaLocation.isEmpty()) {
         sqlScript = schemaLocation + "/" + sqlScript;
       }
-      JdbcTestUtils.executeSqlScript(new JdbcTemplate(dataSource), new ClassPathResource(sqlScript), true);
+      ScriptUtils.executeSqlScript(dataSource.getConnection(), new ClassPathResource(sqlScript));
     }
   }
 }

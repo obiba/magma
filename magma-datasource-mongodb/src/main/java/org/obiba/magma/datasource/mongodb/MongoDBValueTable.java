@@ -12,9 +12,15 @@ package org.obiba.magma.datasource.mongodb;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.mongodb.*;
-import com.mongodb.gridfs.GridFS;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.model.GridFSFile;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.Projections;
 import org.bson.BSONObject;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
@@ -35,7 +41,7 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   private static final String VALUE_SET_SUFFIX = "_value_set";
 
-  private DBObject dbObject;
+  private Document dbObject;
 
   public MongoDBValueTable(@NotNull Datasource datasource, @NotNull String name) {
     this(datasource, name, null);
@@ -52,36 +58,35 @@ public class MongoDBValueTable extends AbstractValueTable {
     return getMongoDBDatasource().getMongoDBFactory();
   }
 
-  DBCollection getValueTableCollection() {
+  MongoCollection<Document> getValueTableCollection() {
     return getMongoDBDatasource().getValueTableCollection();
   }
 
-  DBCollection getVariablesCollection() {
+  MongoCollection<Document> getVariablesCollection() {
     return getMongoDBFactory().execute(db -> {
-      DBCollection collection = db.getCollection(getId() + VARIABLE_SUFFIX);
-      collection.createIndex("name");
+      MongoCollection<Document> collection = db.getCollection(getId() + VARIABLE_SUFFIX);
+      collection.createIndex(Indexes.text("name"));
       return collection;
     });
   }
 
-  DBCollection getValueSetCollection() {
+  MongoCollection<Document> getValueSetCollection() {
     return getMongoDBFactory().execute(db -> db.getCollection(getId() + VALUE_SET_SUFFIX));
   }
 
-  DBObject asDBObject() {
+  Document asDBObject() {
     if (dbObject == null) {
-      dbObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start() //
-          .add("datasource", getMongoDBDatasource().asDBObject().get("_id")) //
-          .add("name", getName()) //
-          .get());
+      dbObject = getValueTableCollection().find(Filters.and(
+          Filters.eq("datasource", getMongoDBDatasource().asDBObject().get("_id")),
+          Filters.eq("name", getName()))).first();
       // create DBObject if not found
       if (dbObject == null) {
-        dbObject = BasicDBObjectBuilder.start() //
-            .add("datasource", getMongoDBDatasource().asDBObject().get("_id")) //
-            .add("name", getName()) //
-            .add("entityType", getEntityType()) //
-            .add(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject()).get();
-        getValueTableCollection().insert(dbObject, WriteConcern.ACKNOWLEDGED);
+        dbObject = new Document()
+            .append("datasource", getMongoDBDatasource().asDBObject().get("_id")) //
+            .append("name", getName()) //
+            .append("entityType", getEntityType()) //
+            .append(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject());
+        getValueTableCollection().insertOne(dbObject);
       }
     }
     return dbObject;
@@ -89,7 +94,7 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   void setLastUpdate(Date date) {
     ((BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD)).put("updated", date);
-    getValueTableCollection().save(asDBObject());
+    getValueTableCollection().replaceOne(Filters.eq("_id", asDBObject().get("_id")), asDBObject());
     getMongoDBDatasource().setLastUpdate(date);
   }
 
@@ -177,18 +182,18 @@ public class MongoDBValueTable extends AbstractValueTable {
     dropFiles();
     getValueSetCollection().drop();
     getVariablesCollection().drop();
-    getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getIdAsObjectId()).get());
+    getValueTableCollection().deleteOne(Filters.eq("_id", getIdAsObjectId()));
     getMongoDBDatasource().setLastUpdate(new Date());
     dbObject = null;
   }
 
-  DBObject findVariable(String variableName) {
-    return getVariablesCollection().findOne(BasicDBObjectBuilder.start("name", variableName).get());
+  Document findVariable(String variableName) {
+    return getVariablesCollection().find(Filters.eq("name", variableName)).first();
   }
 
   @Override
   public int getVariableCount() {
-    return (int) getVariablesCollection().count();
+    return (int) getVariablesCollection().countDocuments();
   }
 
   @Override
@@ -227,28 +232,35 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   /**
-   * Drop the files from the {@link com.mongodb.gridfs.GridFS} for this table.
+   * Drop the files from the {@link com.mongodb.client.gridfs.GridFSBucket} for this table.
    */
   private void dropFiles() {
-    GridFS gridFS = getMongoDBDatasource().getMongoDBFactory().getGridFS();
-    BasicDBObjectBuilder metaDataQuery = BasicDBObjectBuilder.start() //
-        .add("metadata.datasource", getDatasource().getName()) //
-        .add("metadata.table", getName());
-    gridFS.remove(metaDataQuery.get());
+    GridFSBucket gridFSBucket = getMongoDBDatasource().getMongoDBFactory().getGridFSBucket();
+    MongoCursor<GridFSFile> cursor = gridFSBucket
+        .find(Filters.and(
+            Filters.eq("metadata.datasource", getDatasource().getName()),
+            Filters.eq("metadata.table", getName())))
+        .cursor();
+    while (cursor.hasNext()) {
+      GridFSFile file = cursor.next();
+      gridFSBucket.delete(file.getObjectId());
+    }
   }
 
   private class TimestampsIterator implements Iterator<Timestamps> {
 
     private final Iterator<VariableEntity> entities;
 
-    private final DBCursor cursor;
+    private final MongoCursor<Document> cursor;
 
     private final Map<String, Timestamps> timestampsMap = Maps.newHashMap();
 
     private TimestampsIterator(Iterator<VariableEntity> entities) {
       this.entities = entities;
-      DBObject fields = BasicDBObjectBuilder.start(MongoDBDatasource.TIMESTAMPS_FIELD, 1).get();
-      cursor = getValueSetCollection().find(new BasicDBObject(), fields);
+      cursor = getValueSetCollection()
+          .find()
+          .projection(Projections.include(MongoDBDatasource.TIMESTAMPS_FIELD))
+          .cursor();
     }
 
     @Override
@@ -264,7 +276,7 @@ public class MongoDBValueTable extends AbstractValueTable {
 
       boolean found = false;
       while (cursor.hasNext() && !found) {
-        DBObject obj = cursor.next();
+        Document obj = cursor.next();
         String id = obj.get("_id").toString();
         BSONObject timestamps = (BSONObject) obj.get(MongoDBDatasource.TIMESTAMPS_FIELD);
         timestampsMap.put(id,
