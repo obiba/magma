@@ -268,7 +268,9 @@ public class MongoDBDatasourceTest {
           valueSetWriter.writeValue(variable, TextType.get().valueOf("test value " + i));
         }
       }
+    }
 
+    try (ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
       for (int i = 0; i < 999; i++) { //replace existing documents
         VariableEntity entity = new VariableEntityBean(PARTICIPANT, Integer.toString(i));
 

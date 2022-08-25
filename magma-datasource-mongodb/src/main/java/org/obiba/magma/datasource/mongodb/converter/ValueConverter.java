@@ -10,26 +10,21 @@
 
 package org.obiba.magma.datasource.mongodb.converter;
 
-import java.util.Collection;
-
-import javax.annotation.Nullable;
-
-import org.bson.BSONObject;
-import org.obiba.magma.Coordinate;
-import org.obiba.magma.MagmaDate;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.mongodb.BasicDBList;
+import org.bson.Document;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.MongoDBVariable;
 import org.obiba.magma.type.LineStringType;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.PointType;
 import org.obiba.magma.type.PolygonType;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.mongodb.BasicDBList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class ValueConverter {
 
@@ -48,12 +43,12 @@ public class ValueConverter {
     return marshall(value);
   }
 
-  public static Value unmarshall(MongoDBVariable variable, BSONObject object) {
+  public static Value unmarshall(MongoDBVariable variable, Document object) {
     return unmarshall(variable.getValueType(), variable.isRepeatable(), variable.getId(), object);
   }
 
-  public static Value unmarshall(ValueType type, boolean repeatable, String field, BSONObject object) {
-    if(object == null || !object.containsField(field)) {
+  public static Value unmarshall(ValueType type, boolean repeatable, String field, Document object) {
+    if(object == null || !object.containsKey(field)) {
       return repeatable ? type.nullSequence() : type.nullValue();
     }
 
@@ -114,28 +109,21 @@ public class ValueConverter {
     throw new RuntimeException("Geo value type expected: " + value.getValueType());
   }
 
-  private static Object marshallPoint(Coordinate point) {
-    return point.toArray();
+  private static List<Double> marshallPoint(Coordinate point) {
+    if (point == null) return null;
+    return Lists.newArrayList(point.getLongitude(), point.getLatitude());
   }
 
-  private static Iterable<double[]> marshallLine(Iterable<Coordinate> line) {
-    return Iterables.transform(line, new Function<Coordinate, double[]>() {
-      @Nullable
-      @Override
-      public double[] apply(@Nullable Coordinate input) {
-        return input == null ? null : input.toArray();
-      }
-    });
+  private static List<List<Double>> marshallLine(Iterable<Coordinate> line) {
+    return StreamSupport.stream(line.spliterator(), false)
+        .map(ValueConverter::marshallPoint)
+        .collect(Collectors.toList());
   }
 
-  private static Object marshallPolygon(Iterable<Iterable<Coordinate>> line) {
-    return Iterables.transform(line, new Function<Iterable<Coordinate>, Iterable<double[]>>() {
-      @Nullable
-      @Override
-      public Iterable<double[]> apply(@Nullable Iterable<Coordinate> input) {
-        return input == null ? null : marshallLine(input);
-      }
-    });
+  private static Object marshallPolygon(Iterable<Iterable<Coordinate>> polygon) {
+    return StreamSupport.stream(polygon.spliterator(), false)
+        .map(ValueConverter::marshallLine)
+        .collect(Collectors.toList());
   }
 
 }

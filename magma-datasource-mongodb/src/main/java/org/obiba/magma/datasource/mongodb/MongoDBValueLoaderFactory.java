@@ -10,12 +10,7 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
+import com.mongodb.client.gridfs.GridFSDownloadStream;
 import org.bson.types.ObjectId;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,7 +19,8 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoader;
 import org.obiba.magma.ValueLoaderFactory;
 
-import com.mongodb.gridfs.GridFSDBFile;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_ID;
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_SIZE;
@@ -80,11 +76,12 @@ public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
     }
 
     private byte[] getByteArray(String fileId) {
-      try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-        GridFSDBFile file = mongoDBFactory.getGridFS().findOne(new ObjectId(fileId));
-        file.writeTo(outputStream);
-        return outputStream.toByteArray();
-      } catch(IOException e) {
+      try (GridFSDownloadStream downloadStream = mongoDBFactory.getGridFSBucket().openDownloadStream(new ObjectId(fileId))) {
+        int fileLength = (int) downloadStream.getGridFSFile().getLength();
+        byte[] bytesToWriteTo = new byte[fileLength];
+        downloadStream.read(bytesToWriteTo);
+        return bytesToWriteTo;
+      } catch(Exception e) {
         throw new MagmaRuntimeException("Cannot retrieve content of gridFsFile [" + fileId + "]", e);
       }
     }

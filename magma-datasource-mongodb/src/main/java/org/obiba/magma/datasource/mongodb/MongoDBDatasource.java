@@ -10,30 +10,26 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.Date;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
+import com.google.common.collect.ImmutableSet;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBObject;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.Projections;
 import org.bson.BSONObject;
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.Timestamped;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
+import org.bson.Document;
+import org.obiba.magma.*;
 import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
-import com.google.common.collect.ImmutableSet;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.WriteConcern;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.Set;
 
 public class MongoDBDatasource extends AbstractDatasource {
 
@@ -54,7 +50,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   @NotNull
   private final MongoDBFactory mongoDBFactory;
 
-  private DBObject dbObject;
+  private Document dbObject;
 
   private int batchSize = 100;
 
@@ -62,7 +58,7 @@ public class MongoDBDatasource extends AbstractDatasource {
    * See <a href="http://docs.mongodb.org/manual/reference/connection-string">MongoDB connection string specifications</a>.
    *
    * @param name
-   * @param mongoURI
+   * @param mongoDBFactory
    */
   public MongoDBDatasource(@NotNull String name, @NotNull MongoDBFactory mongoDBFactory) {
     super(name, TYPE);
@@ -74,39 +70,36 @@ public class MongoDBDatasource extends AbstractDatasource {
     return mongoDBFactory;
   }
 
-  DBCollection getValueTableCollection() {
-    return mongoDBFactory.execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
+  MongoCollection<Document> getValueTableCollection() {
+    return mongoDBFactory.execute(new MongoDBFactory.MongoDBCallback<MongoCollection<Document>>() {
       @Override
-      public DBCollection doWithDB(DB db) {
-        DBCollection collection = db.getCollection(VALUE_TABLE_COLLECTION);
-        collection.createIndex("datasource");
-        collection.createIndex("name");
+      public MongoCollection<Document> doWithDB(MongoDatabase db) {
+        MongoCollection<Document> collection = db.getCollection(VALUE_TABLE_COLLECTION);
+        collection.createIndex(Indexes.ascending("datasource", "name"));
         return collection;
       }
     });
   }
 
-  DBCollection getDatasourceCollection() {
-    return mongoDBFactory.execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
+  MongoCollection<Document> getDatasourceCollection() {
+    return mongoDBFactory.execute(new MongoDBFactory.MongoDBCallback<MongoCollection<Document>>() {
       @Override
-      public DBCollection doWithDB(DB db) {
-        DBCollection collection =  db.getCollection(DATASOURCE_COLLECTION);
-        collection.createIndex("name");
+      public MongoCollection<Document> doWithDB(MongoDatabase db) {
+        MongoCollection<Document> collection =  db.getCollection(DATASOURCE_COLLECTION);
+        collection.createIndex(Indexes.text("name"));
         return collection;
       }
     });
   }
 
-  DBObject asDBObject() {
+  Document asDBObject() {
     if(dbObject == null) {
-      dbObject = getDatasourceCollection().findOne(BasicDBObjectBuilder.start() //
-          .add("name", getName()) //
-          .get());
+      dbObject = getDatasourceCollection().find(Filters.eq("name", getName())).first();
       if(dbObject == null) {
-        dbObject = BasicDBObjectBuilder.start() //
-            .add("name", getName()) //
-            .add(TIMESTAMPS_FIELD, createTimestampsObject()).get();
-        getDatasourceCollection().insert(dbObject, WriteConcern.ACKNOWLEDGED);
+        dbObject = new Document()
+            .append("name", getName())
+            .append(TIMESTAMPS_FIELD, createTimestampsObject());
+        getDatasourceCollection().insertOne(dbObject);
       }
     }
     return dbObject;
@@ -114,7 +107,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   void setLastUpdate(Date date) {
     ((BSONObject) asDBObject().get(TIMESTAMPS_FIELD)).put("updated", date);
-    getDatasourceCollection().save(asDBObject());
+    getDatasourceCollection().replaceOne(Filters.eq("name", getName()), asDBObject());
 
   }
 
@@ -157,9 +150,10 @@ public class MongoDBDatasource extends AbstractDatasource {
 
     MongoDBValueTable valueTable = (MongoDBValueTable) getValueTable(tableName);
 
-    valueTable.asDBObject().put("name", newName);
-    ((BSONObject) valueTable.asDBObject().get(TIMESTAMPS_FIELD)).put("updated", new Date());
-    getValueTableCollection().save(valueTable.asDBObject(), WriteConcern.ACKNOWLEDGED);
+    Document vtObject = valueTable.asDBObject();
+    vtObject.put("name", newName);
+    ((BSONObject) vtObject.get(TIMESTAMPS_FIELD)).put("updated", new Date());
+    getValueTableCollection().updateOne(Filters.eq("_id", vtObject.get("_id")), vtObject);
     removeValueTable(valueTable);
 
     MongoDBValueTable newTable = new MongoDBValueTable(this, newName);
@@ -178,7 +172,7 @@ public class MongoDBDatasource extends AbstractDatasource {
     for(String name : getValueTableNames()) {
       dropTable(name);
     }
-    getDatasourceCollection().remove(BasicDBObjectBuilder.start().add("_id", getName()).get());
+    getDatasourceCollection().deleteOne(Filters.eq("name", getName()));
   }
 
   @NotNull
@@ -202,9 +196,9 @@ public class MongoDBDatasource extends AbstractDatasource {
   @Override
   protected Set<String> getValueTableNames() {
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-    try(DBCursor cursor = getValueTableCollection()
-        .find(BasicDBObjectBuilder.start().add("datasource", asDBObject().get("_id")).get(),
-            BasicDBObjectBuilder.start().add("name", 1).get())) {
+    try(MongoCursor<Document> cursor = getValueTableCollection()
+        .find(Filters.eq("datasource", asDBObject().get("_id")))
+            .projection(Projections.include("name")).cursor()) {
       while(cursor.hasNext()) {
         builder.add(cursor.next().get("name").toString());
       }

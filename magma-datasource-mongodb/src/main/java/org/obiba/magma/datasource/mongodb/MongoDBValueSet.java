@@ -10,33 +10,21 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import org.bson.BSONObject;
+import com.google.common.collect.Lists;
+import com.mongodb.DBObject;
+import org.bson.Document;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueLoaderFactory;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.VariableEntity;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
 
-import com.google.common.collect.Lists;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBObject;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_ID;
-import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_MD5;
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_SIZE;
 
 class MongoDBValueSet implements ValueSet {
@@ -45,7 +33,7 @@ class MongoDBValueSet implements ValueSet {
 
   private final VariableEntity entity;
 
-  private BSONObject object;
+  private Document object;
 
   private final MongoDBValueSetFetcher fetcher;
 
@@ -66,7 +54,7 @@ class MongoDBValueSet implements ValueSet {
   }
 
   Value getValue(MongoDBVariable variable) {
-    BSONObject valueObject = getDBObject();
+    Document valueObject = getDBObject();
     ValueType valueType = variable.getValueType();
     return valueType.equals(BinaryType.get())
         ? getBinaryValue(variable, valueObject)
@@ -74,29 +62,29 @@ class MongoDBValueSet implements ValueSet {
   }
 
   @SuppressWarnings("unchecked")
-  private Value getBinaryValue(MongoDBVariable variable, BSONObject valueObject) {
+  private Value getBinaryValue(MongoDBVariable variable, Document valueObject) {
     return getBinaryValue(valueTable.getMongoDBFactory(), variable, valueObject);
   }
 
-  public static Value getBinaryValue(MongoDBFactory mongoDBFactory, MongoDBVariable variable, BSONObject valueObject) {
+  public static Value getBinaryValue(MongoDBFactory mongoDBFactory, MongoDBVariable variable, Document valueObject) {
     ValueLoaderFactory factory = new MongoDBValueLoaderFactory(mongoDBFactory);
 
-    BSONObject fileMetadata = (BSONObject) valueObject.get(variable.getId());
+    Object fileMetadata = valueObject.get(variable.getId());
     if(fileMetadata == null) {
-      return TextType.get().nullValue();
+      return BinaryType.get().nullValue();
     }
 
     if(variable.isRepeatable()) {
       List<Value> sequenceValues = Lists.newArrayList();
-      for(BSONObject occurrenceObj : (Iterable<BSONObject>) fileMetadata) {
+      for(Document occurrenceObj : (Iterable<Document>) fileMetadata) {
         sequenceValues.add(getBinaryMetadata(occurrenceObj));
       }
       return BinaryType.get().sequenceOfReferences(factory, TextType.get().sequenceOf(sequenceValues));
     }
-    return BinaryType.get().valueOfReference(factory, getBinaryMetadata(fileMetadata));
+    return BinaryType.get().valueOfReference(factory, getBinaryMetadata((Document) fileMetadata));
   }
 
-  private static Value getBinaryMetadata(BSONObject valueObject) {
+  private static Value getBinaryMetadata(DBObject valueObject) {
     if(!valueObject.containsField(GRID_FILE_ID)) {
       return TextType.get().nullValue();
     }
@@ -104,7 +92,20 @@ class MongoDBValueSet implements ValueSet {
       JSONObject properties = new JSONObject();
       properties.put(GRID_FILE_ID, valueObject.get(GRID_FILE_ID));
       properties.put(GRID_FILE_SIZE, valueObject.containsField(GRID_FILE_SIZE) ? valueObject.get(GRID_FILE_SIZE) : Integer.valueOf(0));
-      properties.put(GRID_FILE_MD5, valueObject.get(GRID_FILE_MD5));
+      return TextType.get().valueOf(properties.toString());
+    } catch(JSONException e) {
+      throw new MagmaRuntimeException(e);
+    }
+  }
+
+  private static Value getBinaryMetadata(Document valueObject) {
+    if(!valueObject.containsKey(GRID_FILE_ID)) {
+      return TextType.get().nullValue();
+    }
+    try {
+      JSONObject properties = new JSONObject();
+      properties.put(GRID_FILE_ID, valueObject.get(GRID_FILE_ID));
+      properties.put(GRID_FILE_SIZE, valueObject.containsKey(GRID_FILE_SIZE) ? valueObject.get(GRID_FILE_SIZE) : Integer.valueOf(0));
       return TextType.get().valueOf(properties.toString());
     } catch(JSONException e) {
       throw new MagmaRuntimeException(e);
@@ -128,14 +129,14 @@ class MongoDBValueSet implements ValueSet {
       }
 
       private Value getTimestamp(String key) {
-        BSONObject timestamps = (BSONObject) getDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
+        Document timestamps = (Document) getDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
         return ValueConverter.unmarshall(DateTimeType.get(), timestamps.get(key));
       }
     };
   }
 
   @NotNull
-  private BSONObject getDBObject() {
+  private Document getDBObject() {
     if(object == null) {
       object = fetcher.getDBObject(entity);
       if(object == null) {
@@ -145,7 +146,7 @@ class MongoDBValueSet implements ValueSet {
     return object;
   }
 
-  void setDBObject(BSONObject object) {
+  void setDBObject(Document object) {
     this.object = object;
   }
 

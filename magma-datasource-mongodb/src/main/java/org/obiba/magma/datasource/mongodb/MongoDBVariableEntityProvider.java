@@ -10,7 +10,12 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import com.mongodb.*;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.lang.VariableEntityList;
 import org.obiba.magma.support.PagingVariableEntityProvider;
@@ -30,7 +35,7 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
 
   private final MongoDBValueTable table;
 
-  private final DBObject idProjection = BasicDBObjectBuilder.start("_id", 1).get();
+  private final Bson idProjection = Projections.include("_id");
 
   MongoDBVariableEntityProvider(MongoDBValueTable table, String entityType) {
     this.table = table;
@@ -60,16 +65,16 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
 
   @Override
   public List<VariableEntity> getVariableEntities(int offset, int limit) {
-    DBCollection collection = table.getValueSetCollection();
-    int total = (int) collection.count();
+    MongoCollection<Document> collection = table.getValueSetCollection();
+    int total = (int) collection.countDocuments();
     int from = Math.max(offset, 0);
     from = Math.min(from, total);
     int pageSize = limit < 0 ? total : limit;
 
     List<VariableEntity> list = new VariableEntityList();
-    try (DBCursor cursor = collection.find(new BasicDBObject(), idProjection).skip(from).limit(pageSize)) {
+    try (MongoCursor<Document> cursor = collection.find().projection(idProjection).skip(from).limit(pageSize).cursor()) {
       while (true) {
-        DBObject next = cursor.next();
+        Document next = cursor.next();
         list.add(new VariableEntityBean(getEntityType(), next.get("_id").toString()));
       }
     } catch (NoSuchElementException e) {
@@ -80,12 +85,15 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
 
   @Override
   public boolean hasVariableEntity(VariableEntity entity) {
-    DBObject doc = table.getValueSetCollection().findOne(entity.getIdentifier(), idProjection);
+    Document doc = table.getValueSetCollection()
+        .find(Filters.eq("_id", entity.getIdentifier()))
+        .projection(idProjection)
+        .first();
     return doc != null;
   }
 
   @Override
   public int getVariableEntityCount() {
-    return (int) table.getValueSetCollection().count();
+    return (int) table.getValueSetCollection().countDocuments();
   }
 }

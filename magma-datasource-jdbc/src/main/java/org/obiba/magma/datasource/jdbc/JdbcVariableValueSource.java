@@ -198,7 +198,6 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
     @Override
     public void remove() {
-      closeQuietly();
       throw new UnsupportedOperationException();
     }
 

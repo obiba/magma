@@ -19,6 +19,7 @@
     <property name="username" value="sa"/>
     <property name="password" value=""/>
     <property name="defaultAutoCommit" value="true"/>
+    <property name="maxTotal" value="-1"/>
   </bean>
 
   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

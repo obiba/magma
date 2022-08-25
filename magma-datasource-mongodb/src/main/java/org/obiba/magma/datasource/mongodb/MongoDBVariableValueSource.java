@@ -14,10 +14,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.QueryBuilder;
-import org.bson.BSONObject;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
+import org.bson.Document;
 import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
@@ -112,7 +113,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
     private final Map<String, Value> valueMap = Maps.newHashMap();
 
-    private DBCursor cursor;
+    private MongoCursor<Document> cursor;
 
     private ValueIterator(MongoDBVariable variable, Iterable<VariableEntity> entities) {
       field = variable.getId();
@@ -143,7 +144,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
       if (cursor != null) {
         boolean found = false;
         while (cursor.hasNext() && !found) {
-          DBObject obj = cursor.next();
+          Document obj = cursor.next();
           String id = obj.get("_id").toString();
           Value value = variable.getValueType().equals(BinaryType.get())
               ? getBinaryValue(obj)
@@ -157,17 +158,19 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
       return ValueConverter.unmarshall(type, repeatable, field, null);
     }
 
-    private DBCursor newCursor() {
+    private MongoCursor<Document> newCursor() {
       if (partitionIndex < identifiersPartitions.size()) {
         List<String> identifiers = identifiersPartitions.get(partitionIndex);
         partitionIndex++;
-        DBObject query = QueryBuilder.start("_id").in(identifiers).get();
-        return table.getValueSetCollection().find(query, fields);
+        return table.getValueSetCollection()
+            .find(Filters.in("_id", identifiers))
+            .projection(Projections.include(field))
+            .cursor();
       }
       return null;
     }
 
-    private Value getBinaryValue(BSONObject valueObject) {
+    private Value getBinaryValue(Document valueObject) {
       return MongoDBValueSet.getBinaryValue(table.getMongoDBFactory(), variable, valueObject);
     }
 

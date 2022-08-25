@@ -10,22 +10,20 @@
 
 package org.obiba.magma.datasource.mongodb;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import org.apache.http.client.utils.URIBuilder;
+import org.obiba.magma.AbstractDatasourceFactory;
+import org.obiba.magma.Datasource;
+import org.obiba.magma.SocketFactoryProvider;
+
+import javax.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.http.client.utils.URIBuilder;
-import org.obiba.magma.AbstractDatasourceFactory;
-import org.obiba.magma.Datasource;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import org.obiba.magma.SocketFactoryProvider;
 
 /**
  * Create a MongoDB datasource by either providing a connection string
