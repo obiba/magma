@@ -238,7 +238,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     GridFSBucket gridFSBucket = getMongoDBDatasource().getMongoDBFactory().getGridFSBucket();
     try (MongoCursor<GridFSFile> cursor = gridFSBucket
         .find(Filters.and(
-            Filters.exists("version"),
+            Filters.exists("metadata.version"),
             Filters.eq("metadata.datasource_id", tableDoc.getObjectId("datasource")),
             Filters.eq("metadata.table_id", tableDoc.getObjectId("_id"))))
         .cursor()) {
@@ -250,7 +250,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     // legacy
     try (MongoCursor<GridFSFile> cursor = gridFSBucket
         .find(Filters.and(
-            Filters.not(Filters.exists("version")),
+            Filters.not(Filters.exists("metadata.version")),
             Filters.eq("metadata.datasource", getDatasource().getName()),
             Filters.eq("metadata.table", getName())))
         .cursor()) {
