@@ -212,9 +212,11 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       if (value.isNull()) {
         return getBinaryValueMetadata(null, occurrence);
       }
+      Document tableDoc = table.asDocument();
       Document metadataDoc = new Document()
-          .append("datasource", table.getDatasource().getName())
-          .append("table", table.getName())
+          .append("version", 2)
+          .append("datasource_id", tableDoc.getObjectId("datasource"))
+          .append("table_id", tableDoc.getObjectId("_id"))
           .append("variable", variable.getName())
           .append("entity", entity.getIdentifier());
       if (occurrence != null) metadataDoc.append("occurrence", occurrence);

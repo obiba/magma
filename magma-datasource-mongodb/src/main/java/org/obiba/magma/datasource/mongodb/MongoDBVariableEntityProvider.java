@@ -46,7 +46,7 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
   @Override
   public String getEntityType() {
     if (entityType == null) {
-      entityType = (String) table.asDBObject().get("entityType");
+      entityType = (String) table.asDocument().get("entityType");
     }
     return entityType;
   }

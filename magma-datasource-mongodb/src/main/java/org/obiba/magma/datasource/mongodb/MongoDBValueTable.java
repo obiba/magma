@@ -19,7 +19,6 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Projections;
-import org.bson.BSONObject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.obiba.magma.*;
@@ -41,7 +40,7 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   private static final String VALUE_SET_SUFFIX = "_value_set";
 
-  private Document dbObject;
+  private Document document;
 
   public MongoDBValueTable(@NotNull Datasource datasource, @NotNull String name) {
     this(datasource, name, null);
@@ -51,7 +50,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     super(datasource, name);
     setVariableEntityProvider(new MongoDBVariableEntityProvider(this, entityType));
     // ensure corresponding document is stored
-    asDBObject();
+    asDocument();
   }
 
   MongoDBFactory getMongoDBFactory() {
@@ -74,32 +73,32 @@ public class MongoDBValueTable extends AbstractValueTable {
     return getMongoDBFactory().execute(db -> db.getCollection(getId() + VALUE_SET_SUFFIX));
   }
 
-  Document asDBObject() {
-    if (dbObject == null) {
-      dbObject = getValueTableCollection().find(Filters.and(
-          Filters.eq("datasource", getMongoDBDatasource().asDBObject().get("_id")),
+  Document asDocument() {
+    if (document == null) {
+      document = getValueTableCollection().find(Filters.and(
+          Filters.eq("datasource", getMongoDBDatasource().asDocument().get("_id")),
           Filters.eq("name", getName()))).first();
       // create DBObject if not found
-      if (dbObject == null) {
-        dbObject = new Document()
-            .append("datasource", getMongoDBDatasource().asDBObject().get("_id")) //
-            .append("name", getName()) //
-            .append("entityType", getEntityType()) //
+      if (document == null) {
+        document = new Document()
+            .append("datasource", getMongoDBDatasource().asDocument().get("_id"))
+            .append("name", getName())
+            .append("entityType", getEntityType())
             .append(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject());
-        getValueTableCollection().insertOne(dbObject);
+        getValueTableCollection().insertOne(document);
       }
     }
-    return dbObject;
+    return document;
   }
 
   void setLastUpdate(Date date) {
-    ((BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD)).put("updated", date);
-    getValueTableCollection().replaceOne(Filters.eq("_id", asDBObject().get("_id")), asDBObject());
+    ((Document) asDocument().get(MongoDBDatasource.TIMESTAMPS_FIELD)).put("updated", date);
+    getValueTableCollection().replaceOne(Filters.eq("_id", asDocument().get("_id")), asDocument());
     getMongoDBDatasource().setLastUpdate(date);
   }
 
   private String getId() {
-    return asDBObject().get("_id").toString();
+    return asDocument().get("_id").toString();
   }
 
   private ObjectId getIdAsObjectId() {
@@ -161,7 +160,7 @@ public class MongoDBValueTable extends AbstractValueTable {
   public Timestamps getTimestamps() {
     return new Timestamps() {
 
-      private final BSONObject timestampsObject = (BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
+      private final Document timestampsObject = (Document) asDocument().get(MongoDBDatasource.TIMESTAMPS_FIELD);
 
       @NotNull
       @Override
@@ -184,7 +183,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     getVariablesCollection().drop();
     getValueTableCollection().deleteOne(Filters.eq("_id", getIdAsObjectId()));
     getMongoDBDatasource().setLastUpdate(new Date());
-    dbObject = null;
+    document = null;
   }
 
   Document findVariable(String variableName) {
@@ -235,15 +234,30 @@ public class MongoDBValueTable extends AbstractValueTable {
    * Drop the files from the {@link com.mongodb.client.gridfs.GridFSBucket} for this table.
    */
   private void dropFiles() {
+    Document tableDoc = asDocument();
     GridFSBucket gridFSBucket = getMongoDBDatasource().getMongoDBFactory().getGridFSBucket();
-    MongoCursor<GridFSFile> cursor = gridFSBucket
+    try (MongoCursor<GridFSFile> cursor = gridFSBucket
         .find(Filters.and(
+            Filters.exists("version"),
+            Filters.eq("metadata.datasource_id", tableDoc.getObjectId("datasource")),
+            Filters.eq("metadata.table_id", tableDoc.getObjectId("_id"))))
+        .cursor()) {
+      while (cursor.hasNext()) {
+        GridFSFile file = cursor.next();
+        gridFSBucket.delete(file.getObjectId());
+      }
+    }
+    // legacy
+    try (MongoCursor<GridFSFile> cursor = gridFSBucket
+        .find(Filters.and(
+            Filters.not(Filters.exists("version")),
             Filters.eq("metadata.datasource", getDatasource().getName()),
             Filters.eq("metadata.table", getName())))
-        .cursor();
-    while (cursor.hasNext()) {
-      GridFSFile file = cursor.next();
-      gridFSBucket.delete(file.getObjectId());
+        .cursor()) {
+      while (cursor.hasNext()) {
+        GridFSFile file = cursor.next();
+        gridFSBucket.delete(file.getObjectId());
+      }
     }
   }
 
@@ -278,7 +292,7 @@ public class MongoDBValueTable extends AbstractValueTable {
       while (cursor.hasNext() && !found) {
         Document obj = cursor.next();
         String id = obj.get("_id").toString();
-        BSONObject timestamps = (BSONObject) obj.get(MongoDBDatasource.TIMESTAMPS_FIELD);
+        Document timestamps = (Document) obj.get(MongoDBDatasource.TIMESTAMPS_FIELD);
         timestampsMap.put(id,
             new TimestampsBean(ValueConverter.unmarshall(DateTimeType.get(), timestamps.get("created")),
                 ValueConverter.unmarshall(DateTimeType.get(), timestamps.get("updated")))

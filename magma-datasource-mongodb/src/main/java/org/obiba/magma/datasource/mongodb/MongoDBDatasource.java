@@ -11,15 +11,12 @@
 package org.obiba.magma.datasource.mongodb;
 
 import com.google.common.collect.ImmutableSet;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Projections;
-import org.bson.BSONObject;
 import org.bson.Document;
 import org.obiba.magma.*;
 import org.obiba.magma.support.AbstractDatasource;
@@ -50,7 +47,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   @NotNull
   private final MongoDBFactory mongoDBFactory;
 
-  private Document dbObject;
+  private Document document;
 
   private int batchSize = 100;
 
@@ -92,29 +89,29 @@ public class MongoDBDatasource extends AbstractDatasource {
     });
   }
 
-  Document asDBObject() {
-    if(dbObject == null) {
-      dbObject = getDatasourceCollection().find(Filters.eq("name", getName())).first();
-      if(dbObject == null) {
-        dbObject = new Document()
+  Document asDocument() {
+    if(document == null) {
+      document = getDatasourceCollection().find(Filters.eq("name", getName())).first();
+      if(document == null) {
+        document = new Document()
             .append("name", getName())
             .append(TIMESTAMPS_FIELD, createTimestampsObject());
-        getDatasourceCollection().insertOne(dbObject);
+        getDatasourceCollection().insertOne(document);
       }
     }
-    return dbObject;
+    return document;
   }
 
   void setLastUpdate(Date date) {
-    ((BSONObject) asDBObject().get(TIMESTAMPS_FIELD)).put("updated", date);
-    getDatasourceCollection().replaceOne(Filters.eq("name", getName()), asDBObject());
+    ((Document) asDocument().get(TIMESTAMPS_FIELD)).put("updated", date);
+    getDatasourceCollection().replaceOne(Filters.eq("name", getName()), asDocument());
 
   }
 
-  static DBObject createTimestampsObject() {
-    return BasicDBObjectBuilder.start() //
-        .add(TIMESTAMPS_CREATED_FIELD, new Date()) //
-        .add(TIMESTAMPS_UPDATED_FIELD, new Date()).get();
+  static Document createTimestampsObject() {
+    return new Document()
+        .append(TIMESTAMPS_CREATED_FIELD, new Date())
+        .append(TIMESTAMPS_UPDATED_FIELD, new Date());
   }
 
   @Override
@@ -150,10 +147,10 @@ public class MongoDBDatasource extends AbstractDatasource {
 
     MongoDBValueTable valueTable = (MongoDBValueTable) getValueTable(tableName);
 
-    Document vtObject = valueTable.asDBObject();
+    Document vtObject = valueTable.asDocument();
     vtObject.put("name", newName);
-    ((BSONObject) vtObject.get(TIMESTAMPS_FIELD)).put("updated", new Date());
-    getValueTableCollection().updateOne(Filters.eq("_id", vtObject.get("_id")), vtObject);
+    ((Document) vtObject.get(TIMESTAMPS_FIELD)).put("updated", new Date());
+    getValueTableCollection().replaceOne(Filters.eq("_id", vtObject.get("_id")), vtObject);
     removeValueTable(valueTable);
 
     MongoDBValueTable newTable = new MongoDBValueTable(this, newName);
@@ -181,7 +178,7 @@ public class MongoDBDatasource extends AbstractDatasource {
     MongoDBValueTable valueTable = null;
     if(getValueTableNames().isEmpty()) {
       // make sure datasource document exists
-      asDBObject();
+      asDocument();
     }
     if(hasValueTable(tableName)) {
       valueTable = (MongoDBValueTable) getValueTable(tableName);
@@ -197,7 +194,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   protected Set<String> getValueTableNames() {
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
     try(MongoCursor<Document> cursor = getValueTableCollection()
-        .find(Filters.eq("datasource", asDBObject().get("_id")))
+        .find(Filters.eq("datasource", asDocument().get("_id")))
             .projection(Projections.include("name")).cursor()) {
       while(cursor.hasNext()) {
         builder.add(cursor.next().get("name").toString());
@@ -237,7 +234,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
       return new Timestamps() {
 
-        private final BSONObject timestampsObject = (BSONObject) asDBObject().get(TIMESTAMPS_FIELD);
+        private final Document timestampsObject = (Document) asDocument().get(TIMESTAMPS_FIELD);
 
         @NotNull
         @Override

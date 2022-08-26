@@ -43,10 +43,9 @@ public class MongoDBValueSetBatch implements ValueSetBatch {
 
   @Override
   public List<ValueSet> getValueSets() {
-    MongoCursor<Document> cursor = fetcher.getDBObjects(Lists.newArrayList(entitiesMap.values()));
     ImmutableList.Builder<ValueSet> builder = ImmutableList.builder();
-    try {
-      while (true) {
+    try (MongoCursor<Document> cursor = fetcher.getDBObjects(Lists.newArrayList(entitiesMap.values()))) {
+      while (cursor.hasNext()) {
         Document object = cursor.next();
         String identifier = object.get("_id").toString();
         MongoDBValueSet vs = new MongoDBValueSet(table, entitiesMap.get(identifier));
