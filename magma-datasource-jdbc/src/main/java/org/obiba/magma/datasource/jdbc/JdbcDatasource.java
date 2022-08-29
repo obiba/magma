@@ -662,7 +662,7 @@ public class JdbcDatasource extends AbstractDatasource {
     }
 
     ChangeDatabaseCallback(Iterable<Change> changes) {
-      this(changes, Lists.newArrayList(new MySqlEngineVisitor()));
+      this(changes, Lists.newArrayList(new MySqlEngineVisitor(), new PostgreSqlEngineVisitor()));
     }
 
     ChangeDatabaseCallback(Iterable<Change> changes, Iterable<? extends SqlVisitor> visitors) {
