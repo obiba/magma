@@ -13,17 +13,22 @@ package org.obiba.magma.js;
 import com.google.common.base.Function;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.mozilla.javascript.*;
 import org.obiba.magma.*;
+import org.obiba.magma.support.Disposables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
@@ -257,7 +262,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     @Override
     Object eval(MagmaContext context, Scriptable scope) {
-      return asValue(compiledScript.exec(context, scope));
+      try {
+        return asValue(compiledScript.exec(context, scope));
+      } catch (JavaScriptException e) {
+        throw new MagmaJsEvaluationRuntimeException(String.format("Script error (ID: %s): %s", valueSet.getVariableEntity().getIdentifier(), e.getMessage()), e);
+      }
     }
 
   }
@@ -293,7 +302,14 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     @Override
     Object eval(MagmaContext context, Scriptable scope) {
-      return Iterables.transform(getEntities(context), new VectorEvaluationFunction(context, scope));
+      try {
+        VectorEvaluationFunction evaluationFunction = new VectorEvaluationFunction(context, scope);
+        return StreamSupport.stream(getEntities(context).spliterator(), false)
+            .map(evaluationFunction::apply)
+            .collect(Collectors.toList());
+      } finally {
+        Disposables.silentlyDispose(vectorCache);
+      }
     }
 
     private class VectorEvaluationFunction implements Function<VariableEntity, Value> {
@@ -313,6 +329,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         try {
           initContext(variableEntity);
           return asValue(compiledScript.exec(context, scope));
+        } catch (JavaScriptException e) {
+          throw new MagmaJsEvaluationRuntimeException(String.format("Script error (ID: %s): %s", variableEntity.getIdentifier(), e.getMessage()), e);
         } finally {
           cleanContext();
           log.trace("Finish {} eval in {}", variableEntity, stopwatch);
@@ -341,7 +359,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   }
 
-  public static class VectorCache {
+  public static class VectorCache implements Disposable {
 
     private final Map<VectorSource, VectorHolder<Value>> vectors = Maps.newHashMap();
 
@@ -359,7 +377,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     public Value get(MagmaContext context, VectorSource source) {
       VectorHolder<Value> holder = vectors.get(source);
       if (holder == null) {
-        holder = new VectorHolder<>(source.getValues(context.peek(Iterable.class)).iterator());
+        holder = new VectorHolder<>(source.getValues(context.peek(Iterable.class)));
         vectors.put(source, holder);
       }
       return holder.get(index);
@@ -367,13 +385,18 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     public Timestamps get(MagmaContext context, ValueTable table) {
       if (timestampsVector == null) {
-        timestampsVector = new VectorHolder<>(table.getValueSetTimestamps(context.peek(Iterable.class)).iterator());
+        timestampsVector = new VectorHolder<>(table.getValueSetTimestamps(context.peek(Iterable.class)));
       }
       return timestampsVector.get(index);
     }
+
+    @Override
+    public void dispose() {
+      vectors.values().forEach(Disposables::silentlyDispose);
+    }
   }
 
-  private static class VectorHolder<T> {
+  private static class VectorHolder<T> implements Disposable {
 
     private final Iterator<T> values;
 
@@ -383,8 +406,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     // Value of nextIndex - 1 (null after vector)
     private T currentValue;
 
-    VectorHolder(Iterator<T> values) {
-      this.values = values;
+    VectorHolder(Iterable<T> valuesIterable) {
+      this.values = valuesIterable.iterator();
     }
 
     /**
@@ -408,6 +431,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         nextIndex++;
       }
       return currentValue;
+    }
+
+    @Override
+    public void dispose() {
+      Disposables.silentlyDispose(values);
     }
   }
 }

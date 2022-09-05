@@ -105,7 +105,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     return valueTable.isMultilines();
   }
 
-  private class ValueIterator implements Iterator<Value> {
+  private class ValueIterator implements Iterator<Value>, Disposable {
 
     private final String query;
 
@@ -256,6 +256,13 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
             // ignored
           }
         }
+      }
+    }
+
+    @Override
+    public void dispose() {
+      if (cursor != null) {
+        closeQuietly();
       }
     }
   }
