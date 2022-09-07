@@ -262,7 +262,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     @Override
     public void dispose() {
       if (cursor != null) {
-        closeQuietly();
+        closeQuietly(cursor, statement, connection);
       }
     }
   }
