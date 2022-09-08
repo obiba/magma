@@ -847,7 +847,7 @@
     <connection>scm:git:https://github.com/obiba/magma.git</connection>
     <developerConnection>scm:git:https://github.com/obiba/magma.git</developerConnection>
     <url>https://github.com/obiba/magma</url>
-    <tag>HEAD</tag>
+    <tag>magma-4.0.x</tag>
   </scm>
 
   <issueManagement>
