@@ -50,7 +50,7 @@
     <flapdoodle_embed_mongo.version>1.50.0</flapdoodle_embed_mongo.version>
     <guava.version>30.1-jre</guava.version>
     <hibernate.version>5.6.10.Final</hibernate.version>
-    <hsqldb.version>2.3.3</hsqldb.version>
+    <hsqldb.version>2.7.1</hsqldb.version>
     <httpclient.version>4.5.13</httpclient.version>
     <javassist.version>3.19.0-GA</javassist.version>
     <javolution.version>5.5.1</javolution.version>
