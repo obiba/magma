@@ -101,10 +101,6 @@ public class MongoDBValueTable extends AbstractValueTable {
     return asDocument().get("_id").toString();
   }
 
-  private ObjectId getIdAsObjectId() {
-    return new ObjectId(getId());
-  }
-
   @Override
   protected void addVariableValueSource(VariableValueSource source) {
     super.addVariableValueSource(source);
@@ -181,7 +177,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     dropFiles();
     getValueSetCollection().drop();
     getVariablesCollection().drop();
-    getValueTableCollection().deleteOne(Filters.eq("_id", getIdAsObjectId()));
+    getValueTableCollection().deleteOne(Filters.eq("_id", asDocument().get("_id")));
     getMongoDBDatasource().setLastUpdate(new Date());
     document = null;
   }
@@ -239,8 +235,8 @@ public class MongoDBValueTable extends AbstractValueTable {
     try (MongoCursor<GridFSFile> cursor = gridFSBucket
         .find(Filters.and(
             Filters.exists("metadata.version"),
-            Filters.eq("metadata.datasource_id", tableDoc.getObjectId("datasource")),
-            Filters.eq("metadata.table_id", tableDoc.getObjectId("_id"))))
+            Filters.eq("metadata.datasource_id", tableDoc.get("datasource")),
+            Filters.eq("metadata.table_id", tableDoc.get("_id"))))
         .cursor()) {
       while (cursor.hasNext()) {
         GridFSFile file = cursor.next();
