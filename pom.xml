@@ -69,7 +69,7 @@
     <obiba-commons.version>3.0.0</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>3.9</poi-ooxml.version>
-    <postgresql.version>42.5.0</postgresql.version>
+    <postgresql.version>42.5.1</postgresql.version>
     <rhino-js.version>1.7.7.1</rhino-js.version>
     <shiro.version>1.10.0</shiro.version>
     <shiro-extras.version>1.1.0</shiro-extras.version>
