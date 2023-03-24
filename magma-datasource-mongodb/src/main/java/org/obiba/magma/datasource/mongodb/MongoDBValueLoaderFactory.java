@@ -10,7 +10,9 @@
 
 package org.obiba.magma.datasource.mongodb;
 
+import com.google.common.io.ByteStreams;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
+import org.apache.commons.compress.utils.IOUtils;
 import org.bson.types.ObjectId;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,10 +79,7 @@ public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
 
     private byte[] getByteArray(String fileId) {
       try (GridFSDownloadStream downloadStream = mongoDBFactory.getGridFSBucket().openDownloadStream(new ObjectId(fileId))) {
-        int fileLength = (int) downloadStream.getGridFSFile().getLength();
-        byte[] bytesToWriteTo = new byte[fileLength];
-        downloadStream.read(bytesToWriteTo);
-        return bytesToWriteTo;
+        return ByteStreams.toByteArray(downloadStream);
       } catch(Exception e) {
         throw new MagmaRuntimeException("Cannot retrieve content of gridFsFile [" + fileId + "]", e);
       }
