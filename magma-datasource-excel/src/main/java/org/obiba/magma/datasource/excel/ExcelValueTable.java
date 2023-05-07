@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.obiba.magma.*;
@@ -114,7 +115,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
       // Add it
       Row variableNameRow = getValueTableSheet().getRow(0);
       Cell variableColumn = variableNameRow
-          .createCell(variableNameRow.getPhysicalNumberOfCells(), Cell.CELL_TYPE_STRING);
+          .createCell(variableNameRow.getPhysicalNumberOfCells(), CellType.STRING);
       ExcelUtil.setCellValue(variableColumn, TextType.get(), variable.getName());
       variableColumn.setCellStyle(getDatasource().getHeaderCellStyle());
       column = variableColumn.getColumnIndex();

@@ -392,7 +392,7 @@ public class VariableConverter {
       String headerValue = Attributes.encodeForHeader(customAttribute);
       Integer attributeCellIndex = headerMap.get(headerValue);
 
-      ExcelUtil.setCellValue(attributesRow.getCell(attributeCellIndex, Row.CREATE_NULL_AS_BLANK),
+      ExcelUtil.setCellValue(attributesRow.getCell(attributeCellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK),
               customAttribute.getValue());
     }
   }
@@ -523,7 +523,7 @@ public class VariableConverter {
   @Nullable
   private Cell getVariableCell(Row row, String header) {
     Integer idx = getVariableHeaderIndex(header);
-    return idx == null ? null : row.getCell(idx, Row.CREATE_NULL_AS_BLANK);
+    return idx == null ? null : row.getCell(idx, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
   }
 
   /**
@@ -596,7 +596,7 @@ public class VariableConverter {
   @Nullable
   private Cell getCategoryCell(Row row, String header) {
     Integer idx = getCategoryHeaderIndex(header);
-    return idx == null || row == null ? null : row.getCell(idx, Row.CREATE_NULL_AS_BLANK);
+    return idx == null || row == null ? null : row.getCell(idx, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
   }
 
   /**
