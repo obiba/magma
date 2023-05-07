@@ -68,7 +68,7 @@
     <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
     <obiba-commons.version>3.0.2</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
-    <poi-ooxml.version>3.9</poi-ooxml.version>
+    <poi-ooxml.version>5.2.3</poi-ooxml.version>
     <postgresql.version>42.5.1</postgresql.version>
     <rhino-js.version>1.7.7.1</rhino-js.version>
     <shiro.version>1.10.0</shiro.version>

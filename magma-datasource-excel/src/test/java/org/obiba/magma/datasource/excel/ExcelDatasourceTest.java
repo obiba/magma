@@ -105,7 +105,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     } catch(DatasourceParsingException dpe) {
       assertThat(dpe.hasChildren()).isTrue();
       List<DatasourceParsingException> errors = dpe.getChildrenAsList();
-      assertThat(errors).hasSize(10);
+      assertThat(errors).hasSize(14);
       assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 4, Table1, Var1, C2]", errors.get(0));
       assertDatasourceParsingException("CategoryNameRequired", "[Categories, 5, Table1, Var1]", errors.get(1));
       assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 7, Table1, Var2, C1]", errors.get(2));
@@ -115,7 +115,11 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
       assertDatasourceParsingException("UnknownValueType", "[Variables, 9, Table1, Var5, Numerical]", errors.get(6));
       assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 9, Table1]", errors.get(7));
       assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 10, Table1]", errors.get(8));
-      assertDatasourceParsingException("VariableNameRequired", "[Variables, 10, Table2]", errors.get(9));
+      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var2]", errors.get(9));
+      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var6]", errors.get(10));
+      assertDatasourceParsingException("VariableNameCannotContainColon", "[Table1, 1, Table1, Toto:Tata]", errors.get(11));
+      assertDatasourceParsingException("VariableNameRequired", "[Table1, 1, Table1]", errors.get(12));
+      assertDatasourceParsingException("VariableNameRequired", "[Variables, 10, Table2]", errors.get(13));
     }
   }
 
@@ -141,10 +145,10 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_read_write_without_meta() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-no-meta",
-        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-meta.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-meta.xlsx"));
     datasource.initialise();
 
-    assertThat(datasource.getValueTables()).hasSize(0);
+    assertThat(datasource.getValueTables()).hasSize(1);
 
     // test that writing variable & category when some columns are missing does not fail
     Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant")
@@ -155,19 +159,22 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_read_mixed_meta() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-mixed-meta",
-        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-mixed-meta.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-mixed-meta.xlsx"));
     datasource.initialise();
 
     assertThat(datasource.getValueTables()).hasSize(1);
     ValueTable table = datasource.getValueTable("Table1");
     assertThat(table).isNotNull();
-    assertThat(table.getVariables()).hasSize(2);
-    assertThat(table.getVariableCount()).isEqualTo(2);
+    assertThat(table.getVariables()).hasSize(3);
+    assertThat(table.getVariableCount()).isEqualTo(3);
     Variable variable = table.getVariable("Var1");
     assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
     assertThat(variable.getCategories()).hasSize(2);
     variable = table.getVariable("Var2");
     assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(variable.getCategories()).isEmpty();
+    variable = table.getVariable("Var3");
+    assertThat(variable.getValueType()).isEqualTo(TextType.get());
     assertThat(variable.getCategories()).isEmpty();
   }
 

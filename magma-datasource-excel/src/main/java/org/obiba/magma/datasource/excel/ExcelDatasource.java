@@ -10,62 +10,21 @@
 
 package org.obiba.magma.datasource.excel;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PushbackInputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.poi.POIXMLDocument;
-import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
-import org.apache.poi.hssf.eventusermodel.HSSFRequest;
-import org.apache.poi.hssf.record.BOFRecord;
-import org.apache.poi.hssf.record.BoundSheetRecord;
-import org.apache.poi.hssf.record.LabelSSTRecord;
-import org.apache.poi.hssf.record.NumberRecord;
-import org.apache.poi.hssf.record.Record;
-import org.apache.poi.hssf.record.RowRecord;
-import org.apache.poi.hssf.record.SSTRecord;
+import org.apache.poi.hssf.record.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.BuiltinFormats;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.obiba.magma.Disposable;
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.excel.support.ExcelDatasourceParsingException;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.NameConverter;
@@ -74,15 +33,13 @@ import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
+import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import javax.validation.constraints.NotNull;
+import java.io.*;
+import java.util.*;
 
 /**
  * Implements a {@code Datasource} on top of an Excel Workbook.
@@ -102,8 +59,6 @@ public class ExcelDatasource extends AbstractDatasource {
   public static final Set<String> SHEET_RESERVED_NAMES = Sets.newHashSet(VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET);
 
   private static final int SHEET_NAME_MAX_LENGTH = 30;
-
-  private static final int BOLD_WEIGHT = 700;
 
   private Workbook excelWorkbook;
 
@@ -193,41 +148,13 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private void createWorkbookFromInputStream(InputStream inpOrig) {
     try(InputStream inp = !inpOrig.markSupported() ? new PushbackInputStream(inpOrig, 8) : inpOrig) {
-      if(POIFSFileSystem.hasPOIFSHeader(inp)) {
-        createHSSFWorkbook(inp);
-      } else if(POIXMLDocument.hasOOXMLHeader(inp)) {
-        createXSSFWorkbook(inp);
-      } else {
-        excelWorkbook = WorkbookFactory.create(inpOrig);
-      }
-    } catch(IOException e) {
+      excelWorkbook = WorkbookFactory.create(inpOrig);
+    } catch(IOException | EncryptedDocumentException e) {
       throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
-    } catch(OpenXML4JException | SAXException e) {
-      throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
     } catch(IllegalArgumentException e) {
       throw new MagmaRuntimeException(
           "Invalid excel spreadsheet format from input stream (neither an OLE2 stream nor an OOXML stream).");
     }
-  }
-
-  private void createHSSFWorkbook(InputStream inp) throws IOException {
-    POIFSFileSystem poifs = new POIFSFileSystem(inp);
-
-    try (InputStream din = poifs.createDocumentInputStream("Workbook")) {
-      HSSFRequest req = new HSSFRequest();
-      excelWorkbook = new HSSFWorkbook();
-      req.addListenerForAllRecords(new SheetExtractorListener(excelWorkbook, VARIABLES_SHEET, CATEGORIES_SHEET));
-      HSSFEventFactory factory = new HSSFEventFactory();
-      factory.processEvents(req, din);
-    }
-  }
-
-  private void createXSSFWorkbook(InputStream inp) throws IOException, SAXException, OpenXML4JException {
-    excelWorkbook = new XSSFWorkbook();
-    OPCPackage container = OPCPackage.open(inp);
-    ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(container);
-    XSSFReader reader = new XSSFReader(container);
-    parseSheets(reader, strings, excelWorkbook, VARIABLES_SHEET, CATEGORIES_SHEET);
   }
 
   private void parseSheets(XSSFReader reader, ReadOnlySharedStringsTable strings, Workbook excelWorkbook, String... sheetNames) throws SAXException, IOException,
@@ -407,7 +334,7 @@ public class ExcelDatasource extends AbstractDatasource {
     int cellCount = rowHeader.getPhysicalNumberOfCells();
 
     for(int i = 0; i < cellCount; i++) {
-      Cell c = rowHeader.getCell(i, Row.RETURN_BLANK_AS_NULL);
+      Cell c = rowHeader.getCell(i, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 
       if (c == null) {
         throw new MagmaRuntimeException("Missing header: " + sheet.getSheetName() + " at column " + colToName(i));
@@ -441,7 +368,7 @@ public class ExcelDatasource extends AbstractDatasource {
       Cell cell;
 
       for(int i = 0; i < cellCount; i++) {
-        cell = rowHeader.getCell(i, Row.RETURN_BLANK_AS_NULL);
+        cell = rowHeader.getCell(i, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 
         if (cell == null) {
           throw new MagmaRuntimeException("Missing header: " + sheet.getSheetName() + " at column " + colToName(i));
@@ -497,7 +424,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
     CellStyle headerCellStyle = excelWorkbook.createCellStyle();
     Font headerFont = excelWorkbook.createFont();
-    headerFont.setBoldweight((short) BOLD_WEIGHT);
+    headerFont.setBold(true);
     headerCellStyle.setFont(headerFont);
 
     excelStyles.put("headerCellStyle", headerCellStyle);
@@ -646,8 +573,7 @@ public class ExcelDatasource extends AbstractDatasource {
             String sstIndex = value.toString();
             try {
               int idx = Integer.parseInt(sstIndex);
-              XSSFRichTextString rtss = new XSSFRichTextString(sharedStringsTable.getEntryAt(idx));
-              thisStr = rtss.toString();
+              thisStr = sharedStringsTable.getItemAt(idx).toString();
             }
             catch (NumberFormatException ex) {
               throw new MagmaRuntimeException("Failed to parse SST index '" + sstIndex + "': " + ex.toString());

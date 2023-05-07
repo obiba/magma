@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.BinaryType;
@@ -99,20 +100,20 @@ public class ExcelUtil {
     String value = "";
     if(cell != null) {
       switch(cell.getCellType()) {
-        case Cell.CELL_TYPE_STRING:
-        case Cell.CELL_TYPE_BLANK:
+        case STRING:
+        case BLANK:
           value = cell.getStringCellValue();
           break;
-        case Cell.CELL_TYPE_BOOLEAN:
+        case BOOLEAN:
           value = String.valueOf(cell.getBooleanCellValue());
           break;
-        case Cell.CELL_TYPE_ERROR:
+        case ERROR:
           value = String.valueOf(cell.getErrorCellValue());
           break;
-        case Cell.CELL_TYPE_FORMULA:
+        case FORMULA:
           value = String.valueOf(cell.getCellFormula());
           break;
-        case Cell.CELL_TYPE_NUMERIC:
+        case NUMERIC:
           value = String.valueOf(cell.getNumericCellValue());
           if(value.endsWith(".0")) {
             value = value.substring(0, value.length() - 2);
