@@ -37,6 +37,10 @@
       <artifactId>guava</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-to-slf4j</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.obiba.commons</groupId>
       <artifactId>obiba-core</artifactId>
       <scope>test</scope>
