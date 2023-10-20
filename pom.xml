@@ -67,7 +67,7 @@
     <mariadb-connector-java.version>3.0.7</mariadb-connector-java.version>
     <mongodb-driver.version>4.7.1</mongodb-driver.version>
     <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
-    <obiba-commons.version>3.0.4</obiba-commons.version>
+    <obiba-commons.version>3.0.6</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>5.2.3</poi-ooxml.version>
     <postgresql.version>42.5.1</postgresql.version>
