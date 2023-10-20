@@ -573,21 +573,21 @@ public class JdbcDatasource extends AbstractDatasource {
     if(sqlTable == null) {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder().tableName(VARIABLES_TABLE);
 
-      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey();
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(50)").primaryKey();
 
-      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
-          .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
-          .withColumn(VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull() //
-          .withColumn("ref_entity_type", "VARCHAR(255)") //
-          .withColumn("mime_type", "VARCHAR(255)") //
-          .withColumn("units", "VARCHAR(255)") //
+      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(50)").primaryKey() //
+          .withColumn(NAME_COLUMN, "VARCHAR(50)").primaryKey() //
+          .withColumn(VALUE_TYPE_COLUMN, "VARCHAR(50)").notNull() //
+          .withColumn("ref_entity_type", "VARCHAR(50)") //
+          .withColumn("mime_type", "VARCHAR(50)") //
+          .withColumn("units", "VARCHAR(50)") //
           .withColumn("is_repeatable", "BOOLEAN") //
-          .withColumn("occurrence_group", "VARCHAR(255)") //
+          .withColumn("occurrence_group", "VARCHAR(50)") //
           .withColumn("index", "INT") //
-          .withColumn(SQL_NAME_COLUMN, "VARCHAR(255)").notNull();
+          .withColumn(SQL_NAME_COLUMN, "VARCHAR(50)").notNull();
       changes.add(builder.build());
     } else if (sqlTable.getColumn("ref_entity_type") == null) { // upgrade because of OPAL-2887
-      AddColumnChangeBuilder builder = new AddColumnChangeBuilder().table(VARIABLES_TABLE).column("ref_entity_type", "VARCHAR(255)");
+      AddColumnChangeBuilder builder = new AddColumnChangeBuilder().table(VARIABLES_TABLE).column("ref_entity_type", "VARCHAR(50)");
       changes.add(builder.build());
     }
 
@@ -595,12 +595,12 @@ public class JdbcDatasource extends AbstractDatasource {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder() //
           .tableName(VARIABLE_ATTRIBUTES_TABLE);
 
-      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)");
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(50)");
 
-      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)") //
-          .withColumn(VARIABLE_COLUMN, "VARCHAR(255)") //
+      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(50)") //
+          .withColumn(VARIABLE_COLUMN, "VARCHAR(50)") //
           .withColumn(NAMESPACE_COLUMN, "VARCHAR(20)") //
-          .withColumn(NAME_COLUMN, "VARCHAR(255)") //
+          .withColumn(NAME_COLUMN, "VARCHAR(50)") //
           .withColumn(LOCALE_COLUMN, "VARCHAR(20)") //
           .withColumn(VALUE_COLUMN, SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
       changes.add(builder.build());
@@ -612,11 +612,11 @@ public class JdbcDatasource extends AbstractDatasource {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder() //
           .tableName(CATEGORIES_TABLE);
 
-      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey();
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(50)").primaryKey();
 
-      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
-          .withColumn(VARIABLE_COLUMN, "VARCHAR(255)").primaryKey() //
-          .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
+      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(50)").primaryKey() //
+          .withColumn(VARIABLE_COLUMN, "VARCHAR(50)").primaryKey() //
+          .withColumn(NAME_COLUMN, "VARCHAR(50)").primaryKey() //
           .withColumn(MISSING_COLUMN, "BOOLEAN").notNull();
       changes.add(builder.build());
     }
@@ -625,13 +625,13 @@ public class JdbcDatasource extends AbstractDatasource {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder() //
           .tableName(CATEGORY_ATTRIBUTES_TABLE);
 
-      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)");
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(50)");
 
-      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)") //
-          .withColumn(VARIABLE_COLUMN, "VARCHAR(255)") //
-          .withColumn(CATEGORY_COLUMN, "VARCHAR(255)") //
+      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(50)") //
+          .withColumn(VARIABLE_COLUMN, "VARCHAR(50)") //
+          .withColumn(CATEGORY_COLUMN, "VARCHAR(50)") //
           .withColumn(NAMESPACE_COLUMN, "VARCHAR(20)") //
-          .withColumn(NAME_COLUMN, "VARCHAR(255)") //
+          .withColumn(NAME_COLUMN, "VARCHAR(50)") //
           .withColumn(LOCALE_COLUMN, "VARCHAR(20)") //
           .withColumn(VALUE_COLUMN, SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
       changes.add(builder.build());
