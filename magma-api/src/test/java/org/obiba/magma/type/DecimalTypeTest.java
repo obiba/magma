@@ -98,4 +98,13 @@ public class DecimalTypeTest extends BaseValueTypeTest {
     assertThat(result).isEqualTo(0);
   }
 
+  @Test
+  public void testStringify() {
+    Value value = getValueType().valueOf("1.250000e-05");
+    String valueStr = value.toString();
+    assertThat(valueStr).isEqualTo("1.25E-5");
+    value = getValueType().valueOf("0.0000066666");
+    valueStr = value.toString();
+    assertThat(valueStr).isEqualTo("6.6666E-6");
+  }
 }
