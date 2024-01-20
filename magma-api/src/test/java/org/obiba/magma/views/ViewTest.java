@@ -23,8 +23,7 @@ import org.obiba.magma.type.TextType;
 import java.util.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings({"PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass"})
@@ -178,7 +177,7 @@ public class ViewTest extends MagmaTest {
 
     when(valueTableMock.getValueSets(any(Iterable.class))).thenReturn(valueSets);
     when(valueTableMock.getTimestamps()).thenReturn(timestamps);
-    when(whereClauseMock.where((ValueSet) anyObject(), (View) anyObject())).thenReturn(true);
+    when(whereClauseMock.where((ValueSet) any(), (View) any())).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     Iterable<ValueSet> result = view.getValueSets();
@@ -302,7 +301,7 @@ public class ViewTest extends MagmaTest {
     variables.add(variableBar);
 
     when(valueTableMock.getVariables()).thenReturn(variables);
-    when(selectClauseMock.select((Variable) anyObject())).thenReturn(true);
+    when(selectClauseMock.select((Variable) any())).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).select(selectClauseMock).build();
     Iterable<Variable> result = view.getVariables();
@@ -347,7 +346,7 @@ public class ViewTest extends MagmaTest {
     ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
     Value value = TextType.get().valueOf("someValue");
 
-    when(valueTableMock.getValue((Variable) anyObject(), (ValueSet) anyObject())).thenReturn(value);
+    when(valueTableMock.getValue((Variable) any(), (ValueSet) any())).thenReturn(value);
     when(valueTableMock.getVariableValueSource((String) anyString())).thenReturn(vvsMock);
     when(vvsMock.getValue(valueSet)).thenReturn(value);
 
@@ -367,10 +366,10 @@ public class ViewTest extends MagmaTest {
     ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
     Value value = TextType.get().valueOf("someValue");
 
-    when(valueTableMock.getValue((Variable) anyObject(), (ValueSet) anyObject())).thenReturn(value);
+    when(valueTableMock.getValue((Variable) any(), (ValueSet) any())).thenReturn(value);
     when(valueTableMock.getVariableValueSource((String) anyString())).thenReturn(vvsMock);
     when(vvsMock.getValue(valueSet)).thenReturn(value);
-    when(whereClauseMock.where((ValueSet) anyObject(), (View) anyObject())).thenReturn(true);
+    when(whereClauseMock.where((ValueSet) any(), (View) any())).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     Value result = view.getValue(variable, new ValueSetWrapper(view, valueSet));

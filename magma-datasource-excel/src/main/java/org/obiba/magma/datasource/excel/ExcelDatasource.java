@@ -13,8 +13,6 @@ package org.obiba.magma.datasource.excel;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.hssf.eventusermodel.HSSFListener;
-import org.apache.poi.hssf.record.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
@@ -624,76 +622,4 @@ public class ExcelDatasource extends AbstractDatasource {
     }
   }
 
-  private static class SheetExtractorListener implements HSSFListener {
-    private SSTRecord sstrec;
-    private Workbook workbook;
-    private LinkedList<Sheet> sheets = new LinkedList<>();
-    private Sheet sheet;
-    private List<String> sheetNames;
-
-    public SheetExtractorListener(Workbook workbook, String... sheetNames) {
-      this.workbook = workbook;
-      this.sheetNames = Lists.newArrayList(sheetNames);
-    }
-
-    /**
-     *
-     * @param record
-     */
-    @Override
-    @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
-    public void processRecord(Record record) {
-      switch(record.getSid()) {
-        case BOFRecord.sid:
-          BOFRecord bof = (BOFRecord) record;
-
-          if (bof.getType() == bof.TYPE_WORKBOOK)
-          {
-            //ignore
-          } else if (bof.getType() == bof.TYPE_WORKSHEET) {
-            sheet = sheets.poll();
-          }
-
-          break;
-        case BoundSheetRecord.sid:
-          BoundSheetRecord bsr = (BoundSheetRecord) record;
-
-          if (sheetNames.contains(bsr.getSheetname())) {
-            sheets.add(this.workbook.createSheet(bsr.getSheetname()));
-          } else {
-            sheets.add(null);
-          }
-
-          break;
-        case RowRecord.sid:
-          RowRecord rowrec = (RowRecord) record;
-
-          if(sheet != null) {
-            sheet.createRow(rowrec.getRowNumber());
-          }
-
-          break;
-        case NumberRecord.sid:
-          NumberRecord numrec = (NumberRecord) record;
-
-          if(sheet != null) {
-            sheet.getRow(numrec.getRow()).createCell(numrec.getColumn()).setCellValue(numrec.getValue());
-          }
-
-          break;
-        case SSTRecord.sid:
-          sstrec = (SSTRecord) record;
-          break;
-        case LabelSSTRecord.sid:
-          LabelSSTRecord lrec = (LabelSSTRecord) record;
-
-          if(sheet != null) {
-            sheet.getRow(lrec.getRow()).createCell(lrec.getColumn())
-                .setCellValue(sstrec.getString(lrec.getSSTIndex()).getString());
-          }
-
-          break;
-      }
-    }
-  }
 }

@@ -1,7 +1,8 @@
-sudo: false
 language: java
+dist: focal
+sudo: required
 jdk:
-  - openjdk8
+  - openjdk17
 cache:
   directories:
   - $HOME/.cache

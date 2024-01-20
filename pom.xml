@@ -6,7 +6,7 @@
   <groupId>org.obiba.magma</groupId>
   <artifactId>magma</artifactId>
   <packaging>pom</packaging>
-  <version>4.1-SNAPSHOT</version>
+  <version>5.0-SNAPSHOT</version>
   <name>magma</name>
   <url>http://www.obiba.org</url>
 
@@ -15,13 +15,11 @@
     <module>magma-beans</module>
     <module>magma-js</module>
     <module>magma-xstream</module>
-    <module>magma-integration</module>
     <module>magma-filter</module>
     <module>magma-spring</module>
     <module>magma-crypt</module>
     <module>magma-math</module>
     <module>magma-datasource-fs</module>
-    <module>magma-datasource-hibernate</module>
     <module>magma-datasource-jdbc</module>
     <module>magma-datasource-mongodb</module>
     <module>magma-datasource-excel</module>
@@ -33,8 +31,9 @@
   </modules>
 
   <properties>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <catch-exception.version>1.2.0</catch-exception.version>
@@ -48,8 +47,7 @@
     <fest.version>2.0M10</fest.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
     <flapdoodle_embed_mongo.version>1.50.0</flapdoodle_embed_mongo.version>
-    <guava.version>30.1-jre</guava.version>
-    <hibernate.version>5.6.10.Final</hibernate.version>
+    <guava.version>32.1.2-jre</guava.version>
     <hsqldb.version>2.3.3</hsqldb.version>
     <httpclient.version>4.5.13</httpclient.version>
     <javassist.version>3.19.0-GA</javassist.version>
@@ -61,21 +59,21 @@
     <jts.version>1.13</jts.version>
     <junit.version>4.13.1</junit.version>
     <liquibase-core.version>4.15.0</liquibase-core.version>
-    <logback.version>1.2.9</logback.version>
+    <logback.version>1.4.11</logback.version>
     <log4j.version>2.18.0</log4j.version>
-    <mockito.version>1.10.8</mockito.version>
+    <mockito.version>5.5.0</mockito.version>
     <mariadb-connector-java.version>3.0.7</mariadb-connector-java.version>
     <mongodb-driver.version>4.7.1</mongodb-driver.version>
     <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
-    <obiba-commons.version>3.0.6</obiba-commons.version>
+    <obiba-commons.version>4.0-SNAPSHOT</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>5.2.3</poi-ooxml.version>
     <postgresql.version>42.5.1</postgresql.version>
     <rhino-js.version>1.7.7.1</rhino-js.version>
-    <shiro.version>1.10.0</shiro.version>
+    <shiro.version>1.13.0</shiro.version>
     <shiro-extras.version>1.1.0</shiro-extras.version>
-    <slf4j.version>1.7.12</slf4j.version>
-    <spring.version>5.3.22</spring.version>
+    <slf4j.version>2.0.9</slf4j.version>
+    <spring.version>6.0.12</spring.version>
     <truezip.version>6.6</truezip.version>
     <unit-api.version>0.6.0</unit-api.version>
     <validation.version>1.1.0.Final</validation.version>
@@ -85,14 +83,14 @@
     <bintray-maven-plugin.version>1.2.20180117184439</bintray-maven-plugin.version>
     <maven-buildnumber-plugin.version>1.2</maven-buildnumber-plugin.version>
     <maven-cobertura-plugin.version>2.5.2</maven-cobertura-plugin.version>
-    <maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>2.9</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
     <maven-findbugs-plugin.version>3.0.4</maven-findbugs-plugin.version>
     <maven-pmd-plugin.version>3.1</maven-pmd-plugin.version>
     <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
     <maven-source-plugin.version>2.2</maven-source-plugin.version>
-
+    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -101,11 +99,6 @@
       <dependency>
         <groupId>org.obiba.magma</groupId>
         <artifactId>magma-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.obiba.magma</groupId>
-        <artifactId>magma-hibernate-common</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -147,11 +140,6 @@
       <dependency>
         <groupId>org.obiba.magma</groupId>
         <artifactId>magma-js</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.obiba.magma</groupId>
-        <artifactId>magma-datasource-hibernate</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -198,7 +186,7 @@
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
+        <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
@@ -310,12 +298,6 @@
         <artifactId>validation-api</artifactId>
         <version>${validation.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-ehcache</artifactId>
-        <version>${hibernate.version}</version>
-        <scope>test</scope>
-      </dependency>
 
       <dependency>
         <groupId>org.json</groupId>
@@ -374,30 +356,6 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-orm</artifactId>
         <version>${spring.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>${hibernate.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-annotations</artifactId>
-        <version>${hibernate.version}</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -655,9 +613,21 @@
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${maven-javadoc-plugin.version}</version>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <useSystemClassLoader>false</useSystemClassLoader>
+            <argLine>
+              --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED
+            </argLine>
+          </configuration>
         </plugin>
+
+<!--        <plugin>-->
+<!--          <groupId>org.apache.maven.plugins</groupId>-->
+<!--          <artifactId>maven-javadoc-plugin</artifactId>-->
+<!--          <version>${maven-javadoc-plugin.version}</version>-->
+<!--        </plugin>-->
 
         <plugin>
           <groupId>com.carrotgarden.maven</groupId>
@@ -681,7 +651,6 @@
           <artifactId>maven-pmd-plugin</artifactId>
           <version>${maven-pmd-plugin.version}</version>
           <configuration>
-            <linkXref>false</linkXref>
             <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
             <minimumTokens>30</minimumTokens>
             <targetJdk>${maven.compiler.target}</targetJdk>
@@ -693,9 +662,13 @@
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <useSystemClassLoader>false</useSystemClassLoader>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <showWarnings>true</showWarnings>
           </configuration>
         </plugin>
 
@@ -705,14 +678,8 @@
     <plugins>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-          <showDeprecation>true</showDeprecation>
-          <showWarnings>true</showWarnings>
-        </configuration>
       </plugin>
 
       <plugin>
@@ -754,6 +721,7 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <version>${maven-source-plugin.version}</version>
         <executions>
