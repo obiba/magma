@@ -47,7 +47,7 @@
     <fest.version>2.0M10</fest.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
     <flapdoodle_embed_mongo.version>4.12.2</flapdoodle_embed_mongo.version>
-    <guava.version>32.1.2-jre</guava.version>
+    <guava.version>33.0.0-jre</guava.version>
     <hsqldb.version>2.3.3</hsqldb.version>
     <httpclient.version>5.2.1</httpclient.version>
     <javassist.version>3.19.0-GA</javassist.version>
