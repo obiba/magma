@@ -16,6 +16,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.mongo.transitions.Mongod;
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.reverse.TransitionWalker;
 import org.junit.*;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.*;
@@ -24,7 +28,6 @@ import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.VariableEntityBean;
-import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.type.*;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
@@ -49,8 +52,7 @@ public class MongoDBDatasourceTest {
   private static final String ONYX_DATA_5_ZIP = "5-onyx-data.zip";
 
   private String dbUrl;
-
-  private EmbeddedMongoProcessWrapper mongo;
+  private TransitionWalker.ReachedState<RunningMongodProcess> running;
 
   @Before
   public void before() {
@@ -60,9 +62,9 @@ public class MongoDBDatasourceTest {
 
   private boolean setupMongoDB() {
     try {
-      mongo = new EmbeddedMongoProcessWrapper();
-      mongo.start();
-      dbUrl = "mongodb://" + mongo.getServerSocketAddress() + '/' + DB_TEST;
+      // Configure and start embedded MongoDB
+      running = Mongod.instance().start(Version.Main.V7_0);
+      dbUrl = "mongodb://" + running.current().getServerAddress() + '/' + DB_TEST;
       new MagmaEngine().extend(new MagmaXStreamExtension());
       return true;
     } catch (Exception e) {
@@ -73,7 +75,9 @@ public class MongoDBDatasourceTest {
   @After
   public void after() {
     MagmaEngine.get().shutdown();
-    mongo.stop();
+    if (running != null) {
+      running.close();
+    }
   }
 
   @Test

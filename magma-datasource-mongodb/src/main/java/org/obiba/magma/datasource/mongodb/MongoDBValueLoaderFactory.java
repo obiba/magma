@@ -12,7 +12,6 @@ package org.obiba.magma.datasource.mongodb;
 
 import com.google.common.io.ByteStreams;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.bson.types.ObjectId;
 import org.json.JSONException;
 import org.json.JSONObject;

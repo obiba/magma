@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.mongodb;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.SocketFactoryProvider;

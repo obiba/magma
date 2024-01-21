@@ -46,10 +46,10 @@
     <easymock.version>3.4</easymock.version>
     <fest.version>2.0M10</fest.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
-    <flapdoodle_embed_mongo.version>1.50.0</flapdoodle_embed_mongo.version>
+    <flapdoodle_embed_mongo.version>4.12.2</flapdoodle_embed_mongo.version>
     <guava.version>32.1.2-jre</guava.version>
     <hsqldb.version>2.3.3</hsqldb.version>
-    <httpclient.version>4.5.13</httpclient.version>
+    <httpclient.version>5.2.1</httpclient.version>
     <javassist.version>3.19.0-GA</javassist.version>
     <javolution.version>5.5.1</javolution.version>
     <janino.version>2.5.10</janino.version>
@@ -59,11 +59,11 @@
     <jts.version>1.13</jts.version>
     <junit.version>4.13.1</junit.version>
     <liquibase-core.version>4.15.0</liquibase-core.version>
-    <logback.version>1.4.11</logback.version>
+    <logback.version>1.4.14</logback.version>
     <log4j.version>2.18.0</log4j.version>
     <mockito.version>5.5.0</mockito.version>
     <mariadb-connector-java.version>3.0.7</mariadb-connector-java.version>
-    <mongodb-driver.version>4.7.1</mongodb-driver.version>
+    <mongodb-driver.version>4.8.2</mongodb-driver.version>
     <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
     <obiba-commons.version>4.0-SNAPSHOT</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
@@ -438,6 +438,7 @@
         <groupId>de.flapdoodle.embed</groupId>
         <artifactId>de.flapdoodle.embed.mongo</artifactId>
         <version>${flapdoodle_embed_mongo.version}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -483,9 +484,15 @@
       </dependency>
 
       <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
         <version>${httpclient.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -576,10 +583,6 @@
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.flapdoodle.embed</groupId>
-      <artifactId>de.flapdoodle.embed.mongo</artifactId>
     </dependency>
 
     <!-- Use log4j during testing -->
