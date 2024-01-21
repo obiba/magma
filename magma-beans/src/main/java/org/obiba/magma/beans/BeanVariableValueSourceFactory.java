@@ -69,14 +69,14 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   private Set<VariableValueSource> sources;
 
   public BeanVariableValueSourceFactory(String entityType, Class<T> beanClass) {
-    Assert.notNull(entityType);
-    Assert.notNull(beanClass);
+    Assert.notNull(entityType, "Entity type cannot be null");
+    Assert.notNull(beanClass, "Bean class cannot be null");
     this.entityType = entityType;
     this.beanClass = beanClass;
   }
 
   public void setProperties(Set<String> properties) {
-    Assert.notNull(properties);
+    Assert.notNull(properties, "Properties cannot be null");
     this.properties = properties;
   }
 
@@ -85,22 +85,22 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   }
 
   public void setPropertyNameToVariableName(Map<String, String> propertyNameToVariableName) {
-    Assert.notNull(propertyNameToVariableName);
+    Assert.notNull(propertyNameToVariableName, "Property name to variable name map cannot be null");
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
   }
 
   public void setPropertyNameToPropertyType(Map<String, Class<?>> propertyNameToPropertyType) {
-    Assert.notNull(propertyNameToPropertyType);
+    Assert.notNull(propertyNameToPropertyType, "Property name to property type cannot be null");
     this.propertyNameToPropertyType = propertyNameToPropertyType;
   }
 
   public void setMappedPropertyType(Map<String, Class<?>> mappedPropertyType) {
-    Assert.notNull(mappedPropertyType);
+    Assert.notNull(mappedPropertyType, "Mapped property type cannot be null");
     this.mappedPropertyType = mappedPropertyType;
   }
 
   public void setVariableBuilderVisitors(Set<? extends BuilderVisitor> variableBuilderVisitors) {
-    Assert.notNull(variableBuilderVisitors);
+    Assert.notNull(variableBuilderVisitors, "Variable builder visitors cannot be null");
     this.variableBuilderVisitors = variableBuilderVisitors;
   }
 
