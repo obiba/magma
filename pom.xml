@@ -57,7 +57,7 @@
     <json.version>20231013</json.version>
     <jsr305.version>3.0.0</jsr305.version>
     <jts.version>1.13</jts.version>
-    <junit.version>4.13.1</junit.version>
+    <junit.version>4.13.2</junit.version>
     <liquibase-core.version>4.15.0</liquibase-core.version>
     <logback.version>1.4.14</logback.version>
     <log4j.version>2.18.0</log4j.version>
