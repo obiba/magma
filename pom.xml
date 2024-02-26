@@ -53,6 +53,7 @@
     <javassist.version>3.19.0-GA</javassist.version>
     <javolution.version>5.5.1</javolution.version>
     <janino.version>2.5.10</janino.version>
+    <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
     <jscience-physics.version>5.0-r53p01</jscience-physics.version>
     <json.version>20231013</json.version>
     <jsr305.version>3.0.0</jsr305.version>
@@ -200,6 +201,12 @@
         <groupId>org.obiba.commons</groupId>
         <artifactId>obiba-shiro</artifactId>
         <version>${obiba-commons.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${jaxb-runtime.version}</version>
+        <scope>runtime</scope>
       </dependency>
 
       <dependency>
