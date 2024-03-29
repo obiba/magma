@@ -60,7 +60,7 @@
     <jts.version>1.13</jts.version>
     <junit.version>4.13.2</junit.version>
     <liquibase-core.version>4.26.0</liquibase-core.version>
-    <logback.version>1.4.14</logback.version>
+    <logback.version>1.5.3</logback.version>
     <log4j.version>2.18.0</log4j.version>
     <mockito.version>5.5.0</mockito.version>
     <mariadb-connector-java.version>3.0.7</mariadb-connector-java.version>
@@ -73,8 +73,8 @@
     <rhino-js.version>1.7.7.1</rhino-js.version>
     <shiro.version>1.13.0</shiro.version>
     <shiro-extras.version>1.1.0</shiro-extras.version>
-    <slf4j.version>2.0.9</slf4j.version>
-    <spring.version>6.0.16</spring.version>
+    <slf4j.version>2.0.12</slf4j.version>
+    <spring.version>6.0.18</spring.version>
     <truezip.version>6.6</truezip.version>
     <unit-api.version>0.6.0</unit-api.version>
     <validation.version>1.1.0.Final</validation.version>
