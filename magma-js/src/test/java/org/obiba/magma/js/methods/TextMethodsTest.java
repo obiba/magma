@@ -19,6 +19,8 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
+import java.util.Locale;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mozilla.javascript.Context.getCurrentContext;
 
@@ -468,6 +470,8 @@ public class TextMethodsTest extends AbstractJsTest {
 
   @Test
   public void testDatetimeConvertWithFormat() {
+    Locale locale  = Locale.getDefault();
+    Locale.setDefault(Locale.ENGLISH);
     ScriptableValue value = newValue(TextType.get().valueOf("10/23/12 10:59 PM"));
     ScriptableValue date = TextMethods.datetime(getCurrentContext(), value, new Object[] { "MM/dd/yy h:mm a" }, null);
     String str = date.getValue().toString();
@@ -475,6 +479,7 @@ public class TextMethodsTest extends AbstractJsTest {
     assertThat(str).isNotNull();
     //noinspection ConstantConditions
     assertThat(str.substring(0, str.lastIndexOf(':'))).isEqualTo("2012-10-23T22:59");
+    Locale.setDefault(locale);
   }
 
   @Test
