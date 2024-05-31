@@ -50,15 +50,22 @@ public class VariableHelper {
     if(compared != null && with != null && compared.size() != with.size()) return true;
 
     if(compared != null && with != null) {
+      int comparedPos = 0;
       for(Category comparedCat : compared) {
         boolean found = false;
+        int withPos = 0;
         for(Category withCat : with) {
           if(comparedCat.getName().equals(withCat.getName())) {
             if(isModified(comparedCat, withCat)) return true;
             found = true;
+            break;
           }
+          withPos++;
         }
         if(!found) return true;
+        // check position
+        if (comparedPos != withPos) return true;
+        comparedPos++;
       }
     }
     return false;
