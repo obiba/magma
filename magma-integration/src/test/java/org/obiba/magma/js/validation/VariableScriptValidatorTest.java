@@ -13,6 +13,10 @@ package org.obiba.magma.js.validation;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.mongo.transitions.Mongod;
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.reverse.TransitionWalker;
 import org.junit.*;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.*;
@@ -24,7 +28,6 @@ import org.obiba.magma.js.JavascriptVariableValueSource;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
-import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.views.DefaultViewManagerImpl;
 import org.obiba.magma.views.MemoryViewPersistenceStrategy;
@@ -63,9 +66,8 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private ViewManager viewManager;
 
-  private EmbeddedMongoProcessWrapper mongo;
-
   private String mongoDbUrl;
+  private TransitionWalker.ReachedState<RunningMongodProcess> running;
 
   @Before
   @Override
@@ -77,11 +79,25 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
   }
 
+  private boolean setupMongoDB() {
+    try {
+      // Configure and start embedded MongoDB
+      running = Mongod.instance().start(Version.Main.V7_0);
+      mongoDbUrl = "mongodb://" + running.current().getServerAddress() + '/' + MONGO_DB_TEST;
+      new MagmaEngine().extend(new MagmaXStreamExtension());
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
   @After
   @Override
   public void after() {
     super.after();
-    mongo.stop();
+    if (running != null) {
+      running.close();
+    }
   }
 
   @Override
@@ -89,17 +105,6 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     MagmaEngine magmaEngine = super.newEngine();
     magmaEngine.extend(new MagmaXStreamExtension());
     return magmaEngine;
-  }
-
-  private boolean setupMongoDB() {
-    try {
-      mongo = new EmbeddedMongoProcessWrapper();
-      mongo.start();
-      mongoDbUrl = "mongodb://" + mongo.getServerSocketAddress() + '/' + MONGO_DB_TEST;
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
   }
 
   private Datasource getTestDatasource() throws IOException {
