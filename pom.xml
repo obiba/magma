@@ -65,7 +65,7 @@
     <mockito.version>5.5.0</mockito.version>
     <mariadb-connector-java.version>3.0.7</mariadb-connector-java.version>
     <mongodb-driver.version>5.1.3</mongodb-driver.version>
-    <mysql-connector-java.version>8.0.30</mysql-connector-java.version>
+    <mysql-connector-j.version>8.4.0</mysql-connector-j.version>
     <obiba-commons.version>4.2.0</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>5.2.5</poi-ooxml.version>
@@ -277,9 +277,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>${mysql-connector-java.version}</version>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>${mysql-connector-j.version}</version>
         <scope>test</scope>
         <exclusions>
           <exclusion>
