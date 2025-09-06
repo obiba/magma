@@ -11,6 +11,7 @@
 package org.obiba.magma.datasource.jdbc;
 
 import com.google.common.base.Strings;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.lang.VariableEntityList;
@@ -93,14 +94,21 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
 
     List<VariableEntity> entities = new VariableEntityList();
     if (pageSize == 0) return entities;
-    
+
     JdbcDatasource datasource = valueTable.getDatasource();
-    String query = String
-        .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC LIMIT %s OFFSET %s", // works for mysql, maria, posgre, hsql databases
-            idColumn,
-            tableName,
-            whereStatement,
-            idColumn, pageSize, from);
+    String query = isSQLServer(datasource) ?
+        String
+            .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC OFFSET %s ROWS FETCH NEXT %s ROWS ONLY", // works for mysql, maria, posgre, hsql databases
+                idColumn,
+                tableName,
+                whereStatement,
+                idColumn, from, pageSize) :
+        String
+            .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC LIMIT %s OFFSET %s", // works for mysql, maria, posgre, hsql databases
+                idColumn,
+                tableName,
+                whereStatement,
+                idColumn, pageSize, from);
     // get the distinct list of entity identifiers
     List<VariableEntity> results = datasource.getJdbcTemplate().query(query,
         (rs, rowNum) -> new VariableEntityBean(valueTable.getEntityType(), valueTable.extractEntityIdentifier(rs)));
@@ -148,5 +156,17 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
     if (numericIdentifiers)
       return entity.getIdentifier();
     return "'" + entity.getIdentifier() + "'";
+  }
+
+  private boolean isSQLServer(JdbcDatasource datasource) {
+    boolean isSqlServer = false;
+    try {
+      if (datasource.getJdbcTemplate().getDataSource() instanceof BasicDataSource) {
+        isSqlServer = ((BasicDataSource) datasource.getJdbcTemplate().getDataSource()).getDriverClassName().endsWith(".SQLServerDriver");
+      }
+    } catch (Exception e) {
+      // should not happen
+    }
+    return isSqlServer;
   }
 }
