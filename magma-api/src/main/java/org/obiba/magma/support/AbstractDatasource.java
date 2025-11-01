@@ -35,8 +35,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDatasource extends AbstractAttributeAware implements Datasource {
+
+  private static final Logger log = LoggerFactory.getLogger(AbstractDatasource.class);
 
   private final String name;
 
@@ -97,10 +101,12 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   @Override
   public void initialise() {
+    log.info("##### Initialising datasource: {}", getName());
     Collection<DatasourceParsingException> parsingErrors = new ArrayList<>();
     onInitialise();
     for(String valueTable : getValueTableNames()) {
       ValueTable vt = initialiseValueTable(valueTable);
+      log.info("##### Initialized valueTable: {}", valueTable);
       try {
         Initialisables.initialise(vt);
         addValueTable(vt);

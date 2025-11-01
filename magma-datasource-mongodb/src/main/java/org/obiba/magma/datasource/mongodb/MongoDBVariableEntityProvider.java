@@ -66,7 +66,8 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
   @Override
   public List<VariableEntity> getVariableEntities(int offset, int limit) {
     MongoCollection<Document> collection = table.getValueSetCollection();
-    int total = (int) collection.countDocuments();
+//    int total = (int) collection.countDocuments();
+    int total = (int) collection.estimatedDocumentCount();
     int from = Math.max(offset, 0);
     from = Math.min(from, total);
     int pageSize = limit < 0 ? total : limit;
@@ -94,6 +95,7 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
 
   @Override
   public int getVariableEntityCount() {
-    return (int) table.getValueSetCollection().countDocuments();
+//    return (int) table.getValueSetCollection().countDocuments();
+    return (int) table.getValueSetCollection().estimatedDocumentCount();
   }
 }
