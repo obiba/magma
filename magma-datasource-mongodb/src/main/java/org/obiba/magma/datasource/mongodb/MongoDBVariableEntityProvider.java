@@ -15,6 +15,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.CountOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.obiba.magma.VariableEntity;
@@ -76,7 +77,7 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
     try (MongoCursor<Document> cursor = collection.find(new Document())
       .projection(idProjection)          // {_id:1}
       .hintString("_id_")                // force IXSCAN on _id
-      .sort(Sorts.ascending("_id"))      // stable order using same index
+      .sort(Sorts.ascending("$natural"))      // stable order using same index
       .skip(from)
       .limit(pageSize)
       .iterator()) {
