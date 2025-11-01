@@ -16,6 +16,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import com.mongodb.client.model.CountOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Projections;
@@ -188,8 +189,7 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   @Override
   public int getVariableCount() {
-//    return (int) getVariablesCollection().countDocuments();
-    return (int) getVariablesCollection().estimatedDocumentCount();
+    return (int) getVariablesCollection().countDocuments(new Document(), new CountOptions().hintString("_id_"));
   }
 
   @Override

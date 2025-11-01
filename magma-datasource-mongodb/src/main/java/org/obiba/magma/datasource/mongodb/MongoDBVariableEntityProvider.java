@@ -12,6 +12,7 @@ package org.obiba.magma.datasource.mongodb;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.CountOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import org.bson.Document;
@@ -66,20 +67,24 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
   @Override
   public List<VariableEntity> getVariableEntities(int offset, int limit) {
     MongoCollection<Document> collection = table.getValueSetCollection();
-//    int total = (int) collection.countDocuments();
-    int total = (int) collection.estimatedDocumentCount();
-    int from = Math.max(offset, 0);
-    from = Math.min(from, total);
-    int pageSize = limit < 0 ? total : limit;
+
+    int total = Math.toIntExact(collection.countDocuments(new Document(), new CountOptions().hintString("_id_")));
+    int from = Math.max(0, Math.min(offset, total));
+    int pageSize = (limit < 0) ? total : limit;
 
     List<VariableEntity> list = new VariableEntityList();
-    try (MongoCursor<Document> cursor = collection.find().projection(idProjection).skip(from).limit(pageSize).cursor()) {
-      while (true) {
+    try (MongoCursor<Document> cursor = collection.find(new Document())
+      .projection(idProjection)          // {_id:1}
+      .hintString("_id_")                // force IXSCAN on _id
+      .sort(Sorts.ascending("_id"))      // stable order using same index
+      .skip(from)
+      .limit(pageSize)
+      .iterator()) {
+
+      while (cursor.hasNext()) {
         Document next = cursor.next();
         list.add(new VariableEntityBean(getEntityType(), next.get("_id").toString()));
       }
-    } catch (NoSuchElementException e) {
-      // ignored, reading cursor is finished
     }
     return list;
   }
@@ -95,7 +100,6 @@ class MongoDBVariableEntityProvider implements PagingVariableEntityProvider {
 
   @Override
   public int getVariableEntityCount() {
-//    return (int) table.getValueSetCollection().countDocuments();
-    return (int) table.getValueSetCollection().estimatedDocumentCount();
+    return (int) table.getValueSetCollection().countDocuments(new Document(), new CountOptions().hintString("_id_"));
   }
 }
