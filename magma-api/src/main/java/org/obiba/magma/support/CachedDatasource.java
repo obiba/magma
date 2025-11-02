@@ -10,31 +10,27 @@
 
 package org.obiba.magma.support;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
-import org.obiba.magma.*;
-import org.springframework.cache.Cache;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.obiba.magma.*;
+import org.springframework.cache.CacheManager;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class CachedDatasource extends AbstractDatasourceWrapper {
-  private Cache cache;
+
+  private final CacheManager cacheManager;
 
   private final Map<String, ValueTable> cachedValueTablesMap = Maps.newHashMap();
 
-  public CachedDatasource(@NotNull Datasource wrapped, @NotNull Cache cache) {
+  public CachedDatasource(@NotNull Datasource wrapped, @NotNull CacheManager cacheManager) {
     super(wrapped);
-    this.cache = cache;
+    this.cacheManager = cacheManager;
   }
 
   @Override
@@ -58,7 +54,7 @@ public class CachedDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public boolean hasValueTable(final String tableName) {
-    return getCached(getCacheKey("hasValueTable", tableName), () -> getWrappedDatasource().hasValueTable(tableName));
+    return getWrappedDatasource().hasValueTable(tableName);
   }
 
   @Override
@@ -72,9 +68,17 @@ public class CachedDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public Set<ValueTable> getValueTables() {
+    List<String> tableNames = Lists.newArrayList();
     for (ValueTable table : getWrappedDatasource().getValueTables()) {
+      tableNames.add(table.getName());
       if (!cachedValueTablesMap.containsKey(table.getName()))
-        cachedValueTablesMap.put(table.getName(), new CachedValueTable(this, table.getName(), cache));
+        cachedValueTablesMap.put(table.getName(),
+            new CachedValueTable(this, table.getName(),
+                cacheManager.getCache(String.format("%s.%s", getName(), table.getName()))));
+    }
+    // remove tables that are no more in the wrapped
+    for (String tableName : cachedValueTablesMap.keySet()) {
+      if (!tableNames.contains(tableName)) cachedValueTablesMap.remove(tableName);
     }
     return ImmutableSet.<ValueTable>builder().addAll(cachedValueTablesMap.values()).build();
   }
@@ -93,15 +97,7 @@ public class CachedDatasource extends AbstractDatasourceWrapper {
 
   private void evictTableCache(String name) {
     cachedValueTablesMap.clear();
-    CacheUtils.evictCached(cache, getCacheKey("hasValueTable", name));
-  }
-
-  private <T> T getCached(Object key, Supplier<T> supplier) {
-    return CacheUtils.getCached(cache, key, supplier);
-  }
-
-  private String getCacheKey(Object... parts) {
-    return Joiner.on(".").join(Iterables.concat(Arrays.asList(getName()), Arrays.asList(parts)));
+    Objects.requireNonNull(cacheManager.getCache(String.format("%s.%s", getName(), name))).clear();
   }
 
   private class CachedValueTableWriter implements ValueTableWriter {
