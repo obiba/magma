@@ -30,4 +30,8 @@ public class CacheUtils {
       throw e;
     }
   }
+
+  public static void evictCached(Cache cache, Object key) {
+    cache.evict(key);
+  }
 }
