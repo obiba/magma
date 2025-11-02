@@ -51,14 +51,14 @@ public class CachedVectorSource implements VectorSource {
 
   @Override
   public Iterable<Value> getValues(final Iterable<VariableEntity> entities) {
-    boolean missing = true;
+    boolean missing = false;
     List<Value> res = new ArrayList<>();
 
     for (VariableEntity variableEntity : entities) {
       Cache.ValueWrapper valueWrapper = cache.get(getCacheKey("getValues", variableEntity.getIdentifier()));
 
       if (valueWrapper == null) {
-        missing = false;
+        missing = true;
         break;
       }
 
