@@ -101,7 +101,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   @Override
   public void initialise() {
-    log.info("##### Initialising datasource: {} #######", getName());
+    log.info("##### ## Initialising datasource: {} #######", getName());
     Collection<DatasourceParsingException> parsingErrors = new ArrayList<>();
     onInitialise();
     for(String valueTable : getValueTableNames()) {
