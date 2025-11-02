@@ -69,7 +69,11 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
   @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
-    JdbcValueSet jdbcValueSet = (JdbcValueSet) valueSet;
+    ValueSet vs = valueSet;
+    if (valueSet instanceof ValueSetWrapper) {
+      vs = ((ValueSetWrapper) valueSet).getWrapped();
+    }
+    JdbcValueSet jdbcValueSet = (JdbcValueSet) vs;
     return jdbcValueSet.getValue(variable);
   }
 

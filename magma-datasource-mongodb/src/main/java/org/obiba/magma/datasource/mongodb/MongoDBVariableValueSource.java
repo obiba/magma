@@ -76,7 +76,11 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
   @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
-    return ((MongoDBValueSet) valueSet).getValue(getVariable());
+    ValueSet vs = valueSet;
+    if (valueSet instanceof ValueSetWrapper) {
+      vs = ((ValueSetWrapper) valueSet).getWrapped();
+    }
+    return ((MongoDBValueSet) vs).getValue(getVariable());
   }
 
   @Override

@@ -85,6 +85,6 @@ public class CachedTimestamps implements Timestamps {
   private String getCacheKey(Object... parts) {
     return Joiner
         .on(".").join(Iterables.concat(
-            Arrays.asList(table != null ? table.getName() : null, valueSet != null ? valueSet.getValueTable().getName() + "." + valueSet.getVariableEntity().getIdentifier() : null), Arrays.asList(parts)));
+            Arrays.asList(table != null ? table.getName() : "null", valueSet != null ? valueSet.getValueTable().getName() + "." + valueSet.getVariableEntity().getIdentifier() : "null"), Arrays.asList(parts)));
   }
 }

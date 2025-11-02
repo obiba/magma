@@ -52,10 +52,11 @@ public class CsvVariableValueSource extends AbstractVariableValueSource implemen
   @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
+    ValueSet vs = valueSet;
     if (valueSet instanceof ValueSetWrapper) {
-      return ((CsvValueSet) ((ValueSetWrapper) valueSet).getWrapped()).getValue(variable);
+      vs = ((ValueSetWrapper) valueSet).getWrapped();
     }
-    return ((CsvValueSet) valueSet).getValue(variable);
+    return ((CsvValueSet) vs).getValue(variable);
   }
 
   @Override

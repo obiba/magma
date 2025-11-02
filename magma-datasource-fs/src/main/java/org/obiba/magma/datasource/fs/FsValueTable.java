@@ -18,20 +18,7 @@ import java.io.Writer;
 
 import javax.validation.constraints.NotNull;
 
-import org.obiba.magma.AbstractVariableValueSource;
-import org.obiba.magma.Disposable;
-import org.obiba.magma.Initialisable;
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.fs.FsDatasource.InputCallback;
 import org.obiba.magma.datasource.fs.FsDatasource.OutputCallback;
 import org.obiba.magma.support.AbstractValueTable;
@@ -169,7 +156,11 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
-      return ((LazyValueSet) valueSet).getValueSet().getValue(variable);
+      ValueSet vs = valueSet;
+      if (valueSet instanceof ValueSetWrapper) {
+        vs = ((ValueSetWrapper) valueSet).getWrapped();
+      }
+      return ((LazyValueSet) vs).getValueSet().getValue(variable);
     }
 
     @Override

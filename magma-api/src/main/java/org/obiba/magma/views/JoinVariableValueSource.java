@@ -12,6 +12,7 @@ package org.obiba.magma.views;
 
 import com.google.common.collect.Iterables;
 import org.obiba.magma.*;
+import org.obiba.magma.ValueSetWrapper;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -40,7 +41,11 @@ public class JoinVariableValueSource implements VariableValueSource, VectorSourc
   @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
-    return ((JoinValueSet) valueSet).getValue(getVariable());
+    ValueSet vs = valueSet;
+    if (valueSet instanceof org.obiba.magma.ValueSetWrapper) {
+      vs = ((ValueSetWrapper) valueSet).getWrapped();
+    }
+    return ((JoinValueSet) vs).getValue(getVariable());
   }
 
   @Override
