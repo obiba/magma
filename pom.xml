@@ -65,7 +65,7 @@
     <mockito.version>5.5.0</mockito.version>
     <mariadb-connector-java.version>3.0.7</mariadb-connector-java.version>
     <mongodb-driver.version>5.3.1</mongodb-driver.version>
-    <mssql.version>12.10.1.jre11</mssql.version>
+    <mssql.version>12.10.2.jre11</mssql.version>
     <mysql-connector-j.version>8.4.0</mysql-connector-j.version>
     <obiba-commons.version>4.3.1</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
