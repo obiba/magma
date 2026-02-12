@@ -67,7 +67,7 @@
     <mongodb-driver.version>5.6.3</mongodb-driver.version>
     <mssql.version>12.10.2.jre11</mssql.version>
     <mysql-connector-j.version>8.4.0</mysql-connector-j.version>
-    <obiba-commons.version>5.0-SNAPSHOT</obiba-commons.version>
+    <obiba-commons.version>5.0.0</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>5.4.0</poi-ooxml.version>
     <postgresql.version>42.7.2</postgresql.version>
