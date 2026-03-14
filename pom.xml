@@ -72,7 +72,7 @@
     <poi-ooxml.version>5.4.0</poi-ooxml.version>
     <postgresql.version>42.7.2</postgresql.version>
     <rhino-js.version>1.7.14.1</rhino-js.version>
-    <shiro.version>1.13.0</shiro.version>
+    <shiro.version>2.1.0</shiro.version>
     <shiro-extras.version>1.1.0</shiro-extras.version>
     <slf4j.version>2.0.12</slf4j.version>
     <spring.version>7.0.3</spring.version>
