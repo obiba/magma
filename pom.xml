@@ -55,7 +55,7 @@
     <jscience-physics.version>5.0-r53p01</jscience-physics.version>
     <json.version>20231013</json.version>
     <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
-    <jta.version>1.1</jta.version>
+    <jakarta.transaction-api.version>2.0.1</jakarta.transaction-api.version>
     <jts.version>1.13</jts.version>
     <junit.version>4.13.2</junit.version>
     <liquibase-core.version>4.26.0</liquibase-core.version>
@@ -541,9 +541,9 @@
       </dependency>
 
       <dependency>
-        <groupId>javax.transaction</groupId>
-        <artifactId>jta</artifactId>
-        <version>${jta.version}</version>
+        <groupId>jakarta.transaction</groupId>
+        <artifactId>jakarta.transaction-api</artifactId>
+        <version>${jakarta.transaction-api.version}</version>
       </dependency>
 
       <dependency>
