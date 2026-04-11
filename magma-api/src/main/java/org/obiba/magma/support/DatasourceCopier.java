@@ -15,7 +15,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import org.obiba.magma.Datasource;

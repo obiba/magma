@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;

@@ -14,7 +14,7 @@ import org.obiba.magma.*;
 import org.obiba.magma.security.permissions.Permissions;
 import org.obiba.magma.support.ValueTableReference;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Set;
 import java.util.stream.Collectors;
 

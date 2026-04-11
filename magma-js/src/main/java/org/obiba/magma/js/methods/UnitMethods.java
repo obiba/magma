@@ -13,7 +13,7 @@ package org.obiba.magma.js.methods;
 import java.text.ParsePosition;
 import java.util.ResourceBundle;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.jscience.physics.unit.PhysicsUnit;
 import org.jscience.physics.unit.format.SymbolMap;

@@ -12,7 +12,7 @@ package org.obiba.magma.type;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.json.JSONArray;

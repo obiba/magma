@@ -13,7 +13,7 @@ package org.obiba.magma.js.methods;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;

@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.support;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.obiba.magma.ValueTable;
 

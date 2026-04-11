@@ -16,7 +16,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.SortedSet;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;

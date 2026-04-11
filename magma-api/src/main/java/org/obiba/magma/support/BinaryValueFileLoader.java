@@ -12,7 +12,7 @@ package org.obiba.magma.support;
 import java.io.File;
 import java.io.Serializable;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.ValueLoader;

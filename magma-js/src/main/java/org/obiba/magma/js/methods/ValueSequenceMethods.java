@@ -25,7 +25,7 @@ import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.*;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;

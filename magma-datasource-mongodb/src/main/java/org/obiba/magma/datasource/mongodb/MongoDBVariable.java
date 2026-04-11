@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.mongodb;
 
 import org.obiba.magma.*;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Locale;

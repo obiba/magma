@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.mozilla.javascript.CompilerEnvirons;

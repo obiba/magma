@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import org.obiba.magma.MagmaRuntimeException;

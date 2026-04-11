@@ -32,7 +32,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;

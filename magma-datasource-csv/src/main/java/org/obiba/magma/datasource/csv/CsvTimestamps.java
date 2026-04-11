@@ -13,7 +13,7 @@ package org.obiba.magma.datasource.csv;
 import java.io.File;
 import java.util.Date;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Timestamps;

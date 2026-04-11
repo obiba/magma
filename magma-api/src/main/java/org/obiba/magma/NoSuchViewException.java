@@ -10,7 +10,7 @@
 
 package org.obiba.magma;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 public class NoSuchViewException extends MagmaRuntimeException {

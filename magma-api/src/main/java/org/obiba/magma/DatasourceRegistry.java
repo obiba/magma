@@ -12,7 +12,7 @@ package org.obiba.magma;
 
 import java.util.Set;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.obiba.magma.support.ValueTableReference;
 

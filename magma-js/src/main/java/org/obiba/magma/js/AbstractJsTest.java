@@ -10,7 +10,7 @@
 
 package org.obiba.magma.js;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.junit.After;
 import org.junit.Before;

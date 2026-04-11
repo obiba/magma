@@ -13,7 +13,7 @@ package org.obiba.magma;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**

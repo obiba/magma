@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.beans;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractVariableValueSource;

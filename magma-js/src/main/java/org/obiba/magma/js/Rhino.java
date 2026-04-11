@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.js;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Utility class for Rhino-related concerns

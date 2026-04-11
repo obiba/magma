@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.generated;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AttributeAware;

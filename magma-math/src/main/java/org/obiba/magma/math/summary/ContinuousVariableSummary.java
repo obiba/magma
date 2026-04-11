@@ -22,7 +22,7 @@ import org.obiba.magma.type.IntegerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.*;

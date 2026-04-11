@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;

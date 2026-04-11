@@ -47,7 +47,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.sql.Connection;

@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.csv.support;
 import java.io.IOException;
 import java.io.Reader;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Copy of BufferedReader that expose nextChar.

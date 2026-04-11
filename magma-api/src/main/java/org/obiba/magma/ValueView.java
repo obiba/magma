@@ -12,7 +12,7 @@ package org.obiba.magma;
 
 import org.obiba.magma.views.ViewAwareDatasource;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Represent a logical/indirect dataset and gives access to the variables and the entities. This table can be attached

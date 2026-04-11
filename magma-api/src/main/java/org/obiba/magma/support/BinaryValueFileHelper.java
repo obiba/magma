@@ -16,7 +16,7 @@ import java.io.FilenameFilter;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.MagmaRuntimeException;

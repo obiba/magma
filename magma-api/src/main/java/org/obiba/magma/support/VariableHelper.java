@@ -12,7 +12,7 @@ package org.obiba.magma.support;
 
 import org.obiba.magma.*;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;

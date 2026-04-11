@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;

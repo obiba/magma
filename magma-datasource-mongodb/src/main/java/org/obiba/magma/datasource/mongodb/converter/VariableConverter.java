@@ -22,7 +22,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.mongodb.MongoDBVariable;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 
 public class VariableConverter {

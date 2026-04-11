@@ -13,7 +13,7 @@ package org.obiba.magma.datasource.excel.support;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.apache.poi.ss.usermodel.Cell;

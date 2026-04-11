@@ -9,7 +9,7 @@
  */
 package org.obiba.magma;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Factory of value loader, given a string reference.

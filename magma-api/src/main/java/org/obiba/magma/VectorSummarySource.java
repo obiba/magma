@@ -12,7 +12,7 @@ package org.obiba.magma;
 
 import org.obiba.magma.math.*;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 

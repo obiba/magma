@@ -27,7 +27,7 @@ import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Iterator;

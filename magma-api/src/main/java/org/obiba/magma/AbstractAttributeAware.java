@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;

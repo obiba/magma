@@ -22,7 +22,7 @@ import com.mongodb.client.gridfs.GridFSBuckets;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.SocketFactoryProvider;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.net.URI;

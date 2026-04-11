@@ -10,7 +10,7 @@
 
 package org.obiba.magma.lang;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Boolean helper methods.

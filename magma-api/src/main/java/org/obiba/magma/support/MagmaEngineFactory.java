@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;

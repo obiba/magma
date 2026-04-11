@@ -13,7 +13,7 @@ package org.obiba.magma.support;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import com.google.common.base.Strings;
 import org.obiba.magma.*;

@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 
 import java.io.Serializable;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 public class Value implements Serializable, Comparable<Value> {

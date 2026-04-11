@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;

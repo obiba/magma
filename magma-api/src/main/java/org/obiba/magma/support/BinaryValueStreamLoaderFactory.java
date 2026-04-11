@@ -11,7 +11,7 @@ package org.obiba.magma.support;
 
 import java.io.File;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoader;

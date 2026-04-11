@@ -13,7 +13,7 @@ package org.obiba.magma.views;
 import org.obiba.magma.ValueView;
 import org.obiba.magma.views.support.VariableOperationContext;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 

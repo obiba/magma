@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.jdbc;
 
 import com.google.common.base.Strings;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.List;

@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.obiba.magma.*;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;

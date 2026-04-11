@@ -30,7 +30,7 @@ import java.nio.CharBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * <p>

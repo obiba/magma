@@ -26,7 +26,7 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.unitsofmeasurement.unit.Unit;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;

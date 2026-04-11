@@ -12,7 +12,7 @@ package org.obiba.magma;
 
 import java.util.Locale;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 public class NoSuchAttributeException extends MagmaRuntimeException {

@@ -31,7 +31,7 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.*;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;

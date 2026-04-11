@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.js.support;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;

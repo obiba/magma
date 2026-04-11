@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.jdbc;
 
 import java.sql.Types;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueType;

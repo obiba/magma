@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.json.JSONArray;
