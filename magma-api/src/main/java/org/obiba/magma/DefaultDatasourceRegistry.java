@@ -160,7 +160,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
   }
 
   /**
-   * Dispose & remove the transient datasource & factory identified by uid (ignore if none is found).
+   * Dispose &amp; remove the transient datasource &amp; factory identified by uid (ignore if none is found).
    *
    * @param uid
    */

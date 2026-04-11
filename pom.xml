@@ -8,7 +8,7 @@
   <packaging>pom</packaging>
   <version>5.3-SNAPSHOT</version>
   <name>magma</name>
-  <url>http://www.obiba.org</url>
+  <url>https://www.obiba.org</url>
 
   <modules>
     <module>magma-api</module>
@@ -31,8 +31,7 @@
   </modules>
 
   <properties>
-    <maven.compiler.target>21</maven.compiler.target>
-    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.release>21</maven.compiler.release>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -57,6 +56,7 @@
     <jscience-physics.version>5.0-r53p01</jscience-physics.version>
     <json.version>20231013</json.version>
     <jsr305.version>3.0.0</jsr305.version>
+    <jta.version>1.1</jta.version>
     <jts.version>1.13</jts.version>
     <junit.version>4.13.2</junit.version>
     <liquibase-core.version>4.26.0</liquibase-core.version>
@@ -83,16 +83,16 @@
 
     <!-- maven plugins -->
     <bintray-maven-plugin.version>1.2.20180117184439</bintray-maven-plugin.version>
-    <maven-buildnumber-plugin.version>1.2</maven-buildnumber-plugin.version>
+    <maven-buildnumber-plugin.version>3.2.1</maven-buildnumber-plugin.version>
     <maven-cobertura-plugin.version>2.5.2</maven-cobertura-plugin.version>
-    <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-    <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
+    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+    <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <maven-findbugs-plugin.version>3.0.4</maven-findbugs-plugin.version>
-    <maven-pmd-plugin.version>3.1</maven-pmd-plugin.version>
-    <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
-    <maven-source-plugin.version>2.2</maven-source-plugin.version>
-    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+    <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
+    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -421,10 +421,10 @@
         <version>${slf4j.version}</version>
       </dependency>
 
-      <!-- Use log4j during testing -->
+      <!-- Use reload4j backend during testing -->
       <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
+        <artifactId>slf4j-reload4j</artifactId>
         <version>${slf4j.version}</version>
         <scope>test</scope>
       </dependency>
@@ -598,10 +598,10 @@
       <artifactId>fest-assert-core</artifactId>
     </dependency>
 
-    <!-- Use log4j during testing -->
+    <!-- Use reload4j backend during testing -->
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <artifactId>slf4j-reload4j</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -639,12 +639,6 @@
           </configuration>
         </plugin>
 
-<!--        <plugin>-->
-<!--          <groupId>org.apache.maven.plugins</groupId>-->
-<!--          <artifactId>maven-javadoc-plugin</artifactId>-->
-<!--          <version>${maven-javadoc-plugin.version}</version>-->
-<!--        </plugin>-->
-
         <plugin>
           <groupId>com.carrotgarden.maven</groupId>
           <artifactId>bintray-maven-plugin</artifactId>
@@ -669,7 +663,7 @@
           <configuration>
             <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
             <minimumTokens>30</minimumTokens>
-            <targetJdk>${maven.compiler.target}</targetJdk>
+            <targetJdk>${maven.compiler.release}</targetJdk>
             <rulesets>
               <ruleset>https://github.com/obiba/conventions/raw/master/obiba-pmd-ruleset.xml</ruleset>
             </rulesets>
@@ -681,8 +675,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
+            <release>${maven.compiler.release}</release>
             <encoding>${project.build.sourceEncoding}</encoding>
             <showWarnings>true</showWarnings>
           </configuration>
@@ -743,6 +736,25 @@
         <executions>
           <execution>
             <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <configuration>
+          <doclint>none</doclint>
+          <failOnError>false</failOnError>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
             <phase>verify</phase>
             <goals>
               <goal>jar</goal>

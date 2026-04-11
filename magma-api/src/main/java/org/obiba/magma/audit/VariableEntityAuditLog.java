@@ -40,7 +40,7 @@ public interface VariableEntityAuditLog {
   /**
    * Gets the list of events from the log for a specific value table, most recent first.
    *
-   * @param value table
+   * @param valueTable
    * @return
    */
   List<VariableEntityAuditEvent> getAuditEvents(ValueTable valueTable);

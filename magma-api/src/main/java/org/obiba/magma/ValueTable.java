@@ -63,8 +63,8 @@ public interface ValueTable extends Timestamped {
    * Get the a variable entities page. Default implementation makes a sublist of the entity list, a specific implementation
    * would query the entities from the storage.
    *
-   * @param offset from the start if < 0
-   * @param limit  until the end if < 0
+   * @param offset from the start if &lt; 0
+   * @param limit  until the end if &lt; 0
    * @return
    */
   default List<VariableEntity> getVariableEntities(int offset, int limit) {
