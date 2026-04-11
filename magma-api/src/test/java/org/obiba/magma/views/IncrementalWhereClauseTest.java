@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.views;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.easymock.EasyMock;
 import org.junit.Test;

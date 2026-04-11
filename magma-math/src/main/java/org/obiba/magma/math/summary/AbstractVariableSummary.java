@@ -13,7 +13,7 @@ package org.obiba.magma.math.summary;
 import com.google.common.base.Preconditions;
 import org.obiba.magma.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public abstract class AbstractVariableSummary implements VariableSummary {

@@ -17,7 +17,7 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public abstract class AbstractBeanVariableEntityProvider<T> extends AbstractVariableEntityProvider {

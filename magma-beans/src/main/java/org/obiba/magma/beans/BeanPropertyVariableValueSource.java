@@ -10,7 +10,7 @@
 package org.obiba.magma.beans;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.MagmaRuntimeException;

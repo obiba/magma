@@ -17,7 +17,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.LocaleType;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 

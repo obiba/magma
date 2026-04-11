@@ -12,7 +12,7 @@ package org.obiba.magma.support;
 
 import java.lang.ref.WeakReference;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Timestamps;

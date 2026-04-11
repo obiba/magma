@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;

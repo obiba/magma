@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.obiba.magma.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;

@@ -11,7 +11,7 @@ package org.obiba.magma;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * A value loader allows deferred loading of values given a reference (file path, url etc.).

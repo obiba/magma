@@ -24,7 +24,7 @@ import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 

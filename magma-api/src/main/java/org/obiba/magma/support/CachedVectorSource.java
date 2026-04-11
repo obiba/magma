@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 import org.obiba.magma.*;
 import org.springframework.cache.Cache;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -15,7 +15,7 @@ import org.obiba.magma.*;
 import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.support.ValueSetBean;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 

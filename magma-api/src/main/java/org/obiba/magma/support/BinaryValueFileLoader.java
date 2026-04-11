@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.Serializable;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.ValueLoader;
 

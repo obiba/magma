@@ -17,7 +17,8 @@ import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.SocketFactoryProvider;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;

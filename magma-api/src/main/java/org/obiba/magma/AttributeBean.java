@@ -13,7 +13,7 @@ package org.obiba.magma;
 import java.io.Serializable;
 import java.util.Locale;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.google.common.base.Objects;
 

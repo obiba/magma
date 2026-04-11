@@ -23,7 +23,7 @@ import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.VariableConverter;
 import org.obiba.magma.type.TextType;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

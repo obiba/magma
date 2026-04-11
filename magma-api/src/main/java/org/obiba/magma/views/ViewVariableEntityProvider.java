@@ -9,7 +9,7 @@ import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
 import org.springframework.cache.Cache;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;

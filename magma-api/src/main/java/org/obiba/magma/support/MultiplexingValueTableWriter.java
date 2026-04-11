@@ -13,7 +13,7 @@ package org.obiba.magma.support;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;

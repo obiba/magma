@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.type.AnyToTextValueConverter;
 import org.obiba.magma.type.BinaryType;

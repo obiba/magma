@@ -13,7 +13,7 @@ package org.obiba.magma.js;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.js.methods.AbstractGlobalMethodProvider;
 

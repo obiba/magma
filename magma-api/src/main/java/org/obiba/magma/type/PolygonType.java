@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;

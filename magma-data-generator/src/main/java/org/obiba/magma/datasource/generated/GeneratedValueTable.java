@@ -22,7 +22,7 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;

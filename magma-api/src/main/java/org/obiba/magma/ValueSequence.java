@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.LocaleType;

@@ -16,7 +16,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.NoSuchElementException;

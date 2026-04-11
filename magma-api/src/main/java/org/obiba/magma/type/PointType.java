@@ -12,7 +12,7 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.json.JSONObject;
 import org.obiba.magma.Coordinate;

@@ -12,7 +12,7 @@ package org.obiba.magma.support;
 import java.io.InputStream;
 import java.net.URL;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueLoader;

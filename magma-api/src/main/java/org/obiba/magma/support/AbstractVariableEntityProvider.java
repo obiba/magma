@@ -10,7 +10,7 @@
 
 package org.obiba.magma.support;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public abstract class AbstractVariableEntityProvider implements VariableEntityProvider {
 

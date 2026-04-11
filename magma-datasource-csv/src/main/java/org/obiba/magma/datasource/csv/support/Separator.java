@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.csv.support;
 
 import java.util.Arrays;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.google.common.collect.ImmutableList;
 

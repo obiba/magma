@@ -12,7 +12,7 @@ package org.obiba.magma.views;
 
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.google.common.collect.*;
 import org.obiba.magma.NoSuchValueSetException;

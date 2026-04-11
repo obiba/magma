@@ -10,7 +10,7 @@
 
 package org.obiba.magma;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Defines the contract for obtaining a {@link Value} of a specific {@link Variable} within a {@link ValueSet}

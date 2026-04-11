@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 

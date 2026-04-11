@@ -10,7 +10,7 @@
 
 package org.obiba.magma.datasource.generated;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.Variable;
 

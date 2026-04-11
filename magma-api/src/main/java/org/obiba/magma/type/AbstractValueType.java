@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
 import org.obiba.magma.*;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;

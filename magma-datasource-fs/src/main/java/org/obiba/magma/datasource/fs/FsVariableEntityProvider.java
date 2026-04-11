@@ -24,7 +24,7 @@ import org.obiba.magma.datasource.fs.FsDatasource.OutputCallback;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

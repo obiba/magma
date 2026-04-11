@@ -13,7 +13,7 @@ package org.obiba.magma.datasource.csv;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.VariableEntityProvider;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public class CsvVariableEntityProvider implements VariableEntityProvider {

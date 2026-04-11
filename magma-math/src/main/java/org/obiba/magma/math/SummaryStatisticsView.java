@@ -20,7 +20,7 @@ import org.obiba.magma.*;
 import org.obiba.magma.support.*;
 import org.obiba.magma.type.DecimalType;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;

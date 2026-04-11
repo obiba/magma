@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.json.JSONObject;
 import org.obiba.magma.MagmaEngine;

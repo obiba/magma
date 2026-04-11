@@ -12,7 +12,7 @@ package org.obiba.magma;
 
 import java.util.Locale;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.type.TextType;
 

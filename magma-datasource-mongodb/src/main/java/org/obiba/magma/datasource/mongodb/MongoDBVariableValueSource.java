@@ -24,7 +24,7 @@ import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.type.BinaryType;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;

@@ -13,7 +13,7 @@ package org.obiba.magma.datasource.jdbc;
 import com.google.common.base.Strings;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

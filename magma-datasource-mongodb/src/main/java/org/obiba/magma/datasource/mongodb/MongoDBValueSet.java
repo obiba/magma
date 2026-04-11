@@ -21,7 +21,7 @@ import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_ID;

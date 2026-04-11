@@ -18,7 +18,7 @@ import org.obiba.magma.security.permissions.Permissions;
 import org.obiba.magma.security.permissions.Permissions.ValueTablePermissionBuilder;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 

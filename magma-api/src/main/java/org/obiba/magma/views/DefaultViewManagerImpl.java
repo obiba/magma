@@ -18,7 +18,7 @@ import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.support.VariableOperationContext;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

@@ -16,7 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Disposable;

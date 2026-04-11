@@ -12,7 +12,7 @@ package org.obiba.magma.support;
 
 import java.util.Arrays;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Timestamps;

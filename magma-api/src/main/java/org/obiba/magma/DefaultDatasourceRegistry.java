@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;

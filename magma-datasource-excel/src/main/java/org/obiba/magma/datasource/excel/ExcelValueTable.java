@@ -28,7 +28,7 @@ import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.TextType;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;

@@ -9,7 +9,7 @@
  */
 package org.obiba.magma;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Listener to events on ValueTable

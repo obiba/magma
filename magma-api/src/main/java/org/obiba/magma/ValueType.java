@@ -14,7 +14,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Provides a common interface for all types of values available in the {@code MagmaEngine}. Through this interface,

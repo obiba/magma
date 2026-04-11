@@ -16,7 +16,7 @@ import com.google.common.collect.Maps;
 import liquibase.structure.core.Column;
 import org.obiba.magma.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.sql.*;
 import java.util.Iterator;
 import java.util.List;

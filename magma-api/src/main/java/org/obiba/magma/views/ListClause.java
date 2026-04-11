@@ -10,7 +10,7 @@
 
 package org.obiba.magma.views;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;

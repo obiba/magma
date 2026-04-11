@@ -17,7 +17,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.UnionTimestamps;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;

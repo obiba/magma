@@ -49,7 +49,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.annotation.Nullable;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;

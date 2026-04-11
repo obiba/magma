@@ -12,7 +12,7 @@ package org.obiba.magma;
 
 import com.google.common.base.Function;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public interface Timestamped {
 

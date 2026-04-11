@@ -23,7 +23,7 @@ import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.SocketFactoryProvider;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.net.URI;
 

@@ -77,7 +77,7 @@
     <spring.version>7.0.3</spring.version>
     <truezip.version>6.6</truezip.version>
     <unit-api.version>0.6.0</unit-api.version>
-    <validation.version>1.1.0.Final</validation.version>
+    <validation.version>3.0.2</validation.version>
     <xstream.version>1.4.21</xstream.version>
 
     <!-- maven plugins -->
@@ -305,8 +305,8 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
         <version>${validation.version}</version>
       </dependency>
 

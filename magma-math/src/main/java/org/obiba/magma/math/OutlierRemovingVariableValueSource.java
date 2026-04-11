@@ -17,7 +17,7 @@ import org.apache.commons.math3.stat.descriptive.StatisticalSummaryValues;
 import org.obiba.magma.*;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**

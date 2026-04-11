@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.obiba.magma.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 

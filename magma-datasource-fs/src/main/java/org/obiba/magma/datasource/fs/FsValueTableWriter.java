@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;

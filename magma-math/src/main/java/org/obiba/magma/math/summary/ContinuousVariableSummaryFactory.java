@@ -12,7 +12,7 @@ package org.obiba.magma.math.summary;
 import java.util.Collection;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueTable;

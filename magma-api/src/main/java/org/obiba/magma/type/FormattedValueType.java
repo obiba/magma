@@ -17,7 +17,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 
 import jakarta.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
