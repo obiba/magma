@@ -14,3 +14,4 @@ atlassian-ide-plugin.xml
 .vscode
 .settings
 **/.attach_pid*
+.serena
