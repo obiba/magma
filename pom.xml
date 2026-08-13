@@ -47,7 +47,7 @@
     <flapdoodle_embed_mongo.version>4.33.0</flapdoodle_embed_mongo.version>
     <guava.version>33.6.0-jre</guava.version>
     <hsqldb.version>2.7.4</hsqldb.version>
-    <httpclient.version>5.6.2</httpclient.version>
+    <httpclient.version>5.6.3</httpclient.version>
     <javassist.version>3.32.0-GA</javassist.version>
     <javolution.version>5.5.1</javolution.version>
     <janino.version>2.5.10</janino.version>
