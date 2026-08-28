@@ -26,7 +26,6 @@ import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.TableUtils;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.Initialisables;
-import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.TransactionStatus;

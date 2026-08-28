@@ -20,7 +20,6 @@ import org.obiba.magma.support.PagingVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.BadSqlGrammarException;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -98,13 +97,13 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
     JdbcDatasource datasource = valueTable.getDatasource();
     String query = isSQLServer(datasource) ?
         String
-            .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC OFFSET %s ROWS FETCH NEXT %s ROWS ONLY", // works for mysql, maria, posgre, hsql databases
+            .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC OFFSET %s ROWS FETCH NEXT %s ROWS ONLY", // works for mysql, maria, posgre, h2 databases
                 idColumn,
                 tableName,
                 whereStatement,
                 idColumn, from, pageSize) :
         String
-            .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC LIMIT %s OFFSET %s", // works for mysql, maria, posgre, hsql databases
+            .format("SELECT DISTINCT %s FROM %s %s ORDER BY %s ASC LIMIT %s OFFSET %s", // works for mysql, maria, posgre, h2 databases
                 idColumn,
                 tableName,
                 whereStatement,

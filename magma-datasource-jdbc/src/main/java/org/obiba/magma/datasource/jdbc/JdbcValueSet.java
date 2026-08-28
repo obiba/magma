@@ -21,8 +21,6 @@ import org.obiba.magma.support.ValueSetBean;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**

@@ -15,11 +15,9 @@ import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.type.LocaleType;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A "line" can be transformed in one or multiple SQL lines.

@@ -17,7 +17,7 @@ And [Obiba Snaphot Maven repository](https://obiba.jfrog.io/obiba/libs-snapshot)
 
 ## Build
 
-Run `gradlew`
+Run `mvn install`
 
 
 ## Bug tracker
