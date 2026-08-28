@@ -10,6 +10,7 @@
 
 package org.obiba.magma.datasource.jdbc;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import org.junit.Ignore;
@@ -26,6 +27,7 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.test.SchemaTestExecutionListener;
 import org.obiba.magma.test.TestSchema;
+import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
@@ -705,6 +707,67 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       assertThat(bdTable.getValue(bd2Var, vs1234_2)).isEqualTo(IntegerType.get().valueOf(65));
       assertThat(bdTable.getValue(bd2Var, vs1234_3)).isEqualTo(IntegerType.get().valueOf(65));
     }
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
+  @Test
+  public void test_binary_value_round_trip() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
+    jdbcDatasource.initialise();
+
+    byte[] bytes = new byte[] { (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+    VariableEntity entity = new VariableEntityBean("Participant", "1");
+    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("BIN_TABLE", "Participant")) {
+      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+        variableWriter.writeVariable(Variable.Builder.newVariable("MY_IMAGE", BinaryType.get(), "Participant").build());
+      }
+      Variable variable = jdbcDatasource.getValueTable("BIN_TABLE").getVariable("MY_IMAGE");
+      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+        valueSetWriter.writeValue(variable, BinaryType.get().valueOf(bytes));
+      }
+    }
+
+    ValueTable table = jdbcDatasource.getValueTable("BIN_TABLE");
+    Variable variable = table.getVariable("MY_IMAGE");
+
+    // through the value set, as the web services do
+    Value value = table.getValue(variable, table.getValueSet(entity));
+    assertThat(value.getValueType()).isEqualTo(BinaryType.get());
+    assertThat((byte[]) value.getValue()).isEqualTo(bytes);
+
+    // through the variable value source iterator, as the value table dump does
+    Value iterated = table.getVariableValueSource("MY_IMAGE").asVectorSource()
+        .getValues(Lists.newArrayList(entity)).iterator().next();
+    assertThat((byte[]) iterated.getValue()).isEqualTo(bytes);
+
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-lobs.sql",
+      afterSchema = "schema-notables.sql")
+  @Test
+  public void test_lob_columns_of_an_existing_table() {
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("LOBS").entityType("Participant")
+        .entityIdentifierColumn("PART_ID").build();
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("LOBS"))
+            .tableSettings(Sets.newHashSet(tableSettings)).build());
+    jdbcDatasource.initialise();
+
+    ValueTable table = jdbcDatasource.getValueTable("LOBS");
+    ValueSet valueSet = table.getValueSet(new VariableEntityBean("Participant", "1"));
+
+    Value blob = table.getValue(table.getVariable("MY_BLOB"), valueSet);
+    assertThat(blob.getValueType()).isEqualTo(BinaryType.get());
+    assertThat((byte[]) blob.getValue())
+        .isEqualTo(new byte[] { (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
+
+    Value clob = table.getValue(table.getVariable("MY_CLOB"), valueSet);
+    assertThat(clob.getValueType()).isEqualTo(TextType.get());
+    assertThat(clob.getValue()).isEqualTo("a long text");
+
+    jdbcDatasource.dispose();
   }
 
   private void createDatasourceFromScratch(JdbcDatasource jdbcDatasource) {

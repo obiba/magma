@@ -10,6 +10,9 @@
 
 package org.obiba.magma.datasource.jdbc;
 
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.sql.Types;
 
 import jakarta.annotation.Nullable;
@@ -126,6 +129,40 @@ class SqlTypes {
     }
 
     throw new MagmaRuntimeException("No sql type for " + valueType);
+  }
+
+  /**
+   * Drivers disagree on what a large object column yields: MySQL and MariaDB return the content itself, H2 returns a
+   * {@link Blob} or a {@link Clob} handle. Read the handle into the value the {@link ValueType} expects, while the
+   * result set row it belongs to is still current: a large object is only guaranteed to be readable until the
+   * transaction that produced it completes.
+   */
+  @Nullable
+  static Object materialize(@Nullable Object value) throws SQLException {
+    if(value instanceof Blob) {
+      Blob blob = (Blob) value;
+      try {
+        return blob.getBytes(1, lengthOf(blob.length()));
+      } finally {
+        blob.free();
+      }
+    }
+    if(value instanceof Clob) {
+      Clob clob = (Clob) value;
+      try {
+        return clob.getSubString(1, lengthOf(clob.length()));
+      } finally {
+        clob.free();
+      }
+    }
+    return value;
+  }
+
+  private static int lengthOf(long length) {
+    if(length > Integer.MAX_VALUE) {
+      throw new MagmaRuntimeException("Large object is too large to be read at once: " + length + " bytes");
+    }
+    return (int) length;
   }
 
 }
