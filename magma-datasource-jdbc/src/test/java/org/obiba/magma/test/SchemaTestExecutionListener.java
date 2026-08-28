@@ -18,11 +18,9 @@ import java.lang.reflect.AnnotatedElement;
 import javax.sql.DataSource;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
-import org.springframework.test.jdbc.JdbcTestUtils;
 
 public class SchemaTestExecutionListener implements TestExecutionListener {
   //

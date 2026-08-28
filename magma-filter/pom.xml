@@ -29,8 +29,8 @@
       <artifactId>magma-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.obiba.magma</groupId>
-      <artifactId>magma-xstream</artifactId>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
     </dependency>
     <dependency>
       <groupId>org.obiba.magma</groupId>

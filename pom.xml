@@ -46,8 +46,8 @@
     <fest.version>2.0M10</fest.version>
     <flapdoodle_embed_mongo.version>4.33.0</flapdoodle_embed_mongo.version>
     <guava.version>33.6.0-jre</guava.version>
-    <hsqldb.version>2.7.4</hsqldb.version>
-    <httpclient.version>5.6.3</httpclient.version>
+    <h2.version>2.4.240</h2.version>
+    <httpcore.version>5.4.3</httpcore.version>
     <javassist.version>3.32.0-GA</javassist.version>
     <javolution.version>5.5.1</javolution.version>
     <janino.version>2.5.10</janino.version>
@@ -376,9 +376,9 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hsqldb</groupId>
-        <artifactId>hsqldb</artifactId>
-        <version>${hsqldb.version}</version>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -489,9 +489,9 @@
       </dependency>
 
       <dependency>
-        <groupId>org.apache.httpcomponents.client5</groupId>
-        <artifactId>httpclient5</artifactId>
-        <version>${httpclient.version}</version>
+        <groupId>org.apache.httpcomponents.core5</groupId>
+        <artifactId>httpcore5</artifactId>
+        <version>${httpcore.version}</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
