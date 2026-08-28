@@ -37,7 +37,7 @@ public class JdbcRowMapper implements RowMapper<Map<String, Value>> {
     for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
       String variableName = table.getVariableName(rs.getMetaData().getColumnName(i));
       ValueType type = SqlTypes.valueTypeFor(rs.getMetaData().getColumnType(i));
-      Value variableValue = type.valueOf(rs.getObject(i));
+      Value variableValue = type.valueOf(SqlTypes.materialize(rs.getObject(i)));
       res.put(variableName, variableValue);
     }
 
