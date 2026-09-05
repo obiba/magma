@@ -17,6 +17,7 @@ import java.util.Set;
 
 import jakarta.validation.constraints.NotNull;
 
+import org.mozilla.javascript.ClassShutter;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
@@ -35,6 +36,12 @@ import com.google.common.collect.Iterables;
 public class MagmaContextFactory extends ContextFactory implements Initialisable {
 
   /**
+   * Scripts see Magma values and variables through their JavaScript prototypes only: no Java class is ever visible to
+   * them, so a wrapped Java object cannot be used to reach reflection, the runtime or the file system.
+   */
+  private static final ClassShutter NO_JAVA_CLASS = className -> false;
+
+  /**
    * The global scope shared by all evaluated scripts. Should contain top-level functions and prototypes.
    */
   private ScriptableObject sharedScope;
@@ -51,6 +58,18 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
   @Override
   protected Context makeContext() {
     return new MagmaContext(this);
+  }
+
+  @Override
+  protected void onContextCreated(Context cx) {
+    super.onContextCreated(cx);
+    cx.setClassShutter(NO_JAVA_CLASS);
+  }
+
+  @Override
+  protected boolean hasFeature(Context cx, int featureIndex) {
+    if(featureIndex == Context.FEATURE_ENHANCED_JAVA_ACCESS) return false;
+    return super.hasFeature(cx, featureIndex);
   }
 
   public ScriptableObject sharedScope() {
@@ -83,7 +102,8 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
     sharedScope = (ScriptableObject) ContextFactory.getGlobal().call(new ContextAction() {
       @Override
       public Object run(Context cx) {
-        ScriptableObject scriptableObject = cx.initStandardObjects(null, true);
+        // the "safe" standard objects: no Packages, java, getClass, JavaAdapter or JavaImporter in the scope
+        ScriptableObject scriptableObject = cx.initSafeStandardObjects(null, true);
 
         // Register Global methods
         for(GlobalMethodProvider provider : Iterables
