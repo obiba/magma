@@ -12,6 +12,8 @@ package org.obiba.magma.math.summary;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
+import com.uber.h3core.H3Core;
+import com.uber.h3core.util.LatLng;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -19,6 +21,7 @@ import org.obiba.magma.*;
 import org.obiba.magma.math.FrequenciesSummary;
 import org.obiba.magma.math.Frequency;
 import org.obiba.magma.math.GeoSummary;
+import org.obiba.magma.math.H3Cell;
 import org.obiba.magma.math.summary.support.DefaultFrequency;
 import org.obiba.magma.math.summary.support.DefaultGeoSummary;
 import org.obiba.magma.type.LineStringType;
@@ -29,11 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.validation.constraints.NotNull;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +50,8 @@ public class GeoVariableSummary extends AbstractVariableSummary implements GeoSu
   private static final long serialVersionUID = 203198842420473154L;
 
   private static final Logger log = LoggerFactory.getLogger(GeoVariableSummary.class);
+
+  public static final int H3_RESOLUTION = 7;
 
   private final org.apache.commons.math3.stat.Frequency frequencyDist = new org.apache.commons.math3.stat.Frequency();
 
@@ -74,6 +82,26 @@ public class GeoVariableSummary extends AbstractVariableSummary implements GeoSu
   @Override
   public List<Coordinate> getCoordinates() {
     return geoSummary.getCoordinates();
+  }
+
+  @Override
+  public Coordinate getMin() {
+    return geoSummary.getMin();
+  }
+
+  @Override
+  public Coordinate getMax() {
+    return geoSummary.getMax();
+  }
+
+  @Override
+  public Coordinate getCentroid() {
+    return geoSummary.getCentroid();
+  }
+
+  @Override
+  public List<H3Cell> getCells() {
+    return geoSummary.getCells();
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
@@ -221,6 +249,10 @@ public class GeoVariableSummary extends AbstractVariableSummary implements GeoSu
         }
         geoSummary.setN(summary.frequencyDist.getSumFreq());
         geoSummary.addCoordinates(getConcaveHull(coords));
+        if (!coords.isEmpty()) {
+          addExtent(geoSummary, coords);
+          if (variable.getValueType() == PointType.get()) geoSummary.addCells(getCells(coords));
+        }
 
         summary.geoSummary = geoSummary;
       }
@@ -243,6 +275,40 @@ public class GeoVariableSummary extends AbstractVariableSummary implements GeoSu
     @Override
     public Variable getVariable() {
       return variable;
+    }
+
+    private static void addExtent(DefaultGeoSummary geoSummary, List<Coordinate> coordinates) {
+      double minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+      double sumLat = 0, sumLon = 0;
+      for (Coordinate coord : coordinates) {
+        minLat = Math.min(minLat, coord.getLatitude());
+        minLon = Math.min(minLon, coord.getLongitude());
+        maxLat = Math.max(maxLat, coord.getLatitude());
+        maxLon = Math.max(maxLon, coord.getLongitude());
+        sumLat += coord.getLatitude();
+        sumLon += coord.getLongitude();
+      }
+      geoSummary.setMin(new Coordinate(minLon, minLat));
+      geoSummary.setMax(new Coordinate(maxLon, maxLat));
+      // ponytail: arithmetic mean, wrong across the antimeridian, and the mean of the vertices for lines and polygons
+      geoSummary.setCentroid(new Coordinate(sumLon / coordinates.size(), sumLat / coordinates.size()));
+    }
+
+    private static List<H3Cell> getCells(List<Coordinate> coordinates) {
+      if (H3.CORE == null) return List.of();
+      Map<Long, Long> counts = new HashMap<>();
+      for (Coordinate coord : coordinates) {
+        counts.merge(H3.CORE.latLngToCell(coord.getLatitude(), coord.getLongitude(), H3_RESOLUTION), 1L, Long::sum);
+      }
+      List<H3Cell> cells = new ArrayList<>();
+      counts.forEach((cell, count) -> {
+        List<Coordinate> boundary = new ArrayList<>();
+        for (LatLng vertex : H3.CORE.cellToBoundary(cell)) {
+          boundary.add(new Coordinate(vertex.lng, vertex.lat));
+        }
+        cells.add(new H3Cell(H3.CORE.h3ToString(cell), count, boundary));
+      });
+      return cells;
     }
 
     private static Collection<Coordinate> getConcaveHull(List<Coordinate> coordinates) {
@@ -277,5 +343,20 @@ public class GeoVariableSummary extends AbstractVariableSummary implements GeoSu
       return new GeometryCollection(coordinatesArray, factory);
     }
   }
-}
 
+  /**
+   * Loads the H3 native library on first use, null if it is not available on this platform.
+   */
+  private static class H3 {
+    private static final H3Core CORE = load();
+
+    private static H3Core load() {
+      try {
+        return H3Core.newInstance();
+      } catch (IOException | LinkageError e) {
+        log.warn("H3 library not available, geo summaries will not count points by cell: {}", e.getMessage());
+        return null;
+      }
+    }
+  }
+}

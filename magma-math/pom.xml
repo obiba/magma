@@ -41,6 +41,10 @@
       <artifactId>concave_hull</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.uber</groupId>
+      <artifactId>h3</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.obiba.magma</groupId>
       <artifactId>magma-test</artifactId>
       <scope>test</scope>
