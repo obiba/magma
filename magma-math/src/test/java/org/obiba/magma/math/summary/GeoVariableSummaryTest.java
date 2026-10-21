@@ -14,8 +14,11 @@ import org.junit.Test;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.Variable;
 import org.obiba.magma.math.H3Cell;
+import org.obiba.magma.math.summary.support.DefaultGeoSummary;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.PointType;
+
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.offset;
@@ -47,6 +50,20 @@ public class GeoVariableSummaryTest extends AbstractMagmaTest {
     assertThat(summary.getMax().getLongitude()).isEqualTo(6.0);
     assertThat(summary.getMax().getLatitude()).isEqualTo(47.0);
     assertThat(summary.getCentroid().getLatitude()).isEqualTo((20 * 45.764 + 4 * 46) / 24, offset(1e-9));
+  }
+
+  @Test
+  public void test_addExtentAndCells() {
+    DefaultGeoSummary summary = new DefaultGeoSummary();
+    summary.addExtentAndCells(List.of(new Coordinate(4.835, 45.764), new Coordinate(4.8351, 45.764), new Coordinate(6.0, 47.0)), true);
+    assertThat(summary.getCells()).hasSize(2);
+    assertThat(summary.getMax().getLatitude()).isEqualTo(47.0);
+
+    // lines and polygons: extent only
+    summary = new DefaultGeoSummary();
+    summary.addExtentAndCells(List.of(new Coordinate(4.835, 45.764)), false);
+    assertThat(summary.getCells()).isEmpty();
+    assertThat(summary.getCentroid().getLongitude()).isEqualTo(4.835);
   }
 
 }
