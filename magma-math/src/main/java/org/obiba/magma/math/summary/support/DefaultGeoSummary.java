@@ -13,6 +13,7 @@ package org.obiba.magma.math.summary.support;
 import com.google.common.collect.Lists;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.math.GeoSummary;
+import org.obiba.magma.math.H3Cell;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +21,14 @@ import java.util.List;
 public class DefaultGeoSummary extends DefaultFrequenciesSummary implements GeoSummary {
 
   private final List<Coordinate> coordinates = Lists.newArrayList();
+
+  private Coordinate min;
+
+  private Coordinate max;
+
+  private Coordinate centroid;
+
+  private final List<H3Cell> cells = Lists.newArrayList();
 
   @Override
   public List<Coordinate> getCoordinates() {
@@ -33,5 +42,41 @@ public class DefaultGeoSummary extends DefaultFrequenciesSummary implements GeoS
   public void addCoordinates(Collection<Coordinate> coords) {
     if (coords != null)
       coordinates.addAll(coords);
+  }
+
+  @Override
+  public Coordinate getMin() {
+    return min;
+  }
+
+  public void setMin(Coordinate min) {
+    this.min = min;
+  }
+
+  @Override
+  public Coordinate getMax() {
+    return max;
+  }
+
+  public void setMax(Coordinate max) {
+    this.max = max;
+  }
+
+  @Override
+  public Coordinate getCentroid() {
+    return centroid;
+  }
+
+  public void setCentroid(Coordinate centroid) {
+    this.centroid = centroid;
+  }
+
+  @Override
+  public List<H3Cell> getCells() {
+    return cells;
+  }
+
+  public void addCells(Collection<H3Cell> cells) {
+    this.cells.addAll(cells);
   }
 }

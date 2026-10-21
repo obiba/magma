@@ -16,6 +16,37 @@ import java.util.List;
 
 public interface GeoSummary extends FrequenciesSummary {
 
+  /**
+   * Vertices of the concave hull of the coordinates.
+   */
   List<Coordinate> getCoordinates();
+
+  /**
+   * Lower corner of the bounding box of all the coordinates, null if there are none.
+   */
+  default Coordinate getMin() {
+    return null;
+  }
+
+  /**
+   * Upper corner of the bounding box of all the coordinates, null if there are none.
+   */
+  default Coordinate getMax() {
+    return null;
+  }
+
+  /**
+   * Mean of all the coordinates, null if there are none.
+   */
+  default Coordinate getCentroid() {
+    return null;
+  }
+
+  /**
+   * Points counted by H3 cell, empty if the variable is not a point or H3 is not available.
+   */
+  default List<H3Cell> getCells() {
+    return List.of();
+  }
 
 }
