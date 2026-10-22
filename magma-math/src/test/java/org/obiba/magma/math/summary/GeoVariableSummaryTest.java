@@ -12,13 +12,14 @@ package org.obiba.magma.math.summary;
 
 import org.junit.Test;
 import org.obiba.magma.Coordinate;
+import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.math.H3Cell;
 import org.obiba.magma.math.summary.support.DefaultGeoSummary;
 import org.obiba.magma.test.AbstractMagmaTest;
+import org.obiba.magma.type.LineStringType;
 import org.obiba.magma.type.PointType;
-
-import java.util.List;
+import org.obiba.magma.type.PolygonType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.offset;
@@ -53,17 +54,37 @@ public class GeoVariableSummaryTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_addExtentAndCells() {
-    DefaultGeoSummary summary = new DefaultGeoSummary();
-    summary.addExtentAndCells(List.of(new Coordinate(4.835, 45.764), new Coordinate(4.8351, 45.764), new Coordinate(6.0, 47.0)), true);
-    assertThat(summary.getCells()).hasSize(2);
-    assertThat(summary.getMax().getLatitude()).isEqualTo(47.0);
+  public void test_featureCentroids() {
+    // square with a hole on its east half: area centroid is west of the middle
+    Value polygon = PolygonType.get().valueOf("[[[4.0,45.0],[5.0,45.0],[5.0,46.0],[4.0,46.0],[4.0,45.0]],[[4.5,45.0],[5.0,45.0],[5.0,46.0],[4.5,46.0],[4.5,45.0]]]");
+    Coordinate centroid = DefaultGeoSummary.getCentroid(polygon);
+    assertThat(centroid.getLongitude()).isEqualTo(4.25, offset(1e-9));
+    assertThat(centroid.getLatitude()).isEqualTo(45.5, offset(1e-9));
 
-    // lines and polygons: extent only
-    summary = new DefaultGeoSummary();
-    summary.addExtentAndCells(List.of(new Coordinate(4.835, 45.764)), false);
-    assertThat(summary.getCells()).isEmpty();
-    assertThat(summary.getCentroid().getLongitude()).isEqualTo(4.835);
+    // line: length weighted, not the mean of the 4 vertices
+    centroid = DefaultGeoSummary.getCentroid(LineStringType.get().valueOf("[[4.0,45.0],[4.0001,45.0],[4.0002,45.0],[5.0,45.0]]"));
+    assertThat(centroid.getLongitude()).isEqualTo(4.5, offset(1e-9));
+
+    // degenerate polygon, too few points for a ring: mean of the vertices
+    centroid = DefaultGeoSummary.getCentroid(PolygonType.get().valueOf("[[[4.0,45.0],[5.5,45.0],[4.0,45.0]]]"));
+    assertThat(centroid.getLongitude()).isEqualTo(4.5, offset(1e-9));
+
+    assertThat(DefaultGeoSummary.getCentroid(PolygonType.get().nullValue())).isNull();
+  }
+
+  @Test
+  public void test_polygonsCountedByCentroid() {
+    Variable variable = Variable.Builder.newVariable("mock", PolygonType.get(), "mock").build();
+    GeoVariableSummary.Builder builder = new GeoVariableSummary.Builder(variable);
+    // 5 small squares around the same place, one cell per polygon, not per vertex
+    for (int i = 0; i < 5; i++) {
+      builder.addValue(PolygonType.get().valueOf("[[[4.835,45.764],[4.836,45.764],[4.836,45.765],[4.835,45.765],[4.835,45.764]]]"));
+    }
+    GeoVariableSummary summary = builder.build();
+    assertThat(summary.getCells()).hasSize(1);
+    assertThat(summary.getCells().get(0).count()).isEqualTo(5);
+    assertThat(summary.getMax().getLongitude()).isEqualTo(4.836);
+    assertThat(summary.getCentroid().getLongitude()).isEqualTo(4.8355, offset(1e-9));
   }
 
 }
