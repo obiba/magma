@@ -13,9 +13,17 @@ package org.obiba.magma.math.summary.support;
 import com.google.common.collect.Lists;
 import com.uber.h3core.H3Core;
 import com.uber.h3core.util.LatLng;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Point;
 import org.obiba.magma.Coordinate;
+import org.obiba.magma.Value;
 import org.obiba.magma.math.GeoSummary;
 import org.obiba.magma.math.H3Cell;
+import org.obiba.magma.type.LineStringType;
+import org.obiba.magma.type.PointType;
+import org.obiba.magma.type.PolygonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,31 +101,93 @@ public class DefaultGeoSummary extends DefaultFrequenciesSummary implements GeoS
   }
 
   /**
-   * Sets the bounding box and the centroid of the coordinates and, if requested, counts them by H3 cell.
+   * Sets the bounding box of the vertices, and the mean of the feature centroids, which are also counted by H3 cell.
    *
-   * @param withCells true for points, the vertices of lines and polygons are not counted
+   * @param vertices all the coordinates of the features
+   * @param centroids one centroid per feature, see {@link #getCentroid(Value)}
    */
-  public void addExtentAndCells(List<Coordinate> coordinates, boolean withCells) {
-    if (coordinates == null || coordinates.isEmpty()) return;
-    addExtent(coordinates);
-    if (withCells) addCells(getCells(coordinates));
+  public void addExtentAndCells(List<Coordinate> vertices, List<Coordinate> centroids) {
+    if (vertices == null || vertices.isEmpty() || centroids == null || centroids.isEmpty()) return;
+    addExtent(vertices, centroids);
+    addCells(getCells(centroids));
   }
 
-  private void addExtent(List<Coordinate> coordinates) {
-    double minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+  /**
+   * All the coordinates of a point, line string or polygon value, empty if it is not one of these.
+   */
+  @SuppressWarnings("unchecked")
+  public static List<Coordinate> getVertices(Value value) {
+    List<Coordinate> vertices = new ArrayList<>();
+    if (value.isNull()) return vertices;
+    if (value.getValueType() == PointType.get()) {
+      vertices.add((Coordinate) value.getValue());
+    } else if (value.getValueType() == LineStringType.get()) {
+      vertices.addAll((Collection<Coordinate>) value.getValue());
+    } else if (value.getValueType() == PolygonType.get()) {
+      for (List<Coordinate> ring : (Collection<List<Coordinate>>) value.getValue()) {
+        vertices.addAll(ring);
+      }
+    }
+    return vertices;
+  }
+
+  /**
+   * Centroid of a point, line string or polygon value (the first ring is the shell, the others are holes),
+   * null if it is not one of these. Falls back to the mean of the vertices when the geometry is degenerate.
+   */
+  @SuppressWarnings("unchecked")
+  public static Coordinate getCentroid(Value value) {
+    List<Coordinate> vertices = getVertices(value);
+    if (vertices.isEmpty()) return null;
+    if (value.getValueType() == PointType.get()) return vertices.get(0);
+    // ponytail: planar centroid in degrees, fine at the scale of an H3 cell, not for continent-wide shapes
+    try {
+      GeometryFactory factory = new GeometryFactory();
+      Geometry geometry;
+      if (value.getValueType() == LineStringType.get()) {
+        geometry = factory.createLineString(asJts(vertices));
+      } else {
+        List<LinearRing> rings = new ArrayList<>();
+        for (List<Coordinate> ring : (Collection<List<Coordinate>>) value.getValue()) {
+          rings.add(factory.createLinearRing(asJts(ring)));
+        }
+        geometry = factory.createPolygon(rings.get(0), rings.subList(1, rings.size()).toArray(new LinearRing[0]));
+      }
+      Point centroid = geometry.getCentroid();
+      if (!centroid.isEmpty()) return new Coordinate(centroid.getX(), centroid.getY());
+    } catch (RuntimeException e) {
+      log.debug("Degenerate geometry, centroid is the mean of its vertices: {}", e.getMessage());
+    }
+    return mean(vertices);
+  }
+
+  private static com.vividsolutions.jts.geom.Coordinate[] asJts(List<Coordinate> coordinates) {
+    return coordinates.stream()
+        .map(coord -> new com.vividsolutions.jts.geom.Coordinate(coord.getLongitude(), coord.getLatitude()))
+        .toArray(com.vividsolutions.jts.geom.Coordinate[]::new);
+  }
+
+  private static Coordinate mean(List<Coordinate> coordinates) {
     double sumLat = 0, sumLon = 0;
     for (Coordinate coord : coordinates) {
+      sumLat += coord.getLatitude();
+      sumLon += coord.getLongitude();
+    }
+    return new Coordinate(sumLon / coordinates.size(), sumLat / coordinates.size());
+  }
+
+  private void addExtent(List<Coordinate> vertices, List<Coordinate> centroids) {
+    double minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+    for (Coordinate coord : vertices) {
       minLat = Math.min(minLat, coord.getLatitude());
       minLon = Math.min(minLon, coord.getLongitude());
       maxLat = Math.max(maxLat, coord.getLatitude());
       maxLon = Math.max(maxLon, coord.getLongitude());
-      sumLat += coord.getLatitude();
-      sumLon += coord.getLongitude();
     }
     setMin(new Coordinate(minLon, minLat));
     setMax(new Coordinate(maxLon, maxLat));
-    // ponytail: arithmetic mean, wrong across the antimeridian, and the mean of the vertices for lines and polygons
-    setCentroid(new Coordinate(sumLon / coordinates.size(), sumLat / coordinates.size()));
+    // ponytail: arithmetic mean, wrong across the antimeridian
+    setCentroid(mean(centroids));
   }
 
   private static List<H3Cell> getCells(List<Coordinate> coordinates) {

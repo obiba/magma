@@ -36,14 +36,14 @@ public interface GeoSummary extends FrequenciesSummary {
   }
 
   /**
-   * Mean of all the coordinates, null if there are none.
+   * Mean of the feature centroids, null if there are none.
    */
   default Coordinate getCentroid() {
     return null;
   }
 
   /**
-   * Points counted by H3 cell, empty if the variable is not a point or H3 is not available.
+   * Feature centroids counted by H3 cell, empty if H3 is not available.
    */
   default List<H3Cell> getCells() {
     return List.of();

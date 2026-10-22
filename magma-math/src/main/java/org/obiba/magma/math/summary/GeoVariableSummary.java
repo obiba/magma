@@ -22,9 +22,6 @@ import org.obiba.magma.math.GeoSummary;
 import org.obiba.magma.math.H3Cell;
 import org.obiba.magma.math.summary.support.DefaultFrequency;
 import org.obiba.magma.math.summary.support.DefaultGeoSummary;
-import org.obiba.magma.type.LineStringType;
-import org.obiba.magma.type.PointType;
-import org.obiba.magma.type.PolygonType;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +100,8 @@ public class GeoVariableSummary extends AbstractVariableSummary implements GeoSu
   public static class Builder implements VariableSummaryBuilder<GeoVariableSummary, Builder> {
 
     public ArrayList<Coordinate> coords = new ArrayList<>();
+
+    public ArrayList<Coordinate> centroids = new ArrayList<>();
 
     private final GeoVariableSummary summary;
 
@@ -198,16 +197,9 @@ public class GeoVariableSummary extends AbstractVariableSummary implements GeoSu
     }
 
     private void getCoordinates(Value value) {
-      if (value.getValueType() == PointType.get()) {
-        coords.add((Coordinate) value.getValue());
-      } else if (value.getValueType() == LineStringType.get()) {
-        coords.addAll((Collection<Coordinate>) value.getValue());
-      } else if (value.getValueType() == PolygonType.get()) {
-        Collection<List<Coordinate>> coordinateList = (Collection<List<Coordinate>>) value.getValue();
-        for (List<Coordinate> coordinate : coordinateList) {
-          coords.addAll(coordinate);
-        }
-      }
+      coords.addAll(DefaultGeoSummary.getVertices(value));
+      Coordinate centroid = DefaultGeoSummary.getCentroid(value);
+      if (centroid != null) centroids.add(centroid);
     }
 
     /**
@@ -244,7 +236,7 @@ public class GeoVariableSummary extends AbstractVariableSummary implements GeoSu
         }
         geoSummary.setN(summary.frequencyDist.getSumFreq());
         geoSummary.addCoordinates(getConcaveHull(coords));
-        geoSummary.addExtentAndCells(coords, variable.getValueType() == PointType.get());
+        geoSummary.addExtentAndCells(coords, centroids);
 
         summary.geoSummary = geoSummary;
       }
