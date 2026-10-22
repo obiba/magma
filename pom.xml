@@ -45,53 +45,53 @@
     <easymock.version>3.4</easymock.version>
     <fest.version>2.0M10</fest.version>
     <flapdoodle_embed_mongo.version>4.33.0</flapdoodle_embed_mongo.version>
-    <guava.version>33.6.0-jre</guava.version>
-    <h2.version>2.4.240</h2.version>
-    <httpcore.version>5.4.3</httpcore.version>
-    <javassist.version>3.32.0-GA</javassist.version>
+    <guava.version>33.7.2-jre</guava.version>
+    <h2.version>2.5.252</h2.version>
+    <httpcore.version>5.4.4</httpcore.version>
+    <javassist.version>3.33.0-GA</javassist.version>
     <javolution.version>5.5.1</javolution.version>
     <janino.version>2.5.10</janino.version>
     <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
     <jscience-physics.version>5.0-r53p01</jscience-physics.version>
-    <json.version>20260719</json.version>
+    <json.version>20260814</json.version>
     <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
     <jakarta.transaction-api.version>2.0.1</jakarta.transaction-api.version>
-    <h3.version>4.5.0</h3.version>
+    <h3.version>4.5.1</h3.version>
     <jts.version>1.13</jts.version>
     <junit.version>4.13.2</junit.version>
-    <liquibase-core.version>5.0.3</liquibase-core.version>
-    <logback.version>1.6.0</logback.version>
+    <liquibase-core.version>5.0.4</liquibase-core.version>
+    <logback.version>1.6.5</logback.version>
     <log4j.version>2.26.1</log4j.version>
-    <mockito.version>5.23.0</mockito.version>
+    <mockito.version>5.24.0</mockito.version>
     <mariadb-connector-java.version>3.5.9</mariadb-connector-java.version>
-    <mongodb-driver.version>5.9.1</mongodb-driver.version>
-    <mssql.version>13.4.0.jre11</mssql.version>
+    <mongodb-driver.version>5.13.0</mongodb-driver.version>
+    <mssql.version>13.6.1.jre11</mssql.version>
     <mysql-connector-j.version>9.7.0</mysql-connector-j.version>
-    <obiba-commons.version>5.2.2</obiba-commons.version>
+    <obiba-commons.version>5.2.3</obiba-commons.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>5.5.1</poi-ooxml.version>
-    <postgresql.version>42.7.12</postgresql.version>
+    <postgresql.version>42.7.14</postgresql.version>
     <rhino-js.version>1.7.14.1</rhino-js.version>
     <shiro.version>2.2.1</shiro.version>
     <shiro-extras.version>2.0.0</shiro-extras.version>
-    <slf4j.version>2.0.17</slf4j.version>
-    <spring.version>7.0.8</spring.version>
+    <slf4j.version>2.0.20</slf4j.version>
+    <spring.version>7.0.9</spring.version>
     <truezip.version>6.6</truezip.version>
     <unit-api.version>0.6.0</unit-api.version>
-    <validation.version>3.0.2</validation.version>
+    <validation.version>3.1.1</validation.version>
     <xstream.version>1.4.21</xstream.version>
 
     <!-- maven plugins -->
     <bintray-maven-plugin.version>1.2.20180117184439</bintray-maven-plugin.version>
-    <maven-buildnumber-plugin.version>3.3.0</maven-buildnumber-plugin.version>
+    <maven-buildnumber-plugin.version>3.3.1</maven-buildnumber-plugin.version>
     <maven-cobertura-plugin.version>2.5.2</maven-cobertura-plugin.version>
-    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
     <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
-    <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
   </properties>
 
   <dependencyManagement>
