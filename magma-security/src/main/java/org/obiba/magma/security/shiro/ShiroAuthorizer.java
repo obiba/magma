@@ -16,7 +16,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
 import org.obiba.magma.security.Authorizer;
 import org.obiba.shiro.authc.SudoAuthToken;
 import org.slf4j.Logger;
@@ -30,10 +29,11 @@ public class ShiroAuthorizer implements Authorizer {
 
   @Override
   public boolean isPermitted(String permission) {
-    Subject subject = ThreadContext.getSubject();
-    boolean p = subject == null ? false : subject.isPermitted(permission);
-    log.debug(String.format("isPermitted(%s, %s)==%s", SecurityUtils.getSubject().getPrincipal(), permission, p));
-    Session session = SecurityUtils.getSubject().getSession(false);
+    // SecurityUtils.getSubject() honours Shiro 3's ScopedValue binding (JDK 25+); ThreadContext.getSubject() does not.
+    Subject subject = SecurityUtils.getSubject();
+    boolean p = subject.isPermitted(permission);
+    log.debug(String.format("isPermitted(%s, %s)==%s", subject.getPrincipal(), permission, p));
+    Session session = subject.getSession(false);
     if(session != null) session.touch();
     return p;
   }
