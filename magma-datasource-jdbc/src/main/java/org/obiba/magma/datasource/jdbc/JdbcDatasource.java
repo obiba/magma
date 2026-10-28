@@ -146,6 +146,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   public void renameTable(String tableName, String newName) {
+    validateTableName(newName);
     if(hasValueTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
 
     JdbcValueTable table = (JdbcValueTable) getValueTable(tableName);

@@ -13,6 +13,7 @@ package org.obiba.magma.views;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.obiba.magma.*;
+import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.support.VariableOperationContext;
@@ -71,6 +72,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     Preconditions.checkArgument(!Strings.isNullOrEmpty(view.getName()), "view name cannot be null or empty.");
 
     ViewAwareDatasource datasource = getViewAwareDatasource(datasourceName);
+    if(!datasource.hasView(view.getName())) AbstractDatasource.validateTableName(view.getName());
 
     // Check that variables have the same entity type as the from table
     if (view instanceof Initialisable) ((Initialisable) view).initialise();

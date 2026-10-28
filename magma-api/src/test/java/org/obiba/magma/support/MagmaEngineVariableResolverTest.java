@@ -68,4 +68,11 @@ public class MagmaEngineVariableResolverTest {
   public void testCreateWriterRejectsInvalidTableName() throws Exception {
     new StaticDatasource("ds").createWriter("a:b", "Participant");
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRenameTableRejectsInvalidTableName() throws Exception {
+    StaticDatasource ds = new StaticDatasource("ds");
+    ds.createWriter("t", "Participant");
+    ds.renameTable("t", "a/b");
+  }
 }
