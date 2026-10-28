@@ -143,6 +143,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   public void renameTable(String tableName, String newName) {
+    validateTableName(newName);
     if(hasValueTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
 
     MongoDBValueTable valueTable = (MongoDBValueTable) getValueTable(tableName);
@@ -183,6 +184,7 @@ public class MongoDBDatasource extends AbstractDatasource {
     if(hasValueTable(tableName)) {
       valueTable = (MongoDBValueTable) getValueTable(tableName);
     } else {
+      validateTableName(tableName);
       addValueTable(valueTable = new MongoDBValueTable(this, tableName, entityType));
       setLastUpdate(new Date());
     }

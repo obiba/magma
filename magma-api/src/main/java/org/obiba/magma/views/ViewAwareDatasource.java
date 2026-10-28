@@ -16,6 +16,7 @@ import java.util.Set;
 import jakarta.validation.constraints.NotNull;
 
 import org.obiba.magma.*;
+import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.support.AbstractDatasourceWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
@@ -163,6 +164,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   }
 
   public synchronized void renameView(String name, String newName) {
+    AbstractDatasource.validateTableName(newName);
     if(views.containsKey(name)) {
       ValueView view = views.remove(name);
       evictVariableEntitiesCache(view);

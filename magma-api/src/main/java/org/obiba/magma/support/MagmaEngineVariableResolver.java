@@ -70,17 +70,20 @@ public class MagmaEngineVariableResolver extends MagmaEngineReferenceResolver {
   public static MagmaEngineVariableResolver valueOf(String name) {
     MagmaEngineVariableResolver reference = new MagmaEngineVariableResolver();
     // Is this a fully qualified name?
-    if(name.contains(":")) {
-      String[] parts = name.split(":");
-      String tableReference = parts[0];
-      if(parts.length > 1) { // Handle 'datasourceName.ValueTableName:' case.
-        reference.setVariableName(parts[1]);
+    // Variable names cannot contain ':', so the last one separates the table reference from the variable name
+    int colon = name.lastIndexOf(':');
+    if(colon >= 0) {
+      String tableReference = name.substring(0, colon);
+      String variableName = name.substring(colon + 1);
+      if(!variableName.isEmpty()) { // Handle 'datasourceName.ValueTableName:' case.
+        reference.setVariableName(variableName);
       }
 
-      if(tableReference.contains(".")) {
-        String[] tableParts = tableReference.split("\\.");
-        reference.setDatasourceName(tableParts[0]);
-        reference.setTableName(tableParts[1]);
+      // Split on the first '.', like MagmaEngineTableResolver, so that a table name can contain dots
+      int dot = tableReference.indexOf('.');
+      if(dot >= 0) {
+        reference.setDatasourceName(tableReference.substring(0, dot));
+        reference.setTableName(tableReference.substring(dot + 1));
       } else {
         reference.setTableName(tableReference);
       }

@@ -53,6 +53,19 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     this.type = type;
   }
 
+  /**
+   * Rejects table names containing characters that have a meaning in fully qualified references
+   * (<code>ds.table:variable</code>) or in permissions (<code>:</code>, <code>/</code>, <code>,</code>, <code>*</code>).
+   *
+   * @throws IllegalArgumentException when the table name is not valid
+   */
+  public static void validateTableName(String tableName) {
+    if(tableName == null || tableName.trim().isEmpty()) throw new IllegalArgumentException("table name cannot be empty");
+    for(char c : new char[] { ':', '/', ',', '*' }) {
+      if(tableName.indexOf(c) >= 0) throw new IllegalArgumentException("table name cannot contain '" + c + "': " + tableName);
+    }
+  }
+
   @Override
   public String getName() {
     return name;

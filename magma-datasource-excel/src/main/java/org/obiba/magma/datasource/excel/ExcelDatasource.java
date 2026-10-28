@@ -189,6 +189,7 @@ public class ExcelDatasource extends AbstractDatasource {
     if(hasValueTable(name)) {
       valueTable = (ExcelValueTable) getValueTable(name);
     } else {
+      validateTableName(name);
       addValueTable(valueTable = new ExcelValueTable(this, name, entityType));
     }
 

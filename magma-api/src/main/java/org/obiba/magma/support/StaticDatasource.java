@@ -102,6 +102,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
   @Override
   public void renameTable(String tableName, String newName) {
+    AbstractDatasource.validateTableName(newName);
     StaticValueTable table = tableMap.remove(tableName);
     table.setName(newName);
     tableMap.put(newName, table);
@@ -141,6 +142,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
     if(hasValueTable(tableName)) {
       table = tableMap.get(tableName);
     } else {
+      AbstractDatasource.validateTableName(tableName);
       table = new StaticValueTable(this, tableName, new HashSet<String>(), entityType);
       addValueTable(table);
     }
