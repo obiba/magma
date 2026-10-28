@@ -183,6 +183,7 @@ public class MongoDBDatasource extends AbstractDatasource {
     if(hasValueTable(tableName)) {
       valueTable = (MongoDBValueTable) getValueTable(tableName);
     } else {
+      validateTableName(tableName);
       addValueTable(valueTable = new MongoDBValueTable(this, tableName, entityType));
       setLastUpdate(new Date());
     }

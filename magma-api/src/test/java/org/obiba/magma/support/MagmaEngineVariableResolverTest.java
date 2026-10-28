@@ -47,4 +47,25 @@ public class MagmaEngineVariableResolverTest {
     assertThat(resolver.getTableName()).isEqualTo("Participant");
     assertThat(resolver.getVariableName()).isEqualTo("SMOKER_STATUS");
   }
+
+  @Test
+  public void testValueOfTableNameWithDots() throws Exception {
+    MagmaEngineVariableResolver resolver = MagmaEngineVariableResolver.valueOf("ironman.v1.2 data:SMOKER_STATUS");
+    assertThat(resolver.getDatasourceName()).isEqualTo("ironman");
+    assertThat(resolver.getTableName()).isEqualTo("v1.2 data");
+    assertThat(resolver.getVariableName()).isEqualTo("SMOKER_STATUS");
+  }
+
+  @Test
+  public void testValueOfLegacyTableNameWithColon() throws Exception {
+    MagmaEngineVariableResolver resolver = MagmaEngineVariableResolver.valueOf("ironman.a:b:SMOKER_STATUS");
+    assertThat(resolver.getDatasourceName()).isEqualTo("ironman");
+    assertThat(resolver.getTableName()).isEqualTo("a:b");
+    assertThat(resolver.getVariableName()).isEqualTo("SMOKER_STATUS");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testCreateWriterRejectsInvalidTableName() throws Exception {
+    new StaticDatasource("ds").createWriter("a:b", "Participant");
+  }
 }

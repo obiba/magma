@@ -195,6 +195,7 @@ public class JdbcDatasource extends AbstractDatasource {
     if(hasValueTable(tableName)) {
       table = (JdbcValueTable) getValueTable(tableName);
     } else {
+      validateTableName(tableName);
       JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
 
       if(tableSettings == null) {

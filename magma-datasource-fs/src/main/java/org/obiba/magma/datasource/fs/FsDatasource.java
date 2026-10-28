@@ -133,6 +133,7 @@ public class FsDatasource extends AbstractDatasource {
     if(hasValueTable(name)) {
       valueTable = (FsValueTable) getValueTable(name);
     } else {
+      validateTableName(name);
       addValueTable(valueTable = new FsValueTable(this, name, entityType));
     }
     return new FsValueTableWriter(valueTable, getXStreamInstance());

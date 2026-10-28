@@ -141,6 +141,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
     if(hasValueTable(tableName)) {
       table = tableMap.get(tableName);
     } else {
+      AbstractDatasource.validateTableName(tableName);
       table = new StaticValueTable(this, tableName, new HashSet<String>(), entityType);
       addValueTable(table);
     }
