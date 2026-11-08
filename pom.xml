@@ -63,7 +63,7 @@
     <logback.version>1.6.5</logback.version>
     <log4j.version>2.26.1</log4j.version>
     <mockito.version>5.24.0</mockito.version>
-    <mariadb-connector-java.version>3.5.9</mariadb-connector-java.version>
+    <mariadb-connector-java.version>3.5.11</mariadb-connector-java.version>
     <mongodb-driver.version>5.13.0</mongodb-driver.version>
     <mssql.version>13.6.1.jre11</mssql.version>
     <mysql-connector-j.version>9.7.0</mysql-connector-j.version>
