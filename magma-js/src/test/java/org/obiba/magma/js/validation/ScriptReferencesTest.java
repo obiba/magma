@@ -9,7 +9,12 @@
  */
 package org.obiba.magma.js.validation;
 
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
 import org.junit.Test;
+import org.obiba.magma.js.methods.GlobalMethods;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -64,6 +69,40 @@ public class ScriptReferencesTest {
     assertDynamic("({}).__parent__");
     assertDynamic("globalThis");
     assertDynamic("with (o) { x }");
+    assertDynamic("var F = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(function(){}), 'constr' + 'uctor')"
+        + ".value; F(\"return $join('ds.B:secret', 'id')\")()");
+    assertDynamic("Object.getOwnPropertyNames(Object.getPrototypeOf(function(){}))");
+    assertDynamic("var {'constructor': S} = ''; var {'constructor': F} = S; F(\"return $('ds.B:secret')\")()");
+    assertDynamic("var {constructor: S} = ''");
+    assertDynamic("o['$join']('ds.B:secret', 'id')");
+  }
+
+  @Test
+  public void test_group_of_whole_occurrence_group_is_dynamic() {
+    ScriptReferences refs = ScriptReferences.of("$group('StageName', 'StageA')['StageDuration']");
+    assertThat(refs.dynamic()).isTrue();
+    assertThat(refs.variables()).containsOnly("StageName");
+  }
+
+  @Test
+  public void test_unknown_global_function_is_dynamic() {
+    assertDynamic("$lookup('ds.T:x')");
+    assertDynamic("$groups('g', 1)");
+    assertDynamic("$group('g', ...rest)");
+    assertDynamic("$join(...args)");
+  }
+
+  @Test
+  public void test_known_functions_match_global_methods() {
+    GlobalMethods methods = new GlobalMethods();
+    Set<String> exposed = methods.getJavaScriptExtensionMethods().stream()
+        .map(methods::getJavaScriptMethodName).collect(Collectors.toSet());
+    assertThat(ScriptReferences.knownFunctions()).isEqualTo(new TreeSet<>(exposed));
+  }
+
+  @Test
+  public void test_deeply_nested_script_is_dynamic() {
+    assertDynamic("(".repeat(100_000) + "1" + ")".repeat(100_000));
   }
 
   @Test
