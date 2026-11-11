@@ -106,20 +106,22 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
     if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
       MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
       if (cacheExtension.hasVariableEntitiesCache()) {
-        Cache.ValueWrapper wrapper = null;
+        Value fromLastUpdate = view.getWrappedValueTable().getTimestamps().getLastUpdate();
+        // a table that does not tell when it was updated could not tell either when the cached entities are stale
+        if (fromLastUpdate.isNull()) return null;
+        Value viewLastUpdate = view.getTimestamps().getLastUpdate();
+        Cache cache = cacheExtension.getVariableEntitiesCache();
         try {
-          wrapper = cacheExtension.getVariableEntitiesCache().get(getTableCacheKey());
+          Cache.ValueWrapper wrapper = cache.get(getTableCacheKey());
+          VariableEntitiesCache cached = wrapper == null ? null : (VariableEntitiesCache) wrapper.get();
+          if (cached != null && cached.isUpToDate(viewLastUpdate)) return cached;
         } catch (Exception e) {
           // ignore, cache content is wrong
         }
-        Value viewLastUpdate = view.getTimestamps().getLastUpdate();
-        VariableEntitiesCache eCache;
-        if (wrapper != null) {
-          eCache = (VariableEntitiesCache) wrapper.get();
-          if (eCache.isUpToDate(viewLastUpdate)) return eCache;
-        }
-        eCache = new VariableEntitiesCache(loadVariableEntities(), viewLastUpdate);
-        cacheExtension.getVariableEntitiesCache().put(getTableCacheKey(), eCache);
+        // the entity list looks entities up by identifier, and keeps doing so once read back from the cache
+        VariableEntitiesCache eCache = new VariableEntitiesCache(new VariableEntityList(loadVariableEntities()),
+            viewLastUpdate);
+        cache.put(getTableCacheKey(), eCache);
         return eCache;
       }
     }
@@ -127,6 +129,10 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
   }
 
   private String getTableCacheKey() {
+    return getTableCacheKey(view);
+  }
+
+  static String getTableCacheKey(ValueTable view) {
     return view.getTableReference() + ";class=" + view.getClass().getName();
   }
 

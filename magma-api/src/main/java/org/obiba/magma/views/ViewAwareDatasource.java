@@ -178,7 +178,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
       MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
       if (cacheExtension.hasVariableEntitiesCache()) {
-        cacheExtension.getVariableEntitiesCache().evict(view.getTableReference());
+        cacheExtension.getVariableEntitiesCache().evict(ViewVariableEntityProvider.getTableCacheKey(view));
       }
     }
   }
