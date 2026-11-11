@@ -158,20 +158,15 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
   }
 
   List<VariableEntity> loadVariableEntities() {
-    List<VariableEntity> entities = new VariableEntityList();
-    if (view.hasVariables() && !(view.getWhereClause() instanceof NoneClause)) {
-      entities = view.getWrappedValueTable().getVariableEntities().stream()
-          .filter(entity -> {
-            if (view.getWhereClause() instanceof AllClause)
-              return true;
-            ValueSet valueSet = view.getWrappedValueTable().getValueSet(entity);
-            return view.getWhereClause().where(valueSet, view);
-          })
-          .map(e -> view.getVariableEntityMappingFunction().apply(e))
-          .filter(Objects::nonNull) // can happen depending of mapping strategy
-          .collect(Collectors.toList());
-    }
-    return entities;
+    if (!view.hasVariables() || view.getWhereClause() instanceof NoneClause) return new VariableEntityList();
+    ValueTable from = view.getWrappedValueTable();
+    List<VariableEntity> selected = view.getWhereClause() instanceof AllClause
+        ? from.getVariableEntities()
+        : view.getWhereClause().filter(from, from.getVariableEntities(), view);
+    return selected.stream()
+        .map(e -> view.getVariableEntityMappingFunction().apply(e))
+        .filter(Objects::nonNull) // can happen depending of mapping strategy
+        .collect(Collectors.toList());
   }
 
 }

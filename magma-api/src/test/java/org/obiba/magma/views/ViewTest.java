@@ -55,7 +55,8 @@ public class ViewTest extends MagmaTest {
     when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
-    when(whereClauseMock.where(valueSet, view)).thenReturn(true);
+    when(whereClauseMock.filter(valueTableMock, Lists.newArrayList(variableEntity), view))
+        .thenReturn(Lists.newArrayList(variableEntity));
     assertThat(view.hasValueSet(variableEntity)).isTrue();
   }
 
@@ -114,9 +115,12 @@ public class ViewTest extends MagmaTest {
     ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
 
     when(valueTableMock.getValueSet(variableEntity)).thenReturn(valueSet);
+    when(valueTableMock.getVariableEntities()).thenReturn(Lists.newArrayList(variableEntity));
+    when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
-    when(whereClauseMock.where(valueSet, view)).thenReturn(true);
+    when(whereClauseMock.filter(valueTableMock, Lists.newArrayList(variableEntity), view))
+        .thenReturn(Lists.newArrayList(variableEntity));
     assertThat(view.getValueSet(variableEntity)).isNotNull();
   }
 
@@ -369,7 +373,9 @@ public class ViewTest extends MagmaTest {
     when(valueTableMock.getValue((Variable) any(), (ValueSet) any())).thenReturn(value);
     when(valueTableMock.getVariableValueSource((String) anyString())).thenReturn(vvsMock);
     when(vvsMock.getValue(valueSet)).thenReturn(value);
-    when(whereClauseMock.where((ValueSet) any(), (View) any())).thenReturn(true);
+    when(valueTableMock.getVariableEntities()).thenReturn(Lists.newArrayList(variableEntity));
+    when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
+    when(whereClauseMock.filter(any(), any(), any())).thenReturn(Lists.newArrayList(variableEntity));
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     Value result = view.getValue(variable, new ValueSetWrapper(view, valueSet));

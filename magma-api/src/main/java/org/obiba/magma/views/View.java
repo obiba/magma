@@ -277,10 +277,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     if (unmapped == null) throw new NoSuchValueSetException(this, entity);
 
-    ValueSet valueSet = super.getValueSet(unmapped);
-    if (!getWhereClause().where(valueSet, this)) throw new NoSuchValueSetException(this, entity);
+    if (!isSelected(entity)) throw new NoSuchValueSetException(this, entity);
 
-    return getValueSetMappingFunction().apply(valueSet);
+    return getValueSetMappingFunction().apply(super.getValueSet(unmapped));
   }
 
   @Override
@@ -356,11 +355,19 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if (isViewOfDerivedVariables()) {
       return getListClauseValue(variable, valueSet);
     }
-    if (!getWhereClause().where(valueSet, this)) {
+    if (!isSelected(valueSet.getVariableEntity())) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
     // let the value get transformed
     return getVariableValueSource(variable.getName()).getValue(valueSet);
+  }
+
+  /**
+   * Whether the where clause selects the entity, looked up in the entity list the clause was evaluated into once,
+   * rather than by running the clause again for each value read.
+   */
+  private boolean isSelected(VariableEntity entity) {
+    return getWhereClause() instanceof AllClause || hasValueSet(entity);
   }
 
   private Value getListClauseValue(Variable variable, ValueSet valueSet) {

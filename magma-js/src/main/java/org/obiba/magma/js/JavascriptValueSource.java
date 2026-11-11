@@ -368,7 +368,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     // Holds the current "row" of the evaluation.
     private int index = 0;
 
-    void next() {
+    public void next() {
       index++;
     }
 
