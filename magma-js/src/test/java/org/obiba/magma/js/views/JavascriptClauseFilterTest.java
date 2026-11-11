@@ -24,6 +24,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.StaticDatasource;
 import org.obiba.magma.support.StaticValueTable;
@@ -33,6 +34,7 @@ import org.obiba.magma.type.TextType;
 import org.obiba.magma.views.View;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -82,6 +84,26 @@ public class JavascriptClauseFilterTest extends AbstractJsTest {
     } catch(NoSuchValueSetException expected) {
       // filtered out
     }
+  }
+
+  @Test
+  public void test_filter_vectors_names_the_entity_of_a_script_error() {
+    VectorTable table = setup(true);
+    try {
+      clause("if($id() + '' == '2') throw 'boom'; true").filter(table, table.getVariableEntities(), null);
+      throw new AssertionError("script error expected");
+    } catch(MagmaJsEvaluationRuntimeException e) {
+      assertThat(e.getMessage()).startsWith("Script error (ID: 2)");
+    }
+  }
+
+  @Test
+  public void test_filter_value_sets_keeps_the_given_entities_in_order() {
+    VectorTable table = setup(false);
+    List<VariableEntity> entities = Lists.reverse(table.getVariableEntities());
+    List<VariableEntity> selected = clause("$('AGE').ge(20)").filter(table, entities, null);
+    assertThat(ids(selected)).isEqualTo(ImmutableList.of("4", "3", "2"));
+    assertThat(selected.get(0)).isSameAs(entities.get(0));
   }
 
   private VectorTable setup(boolean vectors) {

@@ -13,6 +13,7 @@ package org.obiba.magma.js.views;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -20,6 +21,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Initialisable;
@@ -31,6 +33,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.js.MagmaContext;
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.js.validation.ScriptReferences;
@@ -152,11 +155,13 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
       throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling filter().");
     }
     if(!readsVectors(table)) {
-      // the script reads values: fetch the value sets in batches, one query per batch on SQL and MongoDB tables
-      return StreamSupport.stream(table.getValueSets(entities).spliterator(), false)
+      // the script reads values: fetch the value sets in batches, one query per batch on SQL and MongoDB tables;
+      // keep the given entities, in their order, as a table may skip value sets or return other entity instances
+      Set<VariableEntity> selected = StreamSupport.stream(table.getValueSets(entities).spliterator(), false)
           .filter(valueSet -> where(valueSet, view))
           .map(ValueSet::getVariableEntity)
-          .collect(Collectors.toList());
+          .collect(Collectors.toSet());
+      return entities.stream().filter(selected::contains).collect(Collectors.toList());
     }
     return (List<VariableEntity>) ContextFactory.getGlobal().call(ctx -> {
       MagmaContext context = MagmaContext.asMagmaContext(ctx);
@@ -173,6 +178,9 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
           context.push(VariableEntity.class, entity);
           try {
             if(asBoolean(compiledScript.exec(ctx, scope))) selected.add(entity);
+          } catch(JavaScriptException e) {
+            throw new MagmaJsEvaluationRuntimeException(
+                String.format("Script error (ID: %s): %s", entity.getIdentifier(), e.getMessage()), e);
           } finally {
             context.pop(VariableEntity.class);
             vectorCache.next();
