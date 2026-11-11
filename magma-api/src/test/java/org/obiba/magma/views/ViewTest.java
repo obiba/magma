@@ -55,7 +55,8 @@ public class ViewTest extends MagmaTest {
     when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
-    when(whereClauseMock.where(valueSet, view)).thenReturn(true);
+    when(whereClauseMock.filter(valueTableMock, Lists.newArrayList(variableEntity), view))
+        .thenReturn(Lists.newArrayList(variableEntity));
     assertThat(view.hasValueSet(variableEntity)).isTrue();
   }
 

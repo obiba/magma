@@ -11,11 +11,17 @@
 package org.obiba.magma.js.views;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Initialisable;
@@ -25,9 +31,14 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.js.MagmaContext;
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
+import org.obiba.magma.js.validation.ScriptReferences;
+import org.obiba.magma.support.Disposables;
+import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.views.SelectClause;
 import org.obiba.magma.views.View;
@@ -130,6 +141,94 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
 
     return (Boolean) ContextFactory.getGlobal().call(new WhereContextAction(valueSet, view));
+  }
+
+  /**
+   * Evaluates the script for all the entities at once, the way derived variables are: each variable the script reads is
+   * read as a vector over the entities, instead of loading the value set of each entity, which costs a query per entity
+   * on database tables, and per entity again for each variable of another table.
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public List<VariableEntity> filter(final ValueTable table, final List<VariableEntity> entities, final View view) {
+    if(compiledScript == null) {
+      throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling filter().");
+    }
+    if(!readsVectors(table)) {
+      // the script reads values: fetch the value sets in batches, one query per batch on SQL and MongoDB tables;
+      // keep the given entities, in their order, as a table may skip value sets or return other entity instances
+      Set<VariableEntity> selected = StreamSupport.stream(table.getValueSets(entities).spliterator(), false)
+          .filter(valueSet -> where(valueSet, view))
+          .map(ValueSet::getVariableEntity)
+          .collect(Collectors.toSet());
+      return entities.stream().filter(selected::contains).collect(Collectors.toList());
+    }
+    return (List<VariableEntity>) ContextFactory.getGlobal().call(ctx -> {
+      MagmaContext context = MagmaContext.asMagmaContext(ctx);
+      // Don't pollute the global scope
+      Scriptable scope = context.newLocalScope();
+      VectorCache vectorCache = new VectorCache();
+      context.push(ValueTable.class, table);
+      if(view != null) context.push(View.class, view);
+      context.push(Iterable.class, entities);
+      context.push(VectorCache.class, vectorCache);
+      try {
+        List<VariableEntity> selected = new ArrayList<>();
+        for(VariableEntity entity : entities) {
+          context.push(VariableEntity.class, entity);
+          try {
+            if(asBoolean(compiledScript.exec(ctx, scope))) selected.add(entity);
+          } catch(JavaScriptException e) {
+            throw new MagmaJsEvaluationRuntimeException(
+                String.format("Script error (ID: %s): %s", entity.getIdentifier(), e.getMessage()), e);
+          } finally {
+            context.pop(VariableEntity.class);
+            vectorCache.next();
+          }
+        }
+        return selected;
+      } finally {
+        context.pop(VectorCache.class);
+        context.pop(Iterable.class);
+        if(view != null) context.pop(View.class);
+        context.pop(ValueTable.class);
+        Disposables.silentlyDispose(vectorCache);
+      }
+    });
+  }
+
+  /**
+   * Whether all the variables the script reads are known and can be read as vectors. A script that builds variable
+   * names at run time, or reads the variables of the view itself, is evaluated value set by value set.
+   */
+  private boolean readsVectors(ValueTable table) {
+    if(script.contains("$this")) return false;
+    ScriptReferences references = ScriptReferences.of(script);
+    if(references.dynamic()) return false;
+    try {
+      return references.variables().stream()
+          .allMatch(name -> MagmaEngineVariableResolver.valueOf(name).resolveSource(table).supportVectorSource());
+    } catch(RuntimeException e) {
+      // let the value set evaluation report it
+      return false;
+    }
+  }
+
+  /**
+   * A boolean script result, or a value that converts to a boolean; anything else does not select.
+   */
+  private static boolean asBoolean(Object value) {
+    if(value instanceof Boolean) return (Boolean) value;
+    if(value instanceof ScriptableValue) {
+      ScriptableValue scriptable = (ScriptableValue) value;
+      if(scriptable.getValue().isNull()) return false;
+      try {
+        return Boolean.TRUE.equals(BooleanType.get().valueOf(scriptable.getValue().getValue()).getValue());
+      } catch(Exception e) {
+        return false;
+      }
+    }
+    return false;
   }
 
   //
@@ -236,24 +335,10 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
       Scriptable scope = context.newLocalScope();
 
       enterContext(context, scope, valueSet, view);
-      Object value = compiledScript.exec(ctx, scope);
-      exitContext(context, valueSet, view);
-
-      if(value instanceof Boolean) {
-        return value;
-      }
-      if(value instanceof ScriptableValue) {
-        return getValue((ScriptableValue) value);
-      }
-      return false;
-    }
-
-    private Object getValue(ScriptableValue scriptable) {
-      if (scriptable.getValue().isNull()) return false;
       try {
-        return BooleanType.get().valueOf(scriptable.getValue().getValue()).getValue();
-      } catch (Exception e) {
-        return false;
+        return asBoolean(compiledScript.exec(ctx, scope));
+      } finally {
+        exitContext(context, valueSet, view);
       }
     }
   }

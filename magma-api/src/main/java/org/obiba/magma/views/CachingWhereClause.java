@@ -10,9 +10,12 @@
 
 package org.obiba.magma.views;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
+import org.obiba.magma.VariableEntity;
 
 import com.google.common.collect.MapMaker;
 
@@ -45,5 +48,10 @@ class CachingWhereClause implements WhereClause {
     boolean where = expensiveClause.where(valueSet);
     cache.put(valueSet, where);
     return where;
+  }
+
+  @Override
+  public List<VariableEntity> filter(ValueTable table, List<VariableEntity> entities, View view) {
+    return expensiveClause.filter(table, entities, view);
   }
 }
