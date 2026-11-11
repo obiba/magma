@@ -175,12 +175,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   }
 
   void evictVariableEntitiesCache(ValueTable view) {
-    if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
-      MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
-      if (cacheExtension.hasVariableEntitiesCache()) {
-        cacheExtension.getVariableEntitiesCache().evict(ViewVariableEntityProvider.getTableCacheKey(view));
-      }
-    }
+    ViewVariableEntityProvider.evict(ViewVariableEntityProvider.getTableCacheKey(view));
     // the store is looked up before the cache, so it has to be cleared too for the entities to be computed again
     if (MagmaEngine.get().hasExtension(MagmaStoreExtension.class)) {
       MagmaStoreExtension storeExtension = MagmaEngine.get().getExtension(MagmaStoreExtension.class);

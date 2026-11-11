@@ -17,6 +17,8 @@ import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.support.VariableOperationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +27,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
+
+  private static final Logger log = LoggerFactory.getLogger(DefaultViewManagerImpl.class);
+
 
   @NotNull
   private final Set<ViewAwareDatasource> viewAwareDatasources = Collections
@@ -115,6 +120,17 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   @Override
   public void removeAllViews(@NotNull String datasourceName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
+    // the views of a removed datasource are no longer registered: their cache keys are made from the saved ones
+    if (ViewVariableEntityProvider.hasVariableEntitiesCache()) {
+      try {
+        for (ValueView view : viewPersistenceStrategy.readViews(datasourceName)) {
+          ViewVariableEntityProvider.evict(
+              ViewVariableEntityProvider.getTableCacheKey(datasourceName + "." + view.getName(), view.getClass()));
+        }
+      } catch (RuntimeException e) {
+        log.warn("Cannot evict the cached entities of the views of {}", datasourceName, e);
+      }
+    }
     viewPersistenceStrategy.removeViews(datasourceName);
   }
 

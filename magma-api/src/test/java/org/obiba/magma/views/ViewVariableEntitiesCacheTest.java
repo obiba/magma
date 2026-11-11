@@ -19,11 +19,14 @@ import org.obiba.magma.MagmaTest;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueView;
 import org.obiba.magma.support.StaticDatasource;
 import org.obiba.magma.support.StaticValueTable;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.IntegerType;
+import org.springframework.cache.Cache;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 import com.google.common.collect.ImmutableList;
@@ -35,12 +38,13 @@ public class ViewVariableEntitiesCacheTest extends MagmaTest {
   private final AtomicInteger evaluations = new AtomicInteger();
 
   @Test
-  public void test_entities_are_read_back_from_the_cache_by_a_new_view() {
+  public void test_entities_are_read_back_from_the_cache_by_a_new_view() throws Exception {
     StaticValueTable table = newTable(DateTimeType.get().now());
     ConcurrentMapCacheManager cacheManager = extendWithCache();
 
     assertThat(newView(table).getVariableEntityCount()).isEqualTo(2);
     assertThat(evaluations.get()).isEqualTo(3);
+    ViewVariableEntityProvider.awaitCacheWrites();
 
     // as after a restart: another view instance, the same cache
     View view = newView(table);
@@ -77,6 +81,47 @@ public class ViewVariableEntitiesCacheTest extends MagmaTest {
     manager.initView("ds", "view");
     assertThat(manager.getView("ds", "view").getVariableEntityCount()).isEqualTo(2);
     assertThat(evaluations.get()).isEqualTo(6);
+  }
+
+  @Test
+  public void test_entities_are_kept_in_memory_when_the_cache_cannot_hold_them() throws Exception {
+    StaticValueTable table = newTable(DateTimeType.get().now());
+    // as a cache on disk does with an entry larger than it can hold: the put is dropped
+    MagmaEngine.get().extend(new MagmaCacheExtension(new ConcurrentMapCacheManager("magma-table-entities") {
+      @Override
+      protected Cache createConcurrentMapCache(String name) {
+        return new ConcurrentMapCache(name) {
+          @Override
+          public void put(Object key, Object value) {
+          }
+        };
+      }
+    }));
+    View view = newView(table);
+
+    assertThat(view.getVariableEntityCount()).isEqualTo(2);
+    ViewVariableEntityProvider.awaitCacheWrites();
+    assertThat(view.getVariableEntityCount()).isEqualTo(2);
+    assertThat(evaluations.get()).isEqualTo(3);
+  }
+
+  @Test
+  public void test_removing_the_views_of_a_datasource_evicts_their_entities() throws Exception {
+    StaticValueTable table = newTable(DateTimeType.get().now());
+    ConcurrentMapCacheManager cacheManager = extendWithCache();
+    DefaultViewManagerImpl manager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+    manager.decorate(new StaticDatasource("ds"));
+    manager.addView("ds", newView(table), null, null);
+    ValueView view = manager.getView("ds", "view");
+    assertThat(view.getVariableEntityCount()).isEqualTo(2);
+    ViewVariableEntityProvider.awaitCacheWrites();
+    String key = ViewVariableEntityProvider.getTableCacheKey(view);
+    assertThat(cacheManager.getCache("magma-table-entities").get(key)).isNotNull();
+
+    // as when a project is deleted: its datasource is unregistered first
+    manager.unregisterDatasource("ds");
+    manager.removeAllViews("ds");
+    assertThat(cacheManager.getCache("magma-table-entities").get(key)).isNull();
   }
 
   private ConcurrentMapCacheManager extendWithCache() {

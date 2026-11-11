@@ -7,21 +7,41 @@ import org.obiba.magma.support.VariableEntitiesCache;
 import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 class ViewVariableEntityProvider implements PagingVariableEntityProvider {
+
+  private static final Logger log = LoggerFactory.getLogger(ViewVariableEntityProvider.class);
+
+  /**
+   * Writes to the cache, which can be on disk, off the request threads, one at a time and in order with the evictions.
+   */
+  private static final ExecutorService CACHE_WRITER = Executors.newSingleThreadExecutor(
+      new ThreadFactoryBuilder().setNameFormat("magma-view-entities-cache").setDaemon(true).build());
 
   private final View view;
 
   private VariableEntityList defaultEntities;
 
   private long timestamp;
+
+  /**
+   * Entities being written to the cache, or kept here because the cache could not hold them.
+   */
+  private VariableEntitiesCache unsaved;
 
   ViewVariableEntityProvider(View view) {
     this.view = view;
@@ -110,6 +130,7 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
         // a table that does not tell when it was updated could not tell either when the cached entities are stale
         if (fromLastUpdate.isNull()) return null;
         Value viewLastUpdate = view.getTimestamps().getLastUpdate();
+        if (unsaved != null && unsaved.isUpToDate(viewLastUpdate)) return unsaved;
         Cache cache = cacheExtension.getVariableEntitiesCache();
         try {
           Cache.ValueWrapper wrapper = cache.get(getTableCacheKey());
@@ -121,11 +142,31 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
           // ignore, cache content is wrong
         }
         VariableEntitiesCache eCache = new VariableEntitiesCache(loadVariableEntities(), viewLastUpdate);
-        cache.put(getTableCacheKey(), eCache);
+        unsaved = eCache;
+        String key = getTableCacheKey();
+        CACHE_WRITER.execute(() -> save(cache, key, eCache, viewLastUpdate));
         return eCache;
       }
     }
     return null;
+  }
+
+  private void save(Cache cache, String key, VariableEntitiesCache eCache, Value viewLastUpdate) {
+    try {
+      cache.put(key, eCache);
+      // reading it back tells whether the cache could hold it, and brings it to memory for the next reads
+      Cache.ValueWrapper wrapper = cache.get(key);
+      if (wrapper == null || !((VariableEntitiesCache) wrapper.get()).isUpToDate(viewLastUpdate)) {
+        log.warn("Entities of {} could not be cached, they are kept in memory", key);
+        return;
+      }
+    } catch (RuntimeException e) {
+      log.warn("Entities of {} could not be cached, they are kept in memory", key, e);
+      return;
+    }
+    synchronized (this) {
+      if (unsaved == eCache) unsaved = null;
+    }
   }
 
   private String getTableCacheKey() {
@@ -133,7 +174,38 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
   }
 
   static String getTableCacheKey(ValueTable view) {
-    return view.getTableReference() + ";class=" + view.getClass().getName();
+    return getTableCacheKey(view.getTableReference(), view.getClass());
+  }
+
+  static String getTableCacheKey(String tableReference, Class<?> viewClass) {
+    return tableReference + ";class=" + viewClass.getName();
+  }
+
+  static boolean hasVariableEntitiesCache() {
+    return MagmaEngine.get().hasExtension(MagmaCacheExtension.class)
+        && MagmaEngine.get().getExtension(MagmaCacheExtension.class).hasVariableEntitiesCache();
+  }
+
+  /**
+   * Evicts once the writes submitted before are done, so that none of them puts back what is evicted.
+   */
+  static void evict(String key) {
+    if (!hasVariableEntitiesCache()) return;
+    Cache cache = MagmaEngine.get().getExtension(MagmaCacheExtension.class).getVariableEntitiesCache();
+    try {
+      CACHE_WRITER.submit(() -> cache.evict(key)).get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException e) {
+      log.warn("Entities of {} could not be evicted from the cache", key, e.getCause());
+    }
+  }
+
+  /**
+   * Waits for the cache writes submitted so far.
+   */
+  static void awaitCacheWrites() throws InterruptedException, ExecutionException {
+    CACHE_WRITER.submit(() -> {}).get();
   }
 
   private List<VariableEntity> getDefaultVariableEntities() {
