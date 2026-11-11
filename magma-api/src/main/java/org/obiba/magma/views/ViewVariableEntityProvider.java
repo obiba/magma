@@ -106,20 +106,22 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
     if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
       MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
       if (cacheExtension.hasVariableEntitiesCache()) {
-        Cache.ValueWrapper wrapper = null;
+        Value fromLastUpdate = view.getWrappedValueTable().getTimestamps().getLastUpdate();
+        // a table that does not tell when it was updated could not tell either when the cached entities are stale
+        if (fromLastUpdate.isNull()) return null;
+        Value viewLastUpdate = view.getTimestamps().getLastUpdate();
+        Cache cache = cacheExtension.getVariableEntitiesCache();
         try {
-          wrapper = cacheExtension.getVariableEntitiesCache().get(getTableCacheKey());
+          Cache.ValueWrapper wrapper = cache.get(getTableCacheKey());
+          VariableEntitiesCache cached = wrapper == null ? null : (VariableEntitiesCache) wrapper.get();
+          // entries written by earlier releases hold a plain list
+          if (cached != null && cached.getEntities() instanceof VariableEntityList && cached.isUpToDate(viewLastUpdate))
+            return cached;
         } catch (Exception e) {
           // ignore, cache content is wrong
         }
-        Value viewLastUpdate = view.getTimestamps().getLastUpdate();
-        VariableEntitiesCache eCache;
-        if (wrapper != null) {
-          eCache = (VariableEntitiesCache) wrapper.get();
-          if (eCache.isUpToDate(viewLastUpdate)) return eCache;
-        }
-        eCache = new VariableEntitiesCache(loadVariableEntities(), viewLastUpdate);
-        cacheExtension.getVariableEntitiesCache().put(getTableCacheKey(), eCache);
+        VariableEntitiesCache eCache = new VariableEntitiesCache(loadVariableEntities(), viewLastUpdate);
+        cache.put(getTableCacheKey(), eCache);
         return eCache;
       }
     }
@@ -127,13 +129,17 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
   }
 
   private String getTableCacheKey() {
+    return getTableCacheKey(view);
+  }
+
+  static String getTableCacheKey(ValueTable view) {
     return view.getTableReference() + ";class=" + view.getClass().getName();
   }
 
   private List<VariableEntity> getDefaultVariableEntities() {
     synchronized (this) {
       if (defaultEntities == null || !isCacheUpToDate()) {
-        defaultEntities = new VariableEntityList(loadVariableEntities());
+        defaultEntities = loadVariableEntities();
         timestamp = new Date().getTime();
       }
     }
@@ -157,7 +163,8 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
     return true;
   }
 
-  List<VariableEntity> loadVariableEntities() {
+  // the entity list looks entities up by identifier, and keeps doing so once read back from the cache
+  VariableEntityList loadVariableEntities() {
     if (!view.hasVariables() || view.getWhereClause() instanceof NoneClause) return new VariableEntityList();
     ValueTable from = view.getWrappedValueTable();
     List<VariableEntity> selected = view.getWhereClause() instanceof AllClause
@@ -166,7 +173,7 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
     return selected.stream()
         .map(e -> view.getVariableEntityMappingFunction().apply(e))
         .filter(Objects::nonNull) // can happen depending of mapping strategy
-        .collect(Collectors.toList());
+        .collect(Collectors.toCollection(VariableEntityList::new));
   }
 
 }

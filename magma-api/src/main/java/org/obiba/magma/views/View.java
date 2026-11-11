@@ -131,6 +131,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public void dispose() {
     status = ValueTableStatus.CLOSED;
+    // drop the entities kept in memory
+    variableEntityProvider = null;
     Disposables.silentlyDispose(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
   }
 
