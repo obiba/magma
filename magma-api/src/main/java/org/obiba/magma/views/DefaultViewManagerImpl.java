@@ -126,6 +126,8 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     ViewAwareDatasource datasource = getViewAwareDatasource(datasourceName);
     ValueView view = datasource.getView(viewName);
     Disposables.silentlyDispose(view);
+    // reconnecting a view is the way to have its entities computed again
+    datasource.evictVariableEntitiesCache(view);
     Initialisables.initialise(view);
   }
 

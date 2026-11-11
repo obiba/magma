@@ -62,6 +62,23 @@ public class ViewVariableEntitiesCacheTest extends MagmaTest {
     assertThat(evaluations.get()).isEqualTo(6);
   }
 
+  @Test
+  public void test_reconnecting_a_view_computes_its_entities_again() {
+    StaticValueTable table = newTable(DateTimeType.get().now());
+    extendWithCache();
+    DefaultViewManagerImpl manager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+    manager.decorate(new StaticDatasource("ds"));
+    manager.addView("ds", newView(table), null, null);
+
+    assertThat(manager.getView("ds", "view").getVariableEntityCount()).isEqualTo(2);
+    assertThat(manager.getView("ds", "view").getVariableEntityCount()).isEqualTo(2);
+    assertThat(evaluations.get()).isEqualTo(3);
+
+    manager.initView("ds", "view");
+    assertThat(manager.getView("ds", "view").getVariableEntityCount()).isEqualTo(2);
+    assertThat(evaluations.get()).isEqualTo(6);
+  }
+
   private ConcurrentMapCacheManager extendWithCache() {
     ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager("magma-table-entities");
     // serialize, as a cache kept on disk does
