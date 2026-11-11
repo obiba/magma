@@ -114,13 +114,13 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
         try {
           Cache.ValueWrapper wrapper = cache.get(getTableCacheKey());
           VariableEntitiesCache cached = wrapper == null ? null : (VariableEntitiesCache) wrapper.get();
-          if (cached != null && cached.isUpToDate(viewLastUpdate)) return cached;
+          // entries written by earlier releases hold a plain list
+          if (cached != null && cached.getEntities() instanceof VariableEntityList && cached.isUpToDate(viewLastUpdate))
+            return cached;
         } catch (Exception e) {
           // ignore, cache content is wrong
         }
-        // the entity list looks entities up by identifier, and keeps doing so once read back from the cache
-        VariableEntitiesCache eCache = new VariableEntitiesCache(new VariableEntityList(loadVariableEntities()),
-            viewLastUpdate);
+        VariableEntitiesCache eCache = new VariableEntitiesCache(loadVariableEntities(), viewLastUpdate);
         cache.put(getTableCacheKey(), eCache);
         return eCache;
       }
@@ -139,7 +139,7 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
   private List<VariableEntity> getDefaultVariableEntities() {
     synchronized (this) {
       if (defaultEntities == null || !isCacheUpToDate()) {
-        defaultEntities = new VariableEntityList(loadVariableEntities());
+        defaultEntities = loadVariableEntities();
         timestamp = new Date().getTime();
       }
     }
@@ -163,7 +163,8 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
     return true;
   }
 
-  List<VariableEntity> loadVariableEntities() {
+  // the entity list looks entities up by identifier, and keeps doing so once read back from the cache
+  VariableEntityList loadVariableEntities() {
     if (!view.hasVariables() || view.getWhereClause() instanceof NoneClause) return new VariableEntityList();
     ValueTable from = view.getWrappedValueTable();
     List<VariableEntity> selected = view.getWhereClause() instanceof AllClause
@@ -172,7 +173,7 @@ class ViewVariableEntityProvider implements PagingVariableEntityProvider {
     return selected.stream()
         .map(e -> view.getVariableEntityMappingFunction().apply(e))
         .filter(Objects::nonNull) // can happen depending of mapping strategy
-        .collect(Collectors.toList());
+        .collect(Collectors.toCollection(VariableEntityList::new));
   }
 
 }

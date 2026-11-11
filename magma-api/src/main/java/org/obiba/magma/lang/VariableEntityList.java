@@ -16,7 +16,8 @@ public class VariableEntityList extends ArrayList<VariableEntity> {
 
   private static final long serialVersionUID = -4415279469444174L;
 
-  private Set<String> ids = Sets.newHashSet();
+  // not serialized, rebuilt from the elements when read back
+  private transient Set<String> ids = Sets.newHashSet();
 
   public VariableEntityList() {
   }
@@ -55,6 +56,12 @@ public class VariableEntityList extends ArrayList<VariableEntity> {
     boolean removed = super.remove(o);
     if (removed) ids.remove(((VariableEntity)o).getIdentifier());
     return removed;
+  }
+
+  private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    ids = Sets.newHashSet();
+    forEach(entity -> ids.add(entity.getIdentifier()));
   }
 
   @Override
